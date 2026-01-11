@@ -1,0 +1,26 @@
+{
+  "name": "@aiready/monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AI-readiness analysis tools for reducing tech debt and optimizing codebases for AI adoption",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "dev": "turbo run dev",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2",
+    "@types/node": "^22.10.5",
+    "vitest": "^2.1.8"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

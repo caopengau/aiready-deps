@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# TurboRepo
+.turbo/
+
+# Logs
+*.log
+.pnpm-debug.log*
+
+# Env
+.env
+.env.*
+
+# Build artifacts
+**/dist/
