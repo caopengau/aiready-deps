@@ -107,26 +107,3 @@ npm-publish-pattern-detect: ## Publish @aiready/pattern-detect to npm (shortcut 
 
 npm-publish-all: build npm-publish-core npm-publish-pattern-detect ## Build and publish all packages to npm
 	@$(call log_success,All packages published to npm)
-
-publish-core: ## Publish @aiready/core to GitHub (OWNER=username)
-	@$(call log_step,Publishing @aiready/core to GitHub...)
-	@url="https://github.com/$(OWNER)/aiready-core.git"; \
-	git remote add aiready-core "$$url" 2>/dev/null || git remote set-url aiready-core "$$url"; \
-	$(call log_info,Remote set: aiready-core -> $$url); \
-	git branch -D publish-core >/dev/null 2>&1 || true; \
-	git subtree split --prefix=packages/core -b publish-core >/dev/null; \
-	$(call log_info,Subtree split complete: publish-core); \
-	git push -f aiready-core publish-core:$(TARGET_BRANCH); \
-	$(call log_success,Published @aiready/core to $(TARGET_BRANCH))
-
-publish-pattern-detect: ## Publish @aiready/pattern-detect to GitHub (OWNER=username)
-	@$(call log_step,Publishing @aiready/pattern-detect to GitHub...)
-	@url="https://github.com/$(OWNER)/aiready-pattern-detect.git"; \
-	git remote add aiready-pattern-detect "$$url" 2>/dev/null || git remote set-url aiready-pattern-detect "$$url"; \
-	$(call log_info,Remote set: aiready-pattern-detect -> $$url); \
-	git branch -D publish-pattern-detect >/dev/null 2>&1 || true; \
-	git subtree split --prefix=packages/pattern-detect -b publish-pattern-detect >/dev/null; \
-	$(call log_info,Subtree split complete: publish-pattern-detect); \
-	git push -f aiready-pattern-detect publish-pattern-detect:$(TARGET_BRANCH); \
-	$(call log_success,Published @aiready/pattern-detect to $(TARGET_BRANCH))
-
