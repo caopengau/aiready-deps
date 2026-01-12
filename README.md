@@ -20,7 +20,7 @@ AIReady helps teams **assess, visualize, and prepare** repositories for better A
 - **[@aiready/context-analyzer](./packages/context-analyzer)** [![npm](https://img.shields.io/npm/v/@aiready/context-analyzer)](https://www.npmjs.com/package/@aiready/context-analyzer) - Context window cost & dependency fragmentation analysis ✨ **NEW**
 - **[@aiready/doc-drift](./packages/doc-drift)** - Documentation freshness vs code churn tracking _(Coming Soon)_
 - **[@aiready/consistency](./packages/consistency)** - Naming & pattern consistency scoring _(Coming Soon)_
-- **[@aiready/cli](./packages/cli)** - Unified CLI for all analysis tools _(Coming Soon)_
+- **[@aiready/cli](./packages/cli)** - Unified CLI for all analysis tools ✨ **NEW**
 
 ### Convenience Wrappers
 
@@ -41,17 +41,21 @@ npx @aiready/context-analyzer ./src --output json
 npm install -g @aiready/pattern-detect @aiready/context-analyzer
 ```
 
-### Using Unified CLI _(Coming Soon)_
+### Using Unified CLI
 
 ```bash
-# Install CLI
+# Install CLI globally
 npm install -g @aiready/cli
 
-# Run analysis
+# Run unified analysis (patterns + context)
 aiready scan .
 
-# Get detailed report
-aiready report --format html
+# Run individual tools
+aiready patterns . --similarity 0.6
+aiready context . --max-depth 3
+
+# Get JSON output for CI/CD
+aiready scan . --output json --output-file results.json
 ```
 
 ## 🏗️ Development

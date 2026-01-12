@@ -9,11 +9,12 @@ AIReady is a monorepo containing tools for assessing AI-readiness and visualizin
 **Mission:** As AI becomes deeply integrated into SDLC, codebases accumulate tech debt faster due to knowledge cutoff limitations, different model preferences, duplicated patterns AI doesn't recognize, and context fragmentation. AIReady helps teams assess, visualize, and prepare repositories for better AI adoption.
 
 **Packages:**
+- **[@aiready/core](packages/core)** - Shared utilities and types (HUB)
+- **[@aiready/cli](packages/cli)** - Unified CLI interface and orchestration (HUB)
 - **[@aiready/pattern-detect](packages/pattern-detect)** - Semantic duplicate detection for AI-generated patterns
 - **[@aiready/context-analyzer](packages/context-analyzer)** - Context window cost & dependency fragmentation analysis
 - **[@aiready/doc-drift](packages/doc-drift)** - Documentation freshness vs code churn tracking (Coming Soon)
 - **[@aiready/consistency](packages/consistency)** - Naming & pattern consistency scoring (Coming Soon)
-- **[@aiready/cli](packages/cli)** - Unified CLI for all analysis tools (Coming Soon)
 - **[@aiready/deps](packages/deps)** - Dependency health (wraps madge/depcheck)
 
 **Quick Start:**
@@ -32,13 +33,14 @@ npx @aiready/context-analyzer ./src --output json
 We follow a **hub-and-spoke** architecture to keep the codebase organized and maintainable:
 
 ```
-@aiready/core (HUB)
+@aiready/core (HUB - utilities & types)
+@aiready/cli (HUB - unified interface)
     ↓
     ├─→ @aiready/pattern-detect (SPOKE)
     ├─→ @aiready/context-analyzer (SPOKE)
     ├─→ @aiready/doc-drift (SPOKE)
     ├─→ @aiready/consistency (SPOKE)
-    └─→ @aiready/cli (SPOKE - aggregator)
+    └─→ @aiready/deps (SPOKE)
 ```
 
 ### Hub: `@aiready/core`
@@ -58,6 +60,29 @@ We follow a **hub-and-spoke** architecture to keep the codebase organized and ma
 - ❌ **DON'T** add tool-specific logic
 - ❌ **DON'T** create dependencies on spoke packages
 
+### Hub: `@aiready/cli`
+
+**Purpose:** Unified CLI interface and orchestration for all analysis tools
+
+**Contains:**
+- Command-line interface (`cli.ts`) - Main entry point
+- Unified analysis orchestration (`index.ts`) - Coordinates multiple tools
+- Output formatting and reporting
+- Configuration management
+
+**Rules:**
+- ✅ **DO** provide unified interface for all spoke tools
+- ✅ **DO** maintain consistent CLI patterns across tools
+- ✅ **DO** support both individual tool commands and unified analysis
+- ❌ **DON'T** implement analysis logic (delegate to spokes)
+- ❌ **DON'T** create dependencies on spoke packages (spokes depend on CLI interface)
+
+**Spoke Integration Requirements:**
+- Each spoke MUST provide a CLI command in the unified interface
+- Each spoke MUST support consistent option patterns (--output, --include, --exclude)
+- Each spoke MUST return results in the unified format expected by CLI
+- Each spoke MUST be importable by CLI for unified analysis
+
 ### Spokes: Individual Tools
 
 **Purpose:** Specialized analysis tools that solve ONE specific problem
@@ -68,6 +93,13 @@ We follow a **hub-and-spoke** architecture to keep the codebase organized and ma
 - Have its own README with clear use case
 - Be independently publishable to npm
 - Focus on a single analysis type
+- **Comply with CLI interface specifications** (see CLI hub requirements)
+
+**CLI Integration Requirements:**
+- Export functions that CLI can import for unified analysis
+- Support standard CLI options (--output, --include, --exclude, --output-file)
+- Return results in format expected by CLI unified reporting
+- Provide individual CLI command that matches unified interface patterns
 
 ## File Organization
 
@@ -126,9 +158,9 @@ Current priority order:
 1. ✅ **@aiready/core** - Basic utilities (DONE)
 2. ✅ **@aiready/pattern-detect** - Semantic duplicates (DONE)
 3. ✅ **@aiready/context-analyzer** - Token cost + fragmentation (DONE)
-4. **@aiready/doc-drift** - Documentation staleness
-5. **@aiready/consistency** - Naming patterns
-6. **@aiready/cli** - Unified interface
+4. ✅ **@aiready/cli** - Unified interface (DONE)
+5. **@aiready/doc-drift** - Documentation staleness
+6. **@aiready/consistency** - Naming patterns
 7. **@aiready/deps** - Wrapper for madge/depcheck
 
 ### Tool Implementation Plans
@@ -145,10 +177,14 @@ When working on this codebase, consider:
 - **Is this tool independently useful?** (Should be publishable alone)
 - **Does this overlap with existing tools?** (Check npm search first)
 - **Can I test this on a real repo?** (Validate before over-engineering)
+- **Does this comply with CLI interface specifications?** (All spokes must integrate with CLI)
+- **Am I updating CLI when adding new spoke tools?** (CLI must be updated to include new tools)
 
 ## Getting Help
 
 - Check existing spoke implementations for patterns
 - Review `@aiready/core` types for available utilities
+- Review `@aiready/cli` interface specifications for spoke integration
 - Look at `@aiready/pattern-detect` as reference implementation
 - Keep spokes focused - one tool, one job
+- Ensure CLI compliance when adding new tools

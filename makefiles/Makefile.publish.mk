@@ -132,6 +132,9 @@ publish-pattern-detect: ## Publish @aiready/pattern-detect to GitHub (shortcut f
 publish-context-analyzer: ## Publish @aiready/context-analyzer to GitHub (shortcut for: make publish SPOKE=context-analyzer)
 	@$(MAKE) publish SPOKE=context-analyzer OWNER=$(OWNER)
 
+publish-cli: ## Publish @aiready/cli to GitHub (shortcut for: make publish SPOKE=cli)
+	@$(MAKE) publish SPOKE=cli OWNER=$(OWNER)
+
 npm-publish-core: ## Publish @aiready/core to npm (shortcut for: make npm-publish SPOKE=core)
 	@$(MAKE) npm-publish SPOKE=core OTP=$(OTP)
 
@@ -141,7 +144,10 @@ npm-publish-pattern-detect: ## Publish @aiready/pattern-detect to npm (shortcut 
 npm-publish-context-analyzer: ## Publish @aiready/context-analyzer to npm (shortcut for: make npm-publish SPOKE=context-analyzer)
 	@$(MAKE) npm-publish SPOKE=context-analyzer OTP=$(OTP)
 
-npm-publish-all: build npm-publish-core npm-publish
+npm-publish-cli: ## Publish @aiready/cli to npm (shortcut for: make npm-publish SPOKE=cli)
+	@$(MAKE) npm-publish SPOKE=cli OTP=$(OTP)
+
+npm-publish-all: build npm-publish-core npm-publish-pattern-detect npm-publish-context-analyzer npm-publish-cli
 
 # Sync changes from spoke repos back to monorepo (for external contributions)
 sync-from-spoke: ## Sync changes from spoke repo back to monorepo. Usage: make sync-from-spoke SPOKE=pattern-detect
