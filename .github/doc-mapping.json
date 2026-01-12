@@ -1,16 +1,14 @@
 {
   "project-overview": ".github/copilot-instructions.md#project-overview",
   "architecture": ".github/copilot-instructions.md#architecture",
-  "development-workflow": ".github/copilot-instructions.md#development-workflow",
-  "publishing-strategy": ".github/copilot-instructions.md#publishing-strategy",
-  "release-workflow": ".github/copilot-instructions.md#release-workflow",
-  "adding-new-tool": ".github/copilot-instructions.md#adding-a-new-tool",
-  "common-patterns": ".github/copilot-instructions.md#common-patterns",
-  "devops-best-practices": ".github/copilot-instructions.md#devops-best-practices",
-  "troubleshooting": ".github/copilot-instructions.md#troubleshooting",
+  "development-workflow": ".github/sub-instructions/development-workflow.md",
+  "publishing-strategy": ".github/sub-instructions/publishing-strategy.md",
+  "release-workflow": ".github/sub-instructions/publishing-strategy.md",
+  "adding-new-tool": ".github/sub-instructions/adding-new-tool.md",
+  "common-patterns": ".github/sub-instructions/common-patterns.md",
+  "devops-best-practices": ".github/sub-instructions/devops-best-practices.md",
+  "troubleshooting": ".github/sub-instructions/troubleshooting.md",
   "file-organization": ".github/copilot-instructions.md#file-organization",
   "next-steps": ".github/copilot-instructions.md#next-steps"
 }
-  "file-organization": ".github/copilot-instructions.md#file-organization",
-  "next-steps": ".github/copilot-instructions.md#next-steps"
 }

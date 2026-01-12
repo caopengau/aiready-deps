@@ -24,6 +24,8 @@ help: ## Show all targets and descriptions in a markdown table (one aligned tabl
 			setup)   color=$$(tput setaf 5); emoji="⚙️ ";; \
 			build)   color=$$(tput setaf 4); emoji="🔨";; \
 			test)    color=$$(tput setaf 3); emoji="🧪";; \
+			release) color=$$(tput setaf 1); emoji="🚀";; \
+			publish) color=$$(tput setaf 1); emoji="🚚";; \
 			*)       color=$$(tput setaf 7); emoji="📦";; \
 		esac; \
 		echo ""; \
