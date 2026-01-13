@@ -94,7 +94,7 @@ release-all: ## Release all spokes: TYPE=patch|minor|major [OTP=123456] [FORCE=1
 		$(call log_error,TYPE parameter required. Example: make $@ TYPE=minor); \
 		exit 1; \
 	fi
-	@for spoke in $(ALL_SPOKES); do \
+	@for spoke in $(RELEASE_ORDER); do \
 		$(call log_info,Releasing @aiready/$$spoke ($(TYPE))); \
 		$(MAKE) -f $(MAKEFILE_DIR)/Makefile.release.mk release-one SPOKE=$$spoke TYPE=$(TYPE) OTP=$(OTP) FORCE=$(FORCE) || exit 1; \
 	done

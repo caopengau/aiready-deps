@@ -73,6 +73,8 @@ Output legend:
 2. **Spokes next** - Release individual spokes in any order
 3. **CLI last** - Release `@aiready/cli` after all spokes it depends on
 
+> **⚠️ CRITICAL:** The `release-all` command automatically follows this order. Manual releases should respect dependencies to avoid version resolution issues.
+
 #### Version Bump Guidelines
 
 **Patch (0.1.0 → 0.1.1):** Bug fixes, documentation updates, performance improvements, internal refactoring
