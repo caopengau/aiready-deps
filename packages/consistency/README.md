@@ -124,14 +124,30 @@ Create `aiready.json` in your project root:
 
 ```json
 {
-  "consistency": {
-    "checkNaming": true,
-    "checkPatterns": true,
-    "minSeverity": "minor",
+  "scan": {
+    "include": ["src/**/*.{ts,tsx,js,jsx}"],
     "exclude": ["**/dist/**", "**/node_modules/**"]
+  },
+  "tools": {
+    "consistency": {
+      "checkNaming": true,
+      "checkPatterns": true,
+      "minSeverity": "minor"
+    }
+  },
+  "output": {
+    "format": "console"
   }
 }
 ```
+
+**Configuration Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `checkNaming` | boolean | `true` | Check naming conventions |
+| `checkPatterns` | boolean | `true` | Check code pattern consistency |
+| `minSeverity` | string | `'info'` | Filter: `'info'`, `'minor'`, `'major'`, `'critical'` |
 
 ## 🔧 Programmatic API
 

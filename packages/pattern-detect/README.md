@@ -150,6 +150,44 @@ aiready patterns ./src --similarity 0.3 --min-lines 3
 aiready patterns ./src --min-lines 10 --min-shared-tokens 10
 ```
 
+## 📁 Configuration File
+
+Create an `aiready.json` or `aiready.config.json` file in your project root:
+
+```json
+{
+  "scan": {
+    "include": ["src/**/*.{ts,tsx,js,jsx}"],
+    "exclude": ["**/*.test.*", "**/dist/**"]
+  },
+  "tools": {
+    "pattern-detect": {
+      "minSimilarity": 0.6,
+      "minLines": 8,
+      "maxResults": 20,
+      "minSharedTokens": 10,
+      "maxCandidatesPerBlock": 100
+    }
+  },
+  "output": {
+    "format": "console",
+    "file": ".aiready/pattern-report.json"
+  }
+}
+```
+
+**Configuration Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `minSimilarity` | number | `0.4` | Similarity threshold (0-1) |
+| `minLines` | number | `5` | Minimum lines to consider |
+| `maxResults` | number | `10` | Max results to display in console |
+| `minSharedTokens` | number | `8` | Min tokens that must match |
+| `maxCandidatesPerBlock` | number | `100` | Performance tuning limit |
+| `approx` | boolean | `true` | Use approximate candidate selection |
+| `severity` | string | `'all'` | Filter: `'critical'`, `'high'`, `'medium'`, `'all'` |
+
 **Use the unified CLI** for all AIReady tools:
 
 ```bash
