@@ -1,6 +1,7 @@
 {
   "project-overview": ".github/copilot-instructions.md#project-overview",
   "architecture": ".github/copilot-instructions.md#architecture",
+  "git-workflow": ".github/sub-instructions/git-workflow.md",
   "development-workflow": ".github/sub-instructions/development-workflow.md",
   "publishing-strategy": ".github/sub-instructions/publishing-strategy.md",
   "release-workflow": ".github/sub-instructions/publishing-strategy.md",

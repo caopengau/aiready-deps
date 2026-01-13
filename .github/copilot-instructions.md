@@ -23,6 +23,26 @@ AIReady is a monorepo with tools for assessing AI-readiness and visualizing tech
 - Spokes: Import only from core, focus on one problem, comply with CLI specs
 - All spokes must integrate with CLI (--output, --include, --exclude, unified format)
 
+## ⚠️ COMPULSORY: Git Workflow Practices
+
+**CRITICAL:** Before any git operations, **always load and follow** the git workflow sub-instructions:
+
+**Load:** `git-workflow` from doc-mapping.json
+
+**Key Rules (Never Forget):**
+- ❌ **NEVER** commit directly to spoke repos
+- ✅ **ALWAYS** use `make push-all` after monorepo commits
+- ✅ **ALWAYS** develop in the monorepo hub
+- ✅ **ALWAYS** check `make release-status` before releases
+
+**Workflow:**
+```bash
+# After changes in monorepo:
+git add .
+git commit -m "feat: your changes"
+make push-all  # ← This syncs ALL repos automatically
+```
+
 ## Agent Workflow
 
 1. **Load Context:** Use doc-mapping.json to load relevant sub-instructions based on task (e.g., development-workflow.md for coding, adding-new-tool.md for new spokes)
@@ -38,9 +58,14 @@ AIReady is a monorepo with tools for assessing AI-readiness and visualizing tech
 - Can I test on a real repo?
 - Does it comply with CLI specs?
 - Am I updating CLI for new spokes?
+- **GIT:** Am I following hub-and-spoke git practices? (Always load git-workflow first!)
+- **GIT:** Should I use `make push-all` or direct git commands?
+- **GIT:** Is this change in the monorepo or a spoke repo?
 
 ## Getting Help
 
 - Reference existing spokes (@aiready/pattern-detect)
 - Review core types and CLI interface
 - Keep spokes focused on one job
+- **GIT:** Always load `git-workflow` sub-instructions before git operations
+- **GIT:** Use `make push-all` instead of direct git commands
