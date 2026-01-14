@@ -409,6 +409,8 @@ Create an `aiready.json` or `aiready.config.json` file in your project root:
 | `maxResults` | number | `10` | Max results per category in console |
 | `includeNodeModules` | boolean | `false` | Include node_modules in analysis |
 
+> **Note:** Domain detection is now fully automatic using semantic analysis (co-usage patterns + type dependencies). No domain configuration needed!
+
 ### Sample Output
 
 ```bash
@@ -610,11 +612,11 @@ Parses imports and exports to build a complete dependency graph of your codebase
 ### 2. Depth Calculator
 Calculates maximum import chain depth using graph traversal, identifying circular dependencies.
 
-### 3. Domain Classifier
-Infers domains from export names (e.g., "user", "order", "payment") to detect module boundaries.
+### 3. Semantic Domain Detection
+Uses **co-usage patterns** (files imported together) and **type dependencies** (shared types) to automatically identify semantic domains. No configuration needed - the tool discovers relationships from actual code usage.
 
 ### 4. Fragmentation Detector
-Groups files by domain and calculates how scattered they are across directories.
+Groups files by semantic domain and calculates how scattered they are across directories.
 
 ### 5. Cohesion Analyzer
 Uses entropy to measure how related exports are within each file (low entropy = high cohesion).

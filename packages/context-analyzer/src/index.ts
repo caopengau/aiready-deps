@@ -152,11 +152,7 @@ export async function analyzeContext(
   );
 
   // Build dependency graph
-  const graph = buildDependencyGraph(fileContents, {
-    domainKeywords: options.domainKeywords,
-    domainPatterns: options.domainPatterns,
-    pathDomainMap: options.pathDomainMap,
-  });
+  const graph = buildDependencyGraph(fileContents);
 
   // Detect circular dependencies
   const circularDeps = detectCircularDependencies(graph);
