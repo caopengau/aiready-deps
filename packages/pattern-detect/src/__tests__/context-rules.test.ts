@@ -144,16 +144,15 @@ describe('Context-Aware Severity', () => {
     it('should filter by minimum severity', () => {
       const duplicates = [
         { severity: 'critical' as Severity },
-        { severity: 'high' as Severity },
-        { severity: 'medium' as Severity },
-        { severity: 'low' as Severity },
+        { severity: 'major' as Severity },
+        { severity: 'minor' as Severity },
         { severity: 'info' as Severity },
       ];
       
-      const filtered = filterBySeverity(duplicates, 'medium');
+      const filtered = filterBySeverity(duplicates, 'minor');
       
       expect(filtered).toHaveLength(3);
-      expect(filtered.map(d => d.severity)).toEqual(['critical', 'high', 'medium']);
+      expect(filtered.map(d => d.severity)).toEqual(['critical', 'major', 'minor']);
     });
 
     it('should show all severities when filtering by info', () => {
@@ -170,8 +169,8 @@ describe('Context-Aware Severity', () => {
     it('should only show critical when filtering by critical', () => {
       const duplicates = [
         { severity: 'critical' as Severity },
-        { severity: 'high' as Severity },
-        { severity: 'medium' as Severity },
+        { severity: 'major' as Severity },
+        { severity: 'minor' as Severity },
       ];
       
       const filtered = filterBySeverity(duplicates, 'critical');

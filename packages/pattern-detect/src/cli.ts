@@ -26,7 +26,7 @@ program
   .option('--no-stream-results', 'Disable incremental output (default: enabled)')
   .option('--include <patterns>', 'File patterns to include (comma-separated)')
   .option('--exclude <patterns>', 'File patterns to exclude (comma-separated)')
-  .option('--min-severity <level>', 'Minimum severity to show: critical|high|medium|low|info. Default: medium')
+  .option('--min-severity <level>', 'Minimum severity to show: critical|major|minor|info. Default: minor')
   .option('--exclude-test-fixtures', 'Exclude test fixture duplication (beforeAll/afterAll)')
   .option('--exclude-templates', 'Exclude template file duplication')
   .option('--include-tests', 'Include test files in analysis (excluded by default)')
@@ -56,7 +56,7 @@ program
       streamResults: true,
       include: undefined,
       exclude: undefined,
-      minSeverity: 'medium' as Severity,
+      minSeverity: 'minor' as Severity,
       excludeTestFixtures: false,
       excludeTemplates: false,
       includeTests: false,
@@ -213,10 +213,9 @@ program
 
       // Sort by severity (critical first), then similarity
       const severityOrder: Record<Severity, number> = {
-        critical: 5,
-        high: 4,
-        medium: 3,
-        low: 2,
+        critical: 4,
+        major: 3,
+        minor: 2,
         info: 1,
       };
 
@@ -419,9 +418,8 @@ program.parse();
 function getSeverityBadge(severity: Severity): string {
   const badges: Record<Severity, string> = {
     critical: chalk.bgRed.white.bold(' CRITICAL '),
-    high: chalk.bgYellow.black.bold(' HIGH '),
-    medium: chalk.bgBlue.white.bold(' MEDIUM '),
-    low: chalk.bgGray.white(' LOW '),
+    major: chalk.bgYellow.black.bold(' MAJOR '),
+    minor: chalk.bgBlue.white.bold(' MINOR '),
     info: chalk.bgCyan.black(' INFO '),
   };
   return badges[severity] || badges.info;

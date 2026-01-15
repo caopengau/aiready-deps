@@ -3,7 +3,7 @@
  * Identifies intentional duplication patterns and adjusts severity accordingly
  */
 
-export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
+export type Severity = 'critical' | 'major' | 'minor' | 'info';
 
 export interface ContextRule {
   name: string;
@@ -61,7 +61,7 @@ export const CONTEXT_RULES: ContextRule[] = [
       
       return isTemplate && hasTemplateContent;
     },
-    severity: 'low',
+    severity: 'minor',
     reason: 'Template duplication may be intentional for maintainability and branding consistency',
     suggestion: 'Extract shared structure only if templates become hard to maintain',
   },
@@ -92,7 +92,7 @@ export const CONTEXT_RULES: ContextRule[] = [
       
       return isE2ETest && hasPageObjectPatterns;
     },
-    severity: 'low',
+    severity: 'minor',
     reason: 'E2E test duplication ensures test independence and reduces coupling',
     suggestion: 'Consider page object pattern only if duplication causes maintenance issues',
   },
@@ -111,7 +111,7 @@ export const CONTEXT_RULES: ContextRule[] = [
         file.includes('tsconfig')
       );
     },
-    severity: 'low',
+    severity: 'minor',
     reason: 'Configuration files often have similar structure by design',
     suggestion: 'Consider shared config base only if configurations become hard to maintain',
   },
@@ -211,25 +211,25 @@ export function calculateSeverity(
     };
   } else if (similarity >= 0.95 && linesOfCode >= 15) {
     return {
-      severity: 'high',
+      severity: 'major',
       reason: 'Nearly identical code should be consolidated',
       suggestion: 'Move to shared utility file',
     };
   } else if (similarity >= 0.85) {
     return {
-      severity: 'high',
+      severity: 'major',
       reason: 'High similarity indicates significant duplication',
       suggestion: 'Extract common logic to shared function',
     };
   } else if (similarity >= 0.7) {
     return {
-      severity: 'medium',
+      severity: 'minor',
       reason: 'Moderate similarity detected',
       suggestion: 'Consider extracting shared patterns if code evolves together',
     };
   } else {
     return {
-      severity: 'low',
+      severity: 'minor',
       reason: 'Minor similarity detected',
       suggestion: 'Monitor but refactoring may not be worthwhile',
     };
@@ -242,9 +242,8 @@ export function calculateSeverity(
 export function getSeverityLabel(severity: Severity): string {
   const labels: Record<Severity, string> = {
     critical: '🔴 CRITICAL',
-    high: '🟡 HIGH',
-    medium: '🔵 MEDIUM',
-    low: '⚪ LOW',
+    major: '🟡 MAJOR',
+    minor: '🔵 MINOR',
     info: 'ℹ️  INFO',
   };
   return labels[severity];
@@ -257,7 +256,7 @@ export function filterBySeverity<T extends { severity: Severity }>(
   duplicates: T[],
   minSeverity: Severity
 ): T[] {
-  const severityOrder: Severity[] = ['info', 'low', 'medium', 'high', 'critical'];
+  const severityOrder: Severity[] = ['info', 'minor', 'major', 'critical'];
   const minIndex = severityOrder.indexOf(minSeverity);
   
   if (minIndex === -1) return duplicates;
@@ -274,9 +273,8 @@ export function filterBySeverity<T extends { severity: Severity }>(
 export function getSeverityThreshold(severity: Severity): number {
   const thresholds: Record<Severity, number> = {
     critical: 0.95,
-    high: 0.85,
-    medium: 0.7,
-    low: 0.4,
+    major: 0.85,
+    minor: 0.5,
     info: 0,
   };
   return thresholds[severity] || 0;
