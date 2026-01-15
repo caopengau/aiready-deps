@@ -18,53 +18,10 @@ import {
   isAcceptableInContext,
   calculateComplexity,
 } from '../utils/context-detector';
-
-// Common short English words that are NOT abbreviations (full, valid words)
-const COMMON_SHORT_WORDS = new Set([
-  'day', 'key', 'net', 'to', 'go', 'for', 'not', 'new', 'old', 'top', 'end',
-  'run', 'try', 'use', 'get', 'set', 'add', 'put', 'map', 'log', 'row', 'col',
-  'tab', 'box', 'div', 'nav', 'tag', 'any', 'all', 'one', 'two', 'out', 'off',
-  'on', 'yes', 'no', 'now', 'max', 'min', 'sum', 'avg', 'ref', 'src', 'dst',
-  'raw', 'def', 'sub', 'pub', 'pre', 'mid', 'alt', 'opt', 'tmp', 'ext', 'sep',
-  'and', 'from', 'how', 'pad', 'bar', 'non',
-  'tax', 'cat', 'dog', 'car', 'bus', 'web', 'app', 'war', 'law', 'pay', 'buy',
-  'win', 'cut', 'hit', 'hot', 'pop', 'job', 'age', 'act', 'let', 'lot', 'bad',
-  'big', 'far', 'few', 'own', 'per', 'red', 'low', 'see', 'six', 'ten', 'way',
-  'who', 'why', 'yet', 'via', 'due', 'fee', 'fun', 'gas', 'gay', 'god', 'gun',
-  'guy', 'ice', 'ill', 'kid', 'mad', 'man', 'mix', 'mom', 'mrs', 'nor', 'odd',
-  'oil', 'pan', 'pet', 'pit', 'pot', 'pow', 'pro', 'raw', 'rep', 'rid', 'sad',
-  'sea', 'sit', 'sky', 'son', 'tea', 'tie', 'tip', 'van', 'war', 'win', 'won'
-]);
-
-// Comprehensive list of acceptable abbreviations and acronyms
-const ACCEPTABLE_ABBREVIATIONS = new Set([
-  'id', 'uid', 'gid', 'pid', 'i', 'j', 'k', 'n', 'm',
-  'url', 'uri', 'api', 'cdn', 'dns', 'ip', 'tcp', 'udp', 'http', 'ssl', 'tls',
-  'utm', 'seo', 'rss', 'xhr', 'ajax', 'cors', 'ws', 'wss',
-  'json', 'xml', 'yaml', 'csv', 'html', 'css', 'svg', 'pdf',
-  'img', 'txt', 'doc', 'docx', 'xlsx', 'ppt', 'md', 'rst', 'jpg', 'png', 'gif',
-  'db', 'sql', 'orm', 'dao', 'dto', 'ddb', 'rds', 'nosql',
-  'fs', 'dir', 'tmp', 'src', 'dst', 'bin', 'lib', 'pkg',
-  'os', 'env', 'arg', 'cli', 'cmd', 'exe', 'cwd', 'pwd',
-  'ui', 'ux', 'gui', 'dom', 'ref',
-  'req', 'res', 'ctx', 'err', 'msg', 'auth',
-  'max', 'min', 'avg', 'sum', 'abs', 'cos', 'sin', 'tan', 'log', 'exp',
-  'pow', 'sqrt', 'std', 'var', 'int', 'num', 'idx',
-  'now', 'utc', 'tz', 'ms', 'sec', 'hr', 'min', 'yr', 'mo',
-  'app', 'cfg', 'config', 'init', 'len', 'val', 'str', 'obj', 'arr',
-  'gen', 'def', 'raw', 'new', 'old', 'pre', 'post', 'sub', 'pub',
-  'ts', 'js', 'jsx', 'tsx', 'py', 'rb', 'vue', 're', 'fn', 'fns', 'mod', 'opts', 'dev',
-  's3', 'ec2', 'sqs', 'sns', 'vpc', 'ami', 'iam', 'acl', 'elb', 'alb', 'nlb', 'aws',
-  'ses', 'gst', 'cdk', 'btn', 'buf', 'agg', 'ocr', 'ai', 'cf', 'cfn', 'ga',
-  'fcp', 'lcp', 'cls', 'ttfb', 'tti', 'fid', 'fps', 'qps', 'rps', 'tps', 'wpm',
-  'po', 'e2e', 'a11y', 'i18n', 'l10n', 'spy',
-  'sk', 'fy', 'faq', 'og', 'seo', 'cta', 'roi', 'kpi', 'ttl', 'pct',
-  'mac', 'hex', 'esm', 'git', 'rec', 'loc', 'dup',
-  'is', 'has', 'can', 'did', 'was', 'are',
-  'd', 't', 'dt',
-  's', 'b', 'f', 'l',  // Coverage metrics
-  'vid', 'pic', 'img', 'doc', 'msg'
-]);
+import {
+  COMMON_SHORT_WORDS,
+  ACCEPTABLE_ABBREVIATIONS,
+} from './naming-constants';
 
 /**
  * AST-based naming analyzer
