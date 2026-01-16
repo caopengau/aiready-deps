@@ -42,11 +42,10 @@ export default $config({
       environment: {
         NEXT_PUBLIC_REQUEST_URL: requestApi.url,
       },
-      // Optional: Add custom domain later
-      // domain: {
-      //   name: "aiready.dev",
-      //   dns: sst.cloudflare.dns(), // or sst.aws.dns()
-      // },
+      domain: {
+        name: process.env.DOMAIN_NAME || "aiready.dev",
+        dns: sst.cloudflare.dns(),
+      },
     });
 
     return {

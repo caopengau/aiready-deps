@@ -31,7 +31,7 @@ export default function RequestForm() {
       }
 
       setStatus("success");
-      setMessage("Thanks! We got your request. We'll email you within 24-48 hours.");
+      setMessage("🎉 Thanks! Your audit request has been received. We'll analyze your codebase and email the detailed report within 24-48 hours.");
       setEmail("");
       setRepoUrl("");
       setNotes("");
@@ -42,9 +42,26 @@ export default function RequestForm() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white border border-slate-200 rounded-2xl p-8">
-      <h3 className="text-2xl font-bold text-slate-900 mb-2">Request Free Audit</h3>
-      <p className="text-slate-600 mb-6">Get a detailed analysis of your codebase. We'll run our tools and send a PDF report.</p>
+    <div className="max-w-3xl mx-auto bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-slate-900 mb-2">Get Your Free Codebase Audit</h3>
+        <p className="text-slate-600">Receive a detailed PDF report with actionable insights to make your code AI-ready.</p>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="flex items-start gap-3">
+          <span className="text-blue-600 text-lg">📊</span>
+          <div>
+            <h4 className="font-semibold text-blue-900 mb-1">What you'll get:</h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• Semantic duplicate detection report</li>
+              <li>• Context window optimization recommendations</li>
+              <li>• Consistency analysis and naming suggestions</li>
+              <li>• Actionable next steps for AI adoption</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
