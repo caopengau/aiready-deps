@@ -95,7 +95,7 @@ export default function HomePage() {
             <div className="text-slate-600">Analysis Time</div>
           </div>
           <div>
-            <div className="text-4xl font-bold text-blue-600 mb-2">91%</div>
+            <div className="text-4xl font-bold text-blue-600 mb-2">95%</div>
             <div className="text-slate-600">Detection Accuracy</div>
           </div>
           <div>
