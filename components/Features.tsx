@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ParallaxSection } from "./ParallaxSection";
-import { ToolShowcase } from "./ToolShowcase";
+import ParallaxSection from "./ParallaxSection";
+import ToolShowcase from "./ToolShowcase";
 
 export function Features() {
   return (

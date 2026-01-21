@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import { motion } from "framer-motion";
-import { ParallaxSection } from "./ParallaxSection";
+import ParallaxSection from "./ParallaxSection";
 
 const faqs = [
   {

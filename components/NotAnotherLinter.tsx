@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ParallaxSection } from "./ParallaxSection";
+import ParallaxSection from "./ParallaxSection";
 
 export function NotAnotherLinter() {
   return (
