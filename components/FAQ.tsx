@@ -6,7 +6,7 @@ import ParallaxSection from "./ParallaxSection";
 
 const faqs = [
   {
-    question: "Is aiready really free?",
+    question: "Is AIReady really free?",
     answer: "Yes! All our tools are free and open source. You can run them locally with npx @aiready/cli scan . or request a free audit report above.",
   },
   {
@@ -48,7 +48,9 @@ export function FAQ() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-      <section className="container mx-auto px-4 py-20">
+      <section className="py-20 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-transparent to-purple-900/10" />
+        <div className="container mx-auto px-4 relative">
         <ParallaxSection offset={10}>
           <div className="max-w-4xl mx-auto">
             <motion.div
@@ -58,7 +60,7 @@ export function FAQ() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">
+              <h2 className="text-4xl md:text-5xl font-black text-slate-100 mb-4">
                 Frequently Asked{" "}
                 <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                   Questions
@@ -89,6 +91,7 @@ export function FAQ() {
             </div>
           </div>
         </ParallaxSection>
+      </div>
       </section>
     </>
   );

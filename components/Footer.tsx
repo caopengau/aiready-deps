@@ -22,10 +22,10 @@ export function Footer() {
         >
           <div className="text-center md:text-left">
             <div className="text-xl font-black bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent mb-1">
-              aiready
+              AIReady
             </div>
             <div className="text-sm text-slate-600">
-              © 2025 aiready. Open source under MIT License.
+              © 2025 AIReady. Open source under MIT License.
             </div>
           </div>
           <div className="flex gap-6">

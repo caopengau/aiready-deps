@@ -23,8 +23,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://getaiready.dev'),
   title: {
-    default: "aiready - Make Your Codebase AI-Ready",
-    template: "%s | aiready"
+    default: "AIReady - Make Your Codebase AI-Ready",
+    template: "%s | AIReady"
   },
   description: "Free tools to optimize your codebase for AI collaboration. Detect semantic duplicates, analyze context windows, and maintain consistency that AI models understand.",
   keywords: [
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
     "free developer tools",
     "AI collaboration"
   ],
-  authors: [{ name: "aiready Team", url: "https://getaiready.dev" }],
-  creator: "aiready",
-  publisher: "aiready",
+  authors: [{ name: "AIReady Team", url: "https://getaiready.dev" }],
+  creator: "AIReady",
+  publisher: "AIReady",
   formatDetection: {
     email: false,
     address: false,
@@ -77,13 +77,13 @@ export const metadata: Metadata = {
     title: "AIReady - Make Your Codebase AI-Ready",
     description: "Free tools to optimize your codebase for AI collaboration. Detect semantic duplicates, analyze context windows, and maintain consistency.",
     url: "https://getaiready.dev",
-    siteName: "aiready",
+    siteName: "AIReady",
     images: [
       {
         url: "https://getaiready.dev/logo-text.png",
         width: 2046,
         height: 800,
-        alt: "aiready - AI-Ready Codebase Tools",
+        alt: "AIReady - AI-Ready Codebase Tools",
       },
     ],
     locale: "en_US",
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "aiready - Make Your Codebase AI-Ready",
+    title: "AIReady - Make Your Codebase AI-Ready",
     description: "Free tools to optimize your codebase for AI collaboration. Detect semantic duplicates, analyze context windows, and maintain consistency that AI models understand.",
     images: ["https://getaiready.dev/logo-text.png"],
     creator: "@aireadytools",

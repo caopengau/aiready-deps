@@ -20,7 +20,9 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <section className="container mx-auto px-4 py-20">
+    <section className="py-20 bg-gradient-to-b from-slate-900 via-cyan-950 to-slate-900 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-transparent to-blue-900/20" />
+      <div className="container mx-auto px-4 relative">
       <ParallaxSection offset={15}>
         <div className="max-w-6xl mx-auto">
           <motion.div
@@ -30,14 +32,14 @@ export function Testimonials() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-black text-slate-100 mb-4">
               Loved by{" "}
               <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Developers
               </span>
             </h2>
-            <p className="text-xl text-slate-600">
-              See what teams are saying about aiready
+            <p className="text-xl text-slate-300">
+              See what teams are saying about AIReady
             </p>
           </motion.div>
           
@@ -73,8 +75,8 @@ export function Testimonials() {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full" />
                   <div>
-                    <div className="font-bold text-slate-900">{testimonial.author}</div>
-                    <div className="text-sm text-slate-600">{testimonial.role}</div>
+                    <div className="font-bold text-slate-100">{testimonial.author}</div>
+                    <div className="text-sm text-slate-400">{testimonial.role}</div>
                   </div>
                 </div>
               </motion.div>
@@ -82,6 +84,7 @@ export function Testimonials() {
           </div>
         </div>
       </ParallaxSection>
+      </div>
     </section>
   );
 }

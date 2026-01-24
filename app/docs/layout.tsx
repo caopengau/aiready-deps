@@ -1,14 +1,14 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Documentation - aiready",
-  description: "Complete guide to aiready tools including Pattern Detection, Context Analysis, and Consistency Checker. Learn how to optimize your codebase for AI collaboration.",
+  title: "Documentation - AIReady",
+  description: "Complete guide to AIReady tools including Pattern Detection, Context Analysis, and Consistency Checker. Learn how to optimize your codebase for AI collaboration.",
   alternates: {
     canonical: '/docs',
   },
   openGraph: {
-    title: "Documentation - aiready",
-    description: "Complete guide to aiready tools including Pattern Detection, Context Analysis, and Consistency Checker.",
+    title: "Documentation - AIReady",
+    description: "Complete guide to AIReady tools including Pattern Detection, Context Analysis, and Consistency Checker.",
     url: "https://getaiready.dev/docs",
   },
 }

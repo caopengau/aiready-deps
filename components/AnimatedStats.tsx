@@ -9,7 +9,7 @@ export default function AnimatedStats() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   const stats = [
-    { value: "<1s", label: "Analysis Time", color: "from-blue-600 to-cyan-500" },
+    { value: "<3s", label: "Analysis Time", color: "from-blue-600 to-cyan-500" },
     { value: "95%", label: "Detection Accuracy", color: "from-purple-600 to-pink-500" },
     { value: "40%", label: "Context Token Savings", color: "from-orange-600 to-red-500" },
   ];

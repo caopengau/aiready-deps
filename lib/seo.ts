@@ -2,7 +2,7 @@
 
 export const siteConfig = {
   name: 'AIReady',
-  title: 'aiready - Make Your Codebase AI-Ready',
+  title: 'AIReady - Make Your Codebase AI-Ready',
   description: 'Free tools to optimize your codebase for AI collaboration. Detect semantic duplicates, analyze context windows, and maintain consistency that AI models understand.',
   url: 'https://getaiready.dev',
   ogImage: 'https://getaiready.dev/og-image.png',

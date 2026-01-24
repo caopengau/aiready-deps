@@ -5,7 +5,9 @@ import ParallaxSection from "./ParallaxSection";
 
 export function AIReadinessScore() {
   return (
-    <section className="container mx-auto px-4 py-20 bg-gradient-to-b from-white to-slate-50">
+    <section className="py-20 bg-gradient-to-b from-purple-950 via-indigo-950 to-purple-950 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-indigo-900/20" />
+      <div className="container mx-auto px-4 relative">
       <ParallaxSection offset={20}>
         <div className="max-w-6xl mx-auto">
           <motion.div
@@ -15,13 +17,13 @@ export function AIReadinessScore() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-black text-slate-100 mb-4">
               One Number That{" "}
               <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                 Tells The Story
               </span>
             </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
               Get your AI Readiness Score: A single 0-100 metric combining all three tools with proven weighting.
             </p>
           </motion.div>
@@ -141,6 +143,7 @@ export function AIReadinessScore() {
           </div>
         </div>
       </ParallaxSection>
+      </div>
     </section>
   );
 }
