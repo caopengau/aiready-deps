@@ -15,6 +15,12 @@ export const generateOrganizationSchema = () => {
       width: 512,
       height: 512,
     },
+    image: {
+      '@type': 'ImageObject',
+      url: 'https://getaiready.dev/logo-transparent-bg.png',
+      width: 512,
+      height: 512,
+    },
     description: 'Open source tools to optimize codebases for AI collaboration. Free developer tools for detecting semantic duplicates, analyzing context windows, and maintaining code consistency.',
     foundingDate: '2025',
     sameAs: [
@@ -51,6 +57,12 @@ export const generateSoftwareApplicationSchema = () => {
     downloadUrl: 'https://www.npmjs.com/package/@aiready/cli',
     installUrl: 'https://www.npmjs.com/package/@aiready/cli',
     screenshot: 'https://getaiready.dev/logo-text.png',
+    image: {
+      '@type': 'ImageObject',
+      url: 'https://getaiready.dev/logo-text.png',
+      width: 2046,
+      height: 800,
+    },
     softwareHelp: {
       '@type': 'CreativeWork',
       url: 'https://github.com/caopengau/aiready-cli#readme',
@@ -108,7 +120,12 @@ export const generateTechArticleSchema = () => {
     },
     datePublished: '2025-01-01',
     dateModified: new Date().toISOString().split('T')[0],
-    image: 'https://getaiready.dev/logo-text.png',
+    image: {
+      '@type': 'ImageObject',
+      url: 'https://getaiready.dev/logo-text.png',
+      width: 2046,
+      height: 800,
+    },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': 'https://getaiready.dev/',
@@ -160,6 +177,12 @@ export const generateCollectionPageSchema = () => {
         url: 'https://getaiready.dev/#consistency',
       },
     ],
+    image: {
+      '@type': 'ImageObject',
+      url: 'https://getaiready.dev/logo-text.png',
+      width: 2046,
+      height: 800,
+    },
   };
 };
 
