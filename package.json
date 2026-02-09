@@ -12,6 +12,15 @@
     "./input": "./dist/components/input.js",
     "./label": "./dist/components/label.js",
     "./badge": "./dist/components/badge.js",
+    "./container": "./dist/components/container.js",
+    "./grid": "./dist/components/grid.js",
+    "./stack": "./dist/components/stack.js",
+    "./separator": "./dist/components/separator.js",
+    "./checkbox": "./dist/components/checkbox.js",
+    "./radio-group": "./dist/components/radio-group.js",
+    "./switch": "./dist/components/switch.js",
+    "./textarea": "./dist/components/textarea.js",
+    "./select": "./dist/components/select.js",
     "./tailwind-config": "./tailwind.config.js"
   },
   "files": [
