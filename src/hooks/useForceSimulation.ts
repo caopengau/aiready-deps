@@ -186,6 +186,10 @@ export function useForceSimulation(
     alphaDecay = 0.0228,
     velocityDecay = 0.4,
     onTick,
+    // Optional throttle in milliseconds for tick updates (reduce React re-renders)
+    // Lower values = smoother but more CPU; default ~30ms (~33fps)
+    // @ts-ignore allow extra option
+    tickThrottleMs = 33,
   } = options;
 
   const [nodes, setNodes] = useState<SimulationNode[]>(initialNodes);
@@ -232,6 +236,7 @@ export function useForceSimulation(
     // Update state on each tick. Batch updates via requestAnimationFrame to avoid
     // excessive React re-renders which can cause visual flicker.
     let rafId: number | null = null;
+    let lastUpdate = 0;
     const tickHandler = () => {
       try {
         if (typeof onTick === 'function') onTick(nodesCopy, linksCopy, simulation);
@@ -239,10 +244,12 @@ export function useForceSimulation(
         // ignore user tick errors
       }
 
-      // schedule a single RAF update per animation frame
-      if (rafId == null) {
+      const now = Date.now();
+      const shouldUpdate = now - lastUpdate >= (tickThrottleMs as number);
+      if (rafId == null && shouldUpdate) {
         rafId = (globalThis.requestAnimationFrame || ((cb: FrameRequestCallback) => setTimeout(cb, 16)))(() => {
           rafId = null;
+          lastUpdate = Date.now();
           setNodes([...nodesCopy]);
           setLinks([...linksCopy]);
           setAlpha(simulation.alpha());

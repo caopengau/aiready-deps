@@ -265,10 +265,15 @@ export const ForceDirectedGraph = forwardRef<ForceDirectedGraphHandle, ForceDire
         if (dist > maxDist) {
           const desiredX = bound.x + dx * (maxDist / dist);
           const desiredY = bound.y + dy * (maxDist / dist);
-          // apply a soft corrective velocity toward the desired position
-          const softness = 0.08;
-          n.vx = (n.vx || 0) + (desiredX - n.x) * softness;
-          n.vy = (n.vy || 0) + (desiredY - n.y) * softness;
+          // gently interpolate node position toward the allowed area to avoid
+          // adding strong velocities which can cause bounce when zooming.
+          const softness = 0.12;
+          // interpolation keeps motion smooth across frames
+          n.x = n.x + (desiredX - n.x) * softness;
+          n.y = n.y + (desiredY - n.y) * softness;
+          // damp velocities to reduce oscillation
+          n.vx = (n.vx || 0) * 0.6;
+          n.vy = (n.vy || 0) * 0.6;
         }
       });
     } catch (e) {
