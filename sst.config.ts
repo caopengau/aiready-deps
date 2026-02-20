@@ -37,10 +37,14 @@ export default {
       const site = new sst.aws.Nextjs('Dashboard', {
         path: '.',
         environment: {
-          TABLE_NAME: table.name,
-          BUCKET_NAME: bucket.name,
+          DYNAMO_TABLE: table.name,
+          S3_BUCKET: bucket.name,
         },
       });
+
+      // Grant permissions
+      table.bind([site]);
+      bucket.bind([site]);
 
       stack.addOutputs({
         SiteUrl: site.url,
