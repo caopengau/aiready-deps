@@ -1,6 +1,6 @@
 'use client';
 
-import { getRating as getCoreRating } from '@aiready/core';
+import { getRating as getCoreRating } from '@aiready/core/client';
 import { cn } from '../utils/cn';
 
 export type ScoreRating = 'excellent' | 'good' | 'fair' | 'needs-work' | 'critical';
