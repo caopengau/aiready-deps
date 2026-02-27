@@ -7,7 +7,7 @@
 
 ## Overview
 
-The **Dependency Health** analyzer evaluates your `package.json` to compute timeline skews against AI knowledge cutoff dates. 
+The **Dependency Health** analyzer evaluates your `package.json` to compute timeline skews against AI knowledge cutoff dates.
 
 ## 🏛️ Architecture
 

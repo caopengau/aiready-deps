@@ -3,9 +3,7 @@ import type { DepsOptions, DepsReport, DepsIssue } from './types';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-export async function analyzeDeps(
-  options: DepsOptions,
-): Promise<DepsReport> {
+export async function analyzeDeps(options: DepsOptions): Promise<DepsReport> {
   const rootDir = options.rootDir;
   const packageJsonPath = join(rootDir, 'package.json');
 
@@ -23,7 +21,7 @@ export async function analyzeDeps(
       const allDeps = {
         ...(pkg.dependencies || {}),
         ...(pkg.devDependencies || {}),
-        ...(pkg.peerDependencies || {})
+        ...(pkg.peerDependencies || {}),
       };
 
       const depNames = Object.keys(allDeps);
@@ -36,13 +34,23 @@ export async function analyzeDeps(
         const major = parseInt(vStr.split('.')[0] || '0', 10);
 
         // Mock deprecated check based on known deprecated packages
-        if (['request', 'moment', 'tslint', 'mkdirp', 'uuid', 'node-uuid'].includes(name) && major < 4) {
+        if (
+          [
+            'request',
+            'moment',
+            'tslint',
+            'mkdirp',
+            'uuid',
+            'node-uuid',
+          ].includes(name) &&
+          major < 4
+        ) {
           deprecatedPackages++;
           issues.push({
             type: 'dependency-health',
             severity: 'major',
             message: `Dependency '${name}' is known to be deprecated. AI assistants may use outdated APIs.`,
-            location: { file: packageJsonPath, line: 1 }
+            location: { file: packageJsonPath, line: 1 },
           });
         }
 
@@ -53,7 +61,7 @@ export async function analyzeDeps(
             type: 'dependency-health',
             severity: 'minor',
             message: `Dependency '${name}' (${version}) is pre-v1. APIs often unstable and hard for AI to predict.`,
-            location: { file: packageJsonPath, line: 1 }
+            location: { file: packageJsonPath, line: 1 },
           });
         }
       }
@@ -63,11 +71,12 @@ export async function analyzeDeps(
       let skewSignals = 0;
       if (allDeps['next'] && allDeps['next'].includes('15')) skewSignals++;
       if (allDeps['react'] && allDeps['react'].includes('19')) skewSignals++;
-      if (allDeps['typescript'] && allDeps['typescript'].includes('5.6')) skewSignals++;
+      if (allDeps['typescript'] && allDeps['typescript'].includes('5.6'))
+        skewSignals++;
 
-      trainingCutoffSkew = totalPackages > 0 ? (skewSignals / totalPackages) * 5 : 0;
+      trainingCutoffSkew =
+        totalPackages > 0 ? (skewSignals / totalPackages) * 5 : 0;
       trainingCutoffSkew = Math.min(1, trainingCutoffSkew); // cap at 1.0
-
     } catch {
       // ignore JSON parse errors
     }
@@ -77,7 +86,7 @@ export async function analyzeDeps(
     totalPackages,
     outdatedPackages,
     deprecatedPackages,
-    trainingCutoffSkew
+    trainingCutoffSkew,
   });
 
   return {

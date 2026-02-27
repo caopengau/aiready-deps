@@ -12,18 +12,21 @@ describe('Deps Health Analyzer', () => {
     mkdirSync(tmpDir, { recursive: true });
 
     const packageJsonPath = join(tmpDir, 'package.json');
-    writeFileSync(packageJsonPath, JSON.stringify({
-      dependencies: {
-        "request": "^2.88.2",
-        "moment": "~2.29.4",
-        "lodash": "^0.4.0",
-        "react": "^19.0.0",
-        "next": "15.0.0-rc"
-      },
-      devDependencies: {
-        "typescript": "5.6.3"
-      }
-    }));
+    writeFileSync(
+      packageJsonPath,
+      JSON.stringify({
+        dependencies: {
+          request: '^2.88.2',
+          moment: '~2.29.4',
+          lodash: '^0.4.0',
+          react: '^19.0.0',
+          next: '15.0.0-rc',
+        },
+        devDependencies: {
+          typescript: '5.6.3',
+        },
+      })
+    );
   });
 
   afterAll(() => {
