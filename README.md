@@ -16,21 +16,21 @@ AI models often suffer from "semantic confusion" when multiple variants of the s
                       │
                       ▼
          🎛️  @aiready/cli (orchestrator)
-           │   │   │   │   │   │   │   │   │   │   │   │
-           ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼
-         ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐
-         │A│ │B│ │C│ │D│ │E│ │F│ │G│ │H│ │I│ │J│ │K│ │L│
-         └─┘ └─┘ └─┘ └─┘ └─┘ └─┘ └─┘ └─┘ └─┘ └─┘ └─┘ └─┘
-         ALL SPOKES — flat peers, no hierarchy:
-         A=pattern-detect ★  B=context-analyzer  C=consistency
-         D=change-amp         E=deps-health        F=doc-drift
-         G=ai-signal-clarity  H=agent-grounding    I=testability
-         J=visualizer         K=skills             L=components
-           │   │   │   │   │   │   │   │   │   │   │   │
-           └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+          │     │     │     │     │     │     │     │     │
+          ▼     ▼     ▼     ▼     ▼     ▼     ▼     ▼     ▼
+        [PAT] [CTX] [CON] [AMP] [DEP] [DOC] [SIG] [AGT] [TST]
+          │     │     │     │     │     │     │     │     │
+          └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
                                │
                                ▼
                       🏢 @aiready/core
+
+Legend:
+  PAT = pattern-detect ★     CTX = context-analyzer
+  CON = consistency           AMP = change-amplification
+  DEP = deps-health           DOC = doc-drift
+  SIG = ai-signal-clarity     AGT = agent-grounding
+  TST = testability           ★   = YOU ARE HERE
 ```
 
 ## Features
