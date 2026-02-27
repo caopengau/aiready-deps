@@ -1,6 +1,6 @@
 {
   "name": "@aiready/doc-drift",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "AI-Readiness: Documentation Drift Detection",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
