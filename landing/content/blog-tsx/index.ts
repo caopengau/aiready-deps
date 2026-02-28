@@ -10,8 +10,20 @@ import HiddenCostImportChains from './hidden-cost-import-chains';
 import hiddenCostImportChainsMeta from './hidden-cost-import-chains.meta';
 import VisualizingInvisible from './visualizing-invisible';
 import visualizingInvisibleMeta from './visualizing-invisible.meta';
+import FutureHumanFriendlyCode from './future-human-friendly-code';
+import futureHumanFriendlyCodeMeta from './future-human-friendly-code.meta';
 
 export const posts = [
+  {
+    slug: futureHumanFriendlyCodeMeta.slug,
+    title: futureHumanFriendlyCodeMeta.title,
+    date: futureHumanFriendlyCodeMeta.date,
+    excerpt: futureHumanFriendlyCodeMeta.excerpt,
+    author: futureHumanFriendlyCodeMeta.author,
+    tags: futureHumanFriendlyCodeMeta.tags || [],
+    readingTime: futureHumanFriendlyCodeMeta.readingTime,
+    Content: FutureHumanFriendlyCode,
+  },
   {
     slug: visualizingInvisibleMeta.slug,
     title: visualizingInvisibleMeta.title,
