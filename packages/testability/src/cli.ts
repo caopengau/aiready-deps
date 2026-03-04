@@ -11,6 +11,9 @@ import {
   loadConfig,
   mergeConfigWithDefaults,
   resolveOutputPath,
+  getScoreBar,
+  getSafetyIcon,
+  getSeverityColor,
 } from '@aiready/core';
 
 const program = new Command();
@@ -98,40 +101,6 @@ EXAMPLES:
 
 program.parse();
 
-function safetyColor(rating: string) {
-  switch (rating) {
-    case 'safe':
-      return chalk.green;
-    case 'moderate-risk':
-      return chalk.yellow;
-    case 'high-risk':
-      return chalk.red;
-    case 'blind-risk':
-      return chalk.bgRed.white;
-    default:
-      return chalk.white;
-  }
-}
-
-function safetyIcon(rating: string) {
-  switch (rating) {
-    case 'safe':
-      return '✅';
-    case 'moderate-risk':
-      return '⚠️ ';
-    case 'high-risk':
-      return '🔴';
-    case 'blind-risk':
-      return '💀';
-    default:
-      return '❓';
-  }
-}
-
-function scoreBar(val: number): string {
-  return '█'.repeat(Math.round(val / 10)).padEnd(10, '░');
-}
-
 function displayConsoleReport(report: any, scoring: any, elapsed: string) {
   const { summary, rawData, issues, recommendations } = report;
 
@@ -155,8 +124,9 @@ function displayConsoleReport(report: any, scoring: any, elapsed: string) {
     console.log();
   }
 
+  const safetyColor = getSeverityColor(safetyRating, chalk);
   console.log(
-    `AI Change Safety: ${safetyColor(safetyRating)(`${safetyIcon(safetyRating)} ${safetyRating.toUpperCase()}`)}`
+    `AI Change Safety: ${safetyColor(`${getSafetyIcon(safetyRating)} ${safetyRating.toUpperCase()}`)}`
   );
   console.log(
     `Score:            ${chalk.bold(summary.score + '/100')} (${summary.rating})`
@@ -180,18 +150,13 @@ function displayConsoleReport(report: any, scoring: any, elapsed: string) {
   for (const [name, val] of dims) {
     const color =
       val >= 70 ? chalk.green : val >= 50 ? chalk.yellow : chalk.red;
-    console.log(`  ${name.padEnd(22)} ${color(scoreBar(val))} ${val}/100`);
+    console.log(`  ${name.padEnd(22)} ${color(getScoreBar(val))} ${val}/100`);
   }
 
   if (issues.length > 0) {
     console.log(chalk.bold('\n⚠️  Issues\n'));
     for (const issue of issues) {
-      const sev =
-        issue.severity === 'critical'
-          ? chalk.red
-          : issue.severity === 'major'
-            ? chalk.yellow
-            : chalk.blue;
+      const sev = getSeverityColor(issue.severity, chalk);
       console.log(`${sev(issue.severity.toUpperCase())}  ${issue.message}`);
       if (issue.suggestion)
         console.log(
