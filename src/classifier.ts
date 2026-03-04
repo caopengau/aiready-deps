@@ -3,9 +3,11 @@ import type { DependencyNode, FileClassification } from './types';
 /**
  * Classify a file into a specific type for better analysis context
  */
-export function classifyFile(node: DependencyNode): FileClassification {
-  const { file, exports } = node;
-
+export function classifyFile(
+  node: DependencyNode,
+  cohesionScore: number = 1,
+  domains: string[] = []
+): FileClassification {
   // 1. Detect barrel exports (primarily re-exports)
   if (isBarrelExport(node)) {
     return 'barrel-export';
@@ -43,6 +45,8 @@ export function classifyFile(node: DependencyNode): FileClassification {
 
   // 8. Detect Session/State management files
   if (isSessionFile(node)) {
+    // If it has high cohesion, it's a cohesive module
+    if (cohesionScore >= 0.25 && domains.length <= 1) return 'cohesive-module';
     return 'utility-module'; // Group with utility for now
   }
 
@@ -51,8 +55,24 @@ export function classifyFile(node: DependencyNode): FileClassification {
     return 'utility-module';
   }
 
-  // 10. Check cohesion to see if it's naturally cohesive
-  // This is a placeholder - actual cohesion check happens in main loop
+  // 10. Detect Config/Schema files
+  if (isConfigFile(node)) {
+    return 'cohesive-module';
+  }
+
+  // Cohesion and Domain heuristics
+  if (domains.length <= 1 && domains[0] !== 'unknown') {
+    return 'cohesive-module';
+  }
+
+  if (domains.length > 1 && cohesionScore < 0.4) {
+    return 'mixed-concerns';
+  }
+
+  if (cohesionScore >= 0.7) {
+    return 'cohesive-module';
+  }
+
   return 'unknown';
 }
 
@@ -66,25 +86,40 @@ export function isBarrelExport(node: DependencyNode): boolean {
   // Barrel files are typically named index.ts or index.js
   const isIndexFile = fileName === 'index.ts' || fileName === 'index.js';
 
-  // They usually have many exports but very small token cost (just re-exports)
-  const isSmallAndManyExports = node.tokenCost < 1000 && exports.length > 5;
+  // Small file with many exports is likely a barrel
+  const isSmallAndManyExports =
+    node.tokenCost < 1000 && (exports || []).length > 5;
 
-  return isIndexFile || isSmallAndManyExports;
+  // RE-EXPORT HEURISTIC for non-index files
+  const isReexportPattern =
+    (exports || []).length >= 5 &&
+    (exports || []).every(
+      (e) =>
+        e.type === 'const' ||
+        e.type === 'function' ||
+        e.type === 'type' ||
+        e.type === 'interface'
+    );
+
+  return !!isIndexFile || !!isSmallAndManyExports || !!isReexportPattern;
 }
 
 /**
  * Detect if a file is primarily type definitions
  */
 export function isTypeDefinition(node: DependencyNode): boolean {
-  const { file, exports } = node;
+  const { file } = node;
 
   // Check file extension
   if (file.endsWith('.d.ts')) return true;
 
   // Check if all exports are types or interfaces
-  const allTypes =
-    exports.length > 0 &&
-    exports.every((e) => e.type === 'type' || e.type === 'interface');
+  const nodeExports = node.exports || [];
+  const hasExports = nodeExports.length > 0;
+  const areAllTypes =
+    hasExports &&
+    nodeExports.every((e) => e.type === 'type' || e.type === 'interface');
+  const allTypes: boolean = !!areAllTypes;
 
   // Check if path includes 'types' or 'interfaces'
   const isTypePath =
@@ -92,7 +127,7 @@ export function isTypeDefinition(node: DependencyNode): boolean {
     file.toLowerCase().includes('/interfaces/') ||
     file.toLowerCase().includes('/models/');
 
-  return allTypes || (isTypePath && exports.length > 0);
+  return allTypes || (isTypePath && hasExports);
 }
 
 /**
@@ -115,7 +150,7 @@ export function isUtilityModule(node: DependencyNode): boolean {
     fileName?.includes('util.') ||
     fileName?.includes('helper.');
 
-  return isUtilPath || isUtilName;
+  return !!isUtilPath || !!isUtilName;
 }
 
 /**
@@ -143,7 +178,7 @@ export function isLambdaHandler(node: DependencyNode): boolean {
     file.toLowerCase().includes('/lambda/') ||
     file.toLowerCase().includes('/functions/');
 
-  const hasHandlerExport = exports.some(
+  const hasHandlerExport = (exports || []).some(
     (e) =>
       e.name.toLowerCase() === 'handler' ||
       e.name.toLowerCase() === 'main' ||
@@ -151,7 +186,7 @@ export function isLambdaHandler(node: DependencyNode): boolean {
       e.name.toLowerCase().endsWith('handler')
   );
 
-  return isHandlerName || isHandlerPath || hasHandlerExport;
+  return !!isHandlerName || !!isHandlerPath || !!hasHandlerExport;
 }
 
 /**
@@ -166,15 +201,17 @@ export function isServiceFile(node: DependencyNode): boolean {
     fileName?.includes(pattern)
   );
   const isServicePath = file.toLowerCase().includes('/services/');
-  const hasServiceNamedExport = exports.some(
+  const hasServiceNamedExport = (exports || []).some(
     (e) =>
       e.name.toLowerCase().includes('service') ||
       e.name.toLowerCase().endsWith('service')
   );
-  const hasClassExport = exports.some((e) => e.type === 'class');
+  const hasClassExport = (exports || []).some((e) => e.type === 'class');
 
   return (
-    isServiceName || isServicePath || (hasServiceNamedExport && hasClassExport)
+    !!isServiceName ||
+    !!isServicePath ||
+    (!!hasServiceNamedExport && !!hasClassExport)
   );
 }
 
@@ -203,7 +240,7 @@ export function isEmailTemplate(node: DependencyNode): boolean {
     file.toLowerCase().includes('/mail/') ||
     file.toLowerCase().includes('/notifications/');
 
-  const hasTemplateFunction = exports.some(
+  const hasTemplateFunction = (exports || []).some(
     (e) =>
       e.type === 'function' &&
       (e.name.toLowerCase().startsWith('render') ||
@@ -212,7 +249,7 @@ export function isEmailTemplate(node: DependencyNode): boolean {
           e.name.toLowerCase().includes('email')))
   );
 
-  return isEmailPath || isEmailTemplateName || hasTemplateFunction;
+  return !!isEmailPath || !!isEmailTemplateName || !!hasTemplateFunction;
 }
 
 /**
@@ -240,7 +277,7 @@ export function isParserFile(node: DependencyNode): boolean {
     file.toLowerCase().includes('/parsers/') ||
     file.toLowerCase().includes('/transformers/');
 
-  const hasParseFunction = exports.some(
+  const hasParseFunction = (exports || []).some(
     (e) =>
       e.type === 'function' &&
       (e.name.toLowerCase().startsWith('parse') ||
@@ -248,7 +285,7 @@ export function isParserFile(node: DependencyNode): boolean {
         e.name.toLowerCase().startsWith('extract'))
   );
 
-  return isParserName || isParserPath || hasParseFunction;
+  return !!isParserName || !!isParserPath || !!hasParseFunction;
 }
 
 /**
@@ -266,14 +303,47 @@ export function isSessionFile(node: DependencyNode): boolean {
     file.toLowerCase().includes('/sessions/') ||
     file.toLowerCase().includes('/state/');
 
-  const hasSessionExport = exports.some(
+  const hasSessionExport = (exports || []).some(
     (e) =>
       e.name.toLowerCase().includes('session') ||
       e.name.toLowerCase().includes('state') ||
       e.name.toLowerCase().includes('store')
   );
 
-  return isSessionName || isSessionPath || hasSessionExport;
+  return !!isSessionName || !!isSessionPath || !!hasSessionExport;
+}
+
+/**
+ * Detect if a file is a configuration or schema file
+ */
+export function isConfigFile(node: DependencyNode): boolean {
+  const { file, exports } = node;
+  const lowerPath = file.toLowerCase();
+  const fileName = file.split('/').pop()?.toLowerCase();
+
+  const configPatterns = [
+    '.config.',
+    'tsconfig',
+    'jest.config',
+    'package.json',
+    'aiready.json',
+    'next.config',
+    'sst.config',
+  ];
+  const isConfigName = configPatterns.some((p) => fileName?.includes(p));
+  const isConfigPath =
+    lowerPath.includes('/config/') ||
+    lowerPath.includes('/settings/') ||
+    lowerPath.includes('/schemas/');
+
+  const hasSchemaExports = (exports || []).some(
+    (e) =>
+      e.name.toLowerCase().includes('schema') ||
+      e.name.toLowerCase().includes('config') ||
+      e.name.toLowerCase().includes('setting')
+  );
+
+  return !!isConfigName || !!isConfigPath || !!hasSchemaExports;
 }
 
 /**
@@ -290,7 +360,7 @@ export function isNextJsPage(node: DependencyNode): boolean {
 
   if (!isInAppDir || !isPageFile) return false;
 
-  const hasDefaultExport = exports.some((e) => e.type === 'default');
+  const hasDefaultExport = (exports || []).some((e) => e.type === 'default');
   const nextJsExports = [
     'metadata',
     'generatemetadata',
@@ -298,11 +368,11 @@ export function isNextJsPage(node: DependencyNode): boolean {
     'jsonld',
     'icon',
   ];
-  const hasNextJsExports = exports.some((e) =>
+  const hasNextJsExports = (exports || []).some((e) =>
     nextJsExports.includes(e.name.toLowerCase())
   );
 
-  return hasDefaultExport || hasNextJsExports;
+  return !!hasDefaultExport || !!hasNextJsExports;
 }
 
 /**
@@ -323,7 +393,9 @@ export function adjustCohesionForClassification(
     case 'utility-module': {
       if (
         node &&
-        hasRelatedExportNames(node.exports.map((e) => e.name.toLowerCase()))
+        hasRelatedExportNames(
+          (node.exports || []).map((e) => e.name.toLowerCase())
+        )
       ) {
         return Math.max(0.8, Math.min(1, baseCohesion + 0.45));
       }

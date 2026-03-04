@@ -85,11 +85,11 @@ export function getGeneralRecommendations(
 ): {
   recommendations: string[];
   issues: string[];
-  severity: 'critical' | 'major' | 'minor' | 'info';
+  severity: any;
 } {
   const recommendations: string[] = [];
   const issues: string[] = [];
-  let severity: 'critical' | 'major' | 'minor' | 'info' = 'info';
+  let severity: string = 'info';
 
   if (metrics.contextBudget > thresholds.maxContextBudget) {
     issues.push(
@@ -135,5 +135,5 @@ export function getGeneralRecommendations(
     if (severity === 'info') severity = 'minor';
   }
 
-  return { recommendations, issues, severity };
+  return { recommendations, issues, severity: severity as any };
 }

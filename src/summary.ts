@@ -141,7 +141,11 @@ export function generateSummary(
   const topExpensiveFiles = results
     .sort((a, b) => b.contextBudget - a.contextBudget)
     .slice(0, 10)
-    .map((r) => ({ file: r.file, budget: r.contextBudget }));
+    .map((r) => ({
+      file: r.file,
+      contextBudget: r.contextBudget,
+      severity: r.severity,
+    }));
 
   return {
     totalFiles,

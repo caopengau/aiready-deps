@@ -28,7 +28,28 @@ export function detectModuleClusters(
       return sum + (node?.tokenCost || 0);
     }, 0);
 
-    const fragmentation = calculateFragmentation(files, domain, options);
+    // Calculate shared import ratio for coupling discount
+    let sharedImportRatio = 0;
+    if (files.length >= 2) {
+      const allImportSets = files.map(
+        (f) => new Set(graph.nodes.get(f)?.imports || [])
+      );
+      let intersection = new Set(allImportSets[0]);
+      let union = new Set(allImportSets[0]);
+
+      for (let i = 1; i < allImportSets.length; i++) {
+        const nextSet = allImportSets[i];
+        intersection = new Set([...intersection].filter((x) => nextSet.has(x)));
+        for (const x of nextSet) union.add(x);
+      }
+
+      sharedImportRatio = union.size > 0 ? intersection.size / union.size : 0;
+    }
+
+    const fragmentation = calculateFragmentation(files, domain, {
+      ...options,
+      sharedImportRatio,
+    });
 
     // Average cohesion for the cluster
     let totalCohesion = 0;
