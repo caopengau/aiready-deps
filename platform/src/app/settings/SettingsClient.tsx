@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { signIn } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';

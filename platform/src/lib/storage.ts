@@ -296,10 +296,54 @@ export function normalizeReport(raw: any): AnalysisData {
     for (const item of scoring.breakdown) {
       const platformKey = toolMappings[item.toolName];
       if (platformKey) {
+        // Collect technical issues/details for this tool
+        let details: any[] = item.recommendations || [];
+
+        // Patterns: Add actual duplicates
+        if (item.toolName === 'patterns' && Array.isArray(raw.duplicates)) {
+          details = [...details, ...raw.duplicates];
+        }
+
+        // Context: Add context results
+        if (item.toolName === 'context' && Array.isArray(raw.context)) {
+          details = [...details, ...raw.context];
+        }
+
+        // Consistency: Add consistency results
+        if (
+          item.toolName === 'consistency' &&
+          raw.consistency?.results &&
+          Array.isArray(raw.consistency.results)
+        ) {
+          const consistencyIssues = raw.consistency.results.flatMap(
+            (r: any) => r.issues || []
+          );
+          details = [...details, ...consistencyIssues];
+        }
+
+        // Other tools: Merge their results if they exist
+        const resultKey =
+          item.toolName === 'doc-drift'
+            ? 'docDrift'
+            : item.toolName === 'deps-health'
+              ? 'deps'
+              : item.toolName === 'change-amplification'
+                ? 'changeAmplification'
+                : item.toolName;
+
+        if (raw[resultKey] && Array.isArray(raw[resultKey].issues)) {
+          details = [...details, ...raw[resultKey].issues];
+        } else if (raw[resultKey] && Array.isArray(raw[resultKey].results)) {
+          const toolResults = raw[resultKey].results.flatMap(
+            (r: any) => r.issues || []
+          );
+          details = [...details, ...toolResults];
+        }
+
         breakdown[platformKey] = {
           score: item.score || 0,
           count: item.rawMetrics?.totalIssues || item.rawMetrics?.count || 0,
-          details: item.recommendations || [],
+          details,
         };
       }
     }

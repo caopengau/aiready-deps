@@ -94,7 +94,18 @@ export default function RepoDetailClient({ repo, user }: Props) {
             allIssues.push({
               ...issue,
               tool: toolName,
-              severity: issue.severity || 'major',
+              // Normalize severity: mapping recommendations' 'priority' to 'severity'
+              severity:
+                issue.severity ||
+                (issue.priority === 'high'
+                  ? 'critical'
+                  : issue.priority === 'medium'
+                    ? 'major'
+                    : issue.priority === 'low'
+                      ? 'minor'
+                      : 'major'),
+              // Normalize message
+              message: issue.message || issue.action || 'Unknown issue',
             });
           });
         }
@@ -131,25 +142,34 @@ export default function RepoDetailClient({ repo, user }: Props) {
         {/* Repo Title & Score */}
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
-            <Link
-              href="/dashboard"
-              className="text-cyan-400 text-xs font-black uppercase tracking-widest hover:text-cyan-300 transition-colors flex items-center gap-2"
-            >
-              <svg
-                className="w-3 h-3 rotate-180"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex items-center gap-6">
+              <Link
+                href="/dashboard"
+                className="text-cyan-400 text-xs font-black uppercase tracking-widest hover:text-cyan-300 transition-colors flex items-center gap-2"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="3"
-                  d="M13 5l7 7-7 7"
-                />
-              </svg>
-              Back to Dashboard
-            </Link>
+                <svg
+                  className="w-3 h-3 rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="3"
+                    d="M13 5l7 7-7 7"
+                  />
+                </svg>
+                Back to Dashboard
+              </Link>
+              <Link
+                href={`/dashboard/repo/${repo.id}/visualize`}
+                className="text-purple-400 text-xs font-black uppercase tracking-widest hover:text-purple-300 transition-colors flex items-center gap-2"
+              >
+                <TrendingUpIcon className="w-3.5 h-3.5" />
+                View Relationship Map
+              </Link>
+            </div>
             <div className="space-y-1">
               <h1 className="text-4xl font-black text-white leading-tight">
                 {repo.name}
@@ -367,6 +387,12 @@ export default function RepoDetailClient({ repo, user }: Props) {
                     filteredIssues.map((issue, i) => {
                       const idx = allIssues.indexOf(issue);
                       const isExpanded = expandedIssues.has(idx);
+                      const mainFile =
+                        issue.file ||
+                        issue.fileName ||
+                        issue.file1 ||
+                        issue.location?.file;
+
                       return (
                         <motion.div
                           key={idx}
@@ -386,13 +412,14 @@ export default function RepoDetailClient({ repo, user }: Props) {
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
-                                    {issue.tool} / {issue.type || 'logic'}
+                                    {issue.tool.replace(/([A-Z])/g, ' $1')} /{' '}
+                                    {issue.type || 'logic'}
                                   </span>
                                   {!isExpanded && (
                                     <div className="flex gap-2">
-                                      {issue.file && (
+                                      {mainFile && (
                                         <span className="text-[10px] text-slate-600 font-mono truncate max-w-[150px]">
-                                          {issue.file.split('/').pop()}
+                                          {String(mainFile).split('/').pop()}
                                         </span>
                                       )}
                                     </div>
@@ -408,6 +435,54 @@ export default function RepoDetailClient({ repo, user }: Props) {
                                 {issue.message}
                               </h4>
 
+                              {!isExpanded && (
+                                <div className="flex flex-wrap gap-2 pt-1 opacity-70">
+                                  {allIssues
+                                    .filter(
+                                      (i) =>
+                                        i.tool === issue.tool &&
+                                        (i.message === issue.message ||
+                                          i.action === issue.action)
+                                    )
+                                    .slice(0, 3)
+                                    .map((i, idx) => {
+                                      const f =
+                                        i.file ||
+                                        i.fileName ||
+                                        i.file1 ||
+                                        i.location?.file;
+                                      if (!f) return null;
+                                      return (
+                                        <div
+                                          key={idx}
+                                          className="text-[9px] font-mono text-slate-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/5"
+                                        >
+                                          {String(f).split('/').pop()}
+                                          {(i.line || i.location?.line) &&
+                                            `:L${i.line || i.location.line}`}
+                                        </div>
+                                      );
+                                    })}
+                                  {allIssues.filter(
+                                    (i) =>
+                                      i.tool === issue.tool &&
+                                      (i.message === issue.message ||
+                                        i.action === issue.action)
+                                  ).length > 3 && (
+                                    <div className="text-[9px] font-mono text-slate-500 py-0.5">
+                                      +
+                                      {allIssues.filter(
+                                        (i) =>
+                                          i.tool === issue.tool &&
+                                          (i.message === issue.message ||
+                                            i.action === issue.action)
+                                      ).length - 3}
+                                      more
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
                               <AnimatePresence>
                                 {isExpanded && (
                                   <motion.div
@@ -417,12 +492,12 @@ export default function RepoDetailClient({ repo, user }: Props) {
                                     className="overflow-hidden"
                                   >
                                     <div className="pt-4 space-y-4">
-                                      {/* Location & Context */}
-                                      <div className="flex flex-wrap gap-4 pt-1">
+                                      {/* Location & Context Tags */}
+                                      <div className="flex flex-wrap gap-2 pt-1">
                                         {issue.file1 && (
-                                          <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 bg-cyan-400/5 px-2 py-1 rounded border border-cyan-400/10">
-                                            <FileIcon className="w-3.5 h-3.5" />
-                                            {issue.file1}
+                                          <div className="flex items-center gap-2 text-[10px] font-mono text-cyan-400 bg-cyan-400/5 px-2 py-1 rounded border border-cyan-400/10">
+                                            <FileIcon className="w-3 h-3" />
+                                            Target: {issue.file1}
                                             {issue.location?.line && (
                                               <span className="text-slate-600">
                                                 :L{issue.location.line}
@@ -431,14 +506,14 @@ export default function RepoDetailClient({ repo, user }: Props) {
                                           </div>
                                         )}
                                         {issue.file2 && (
-                                          <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 bg-cyan-400/5 px-2 py-1 rounded border border-cyan-400/10">
-                                            <FileIcon className="w-3.5 h-3.5" />
-                                            {issue.file2}
+                                          <div className="flex items-center gap-2 text-[10px] font-mono text-cyan-400 bg-cyan-400/5 px-2 py-1 rounded border border-cyan-400/10">
+                                            <FileIcon className="w-3 h-3" />
+                                            Match: {issue.file2}
                                           </div>
                                         )}
                                         {issue.file && !issue.file1 && (
-                                          <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 bg-cyan-400/5 px-2 py-1 rounded border border-cyan-400/10">
-                                            <FileIcon className="w-3.5 h-3.5" />
+                                          <div className="flex items-center gap-2 text-[10px] font-mono text-cyan-400 bg-cyan-400/5 px-2 py-1 rounded border border-cyan-400/10">
+                                            <FileIcon className="w-3 h-3" />
                                             {issue.file}
                                             {issue.line && (
                                               <span className="text-slate-600">
@@ -447,17 +522,35 @@ export default function RepoDetailClient({ repo, user }: Props) {
                                             )}
                                           </div>
                                         )}
+                                        {issue.similarity && (
+                                          <div className="text-[10px] font-bold text-emerald-400 bg-emerald-400/5 px-2 py-1 rounded border border-emerald-400/10">
+                                            {(issue.similarity * 100).toFixed(
+                                              0
+                                            )}
+                                            % Similarity
+                                          </div>
+                                        )}
+                                        {issue.chainLength && (
+                                          <div className="text-[10px] font-bold text-amber-400 bg-amber-400/5 px-2 py-1 rounded border border-amber-400/10">
+                                            Chain: {issue.chainLength}
+                                          </div>
+                                        )}
+                                        {issue.expected && (
+                                          <div className="text-[10px] font-bold text-blue-400 bg-blue-400/5 px-2 py-1 rounded border border-blue-400/10">
+                                            Expected: {issue.expected}
+                                          </div>
+                                        )}
                                       </div>
 
-                                      {/* Suggestion */}
-                                      {issue.suggestion && (
+                                      {/* Suggestion / Action */}
+                                      {(issue.suggestion || issue.action) && (
                                         <div className="p-4 bg-indigo-500/5 rounded-xl border border-indigo-500/10 space-y-2">
                                           <div className="flex items-center gap-2 text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">
                                             <BrainIcon className="w-4 h-4" />
                                             Recommendation
                                           </div>
                                           <p className="text-sm text-slate-300 leading-relaxed italic">
-                                            "{issue.suggestion}"
+                                            "{issue.suggestion || issue.action}"
                                           </p>
                                         </div>
                                       )}
