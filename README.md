@@ -50,7 +50,7 @@ aiready patterns . --similarity 0.6
 
 ## 🌐 Platform Integration
 
-Connect your local scans to the [AIReady Dashboard](https://getaiready.dev/dashboard).
+Connect your local scans to the [AIReady Dashboard](https://platform.getaiready.dev/dashboard).
 
 ### Automatic Upload
 

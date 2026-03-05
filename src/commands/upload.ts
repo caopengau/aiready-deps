@@ -26,7 +26,9 @@ export async function uploadAction(file: string, options: UploadOptions) {
       )
     );
     console.log(
-      chalk.dim('   Get an API key from https://getaiready.dev/dashboard')
+      chalk.dim(
+        '   Get an API key from https://platform.getaiready.dev/dashboard'
+      )
     );
     process.exit(1);
   }
