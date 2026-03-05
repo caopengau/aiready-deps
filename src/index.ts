@@ -240,13 +240,20 @@ export async function analyzePatterns(options: PatternDetectOptions): Promise<{
 
   const results: AnalysisResult[] = [];
 
-  // Read all files
-  const fileContents = await Promise.all(
-    files.map(async (file) => ({
-      file,
-      content: await readFileContent(file),
-    }))
-  );
+  // Read all files in batches to avoid EMFILE errors
+  const BATCH_SIZE = 50;
+  const fileContents: { file: string; content: string }[] = [];
+
+  for (let i = 0; i < files.length; i += BATCH_SIZE) {
+    const batch = files.slice(i, i + BATCH_SIZE);
+    const batchContents = await Promise.all(
+      batch.map(async (file) => ({
+        file,
+        content: await readFileContent(file),
+      }))
+    );
+    fileContents.push(...batchContents);
+  }
 
   // Detect duplicate patterns across all files
   const duplicates = await detectDuplicatePatterns(fileContents, {
