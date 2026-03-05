@@ -16,7 +16,14 @@ const Post = () => (
     </p>
     <p>
       That’s why we built <strong>AIReady</strong>: to measure the 9 core
-      dimensions of AI-readiness.
+      dimensions of AI-readiness. You can explore our{' '}
+      <a
+        href="https://platform.getaiready.dev/metrics"
+        className="text-blue-600 font-bold hover:underline"
+      >
+        comprehensive methodology and refactoring playbooks
+      </a>{' '}
+      on our platform.
     </p>
 
     <h2>Why Traditional Metrics Fall Short</h2>
@@ -47,6 +54,18 @@ const Post = () => (
     </div>
 
     <h2>The 9 Dimensions of AI-Readiness: Technical Deep Dive</h2>
+    <p className="mb-8">
+      Below is a summary of the 9 dimensions. For a full technical breakdown,
+      including structural examples, scoring thresholds, and refactoring
+      playbooks, visit our{' '}
+      <a
+        href="https://platform.getaiready.dev/metrics"
+        className="text-blue-600 font-bold hover:underline"
+      >
+        interactive methodology explorer
+      </a>
+      .
+    </p>
 
     <div className="space-y-12 my-12">
       {/* 1. Semantic Duplicates */}

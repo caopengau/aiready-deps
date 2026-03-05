@@ -141,10 +141,21 @@ export default function LiveScanDemo() {
               Real-Time Scanning
             </span>
           </h2>
-          <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-6">
             Watch AIReady analyze your codebase and surface issues that confuse
-            AI models
+            AI models.
           </p>
+          <motion.a
+            href="https://platform.getaiready.dev/metrics"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-flex items-center gap-2 text-cyan-400 font-bold hover:text-cyan-300 transition-colors group"
+          >
+            Learn about our AI Readiness methodology
+            <span className="group-hover:translate-x-1 transition-transform">
+              →
+            </span>
+          </motion.a>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">

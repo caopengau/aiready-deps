@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { auth } from '@/app/api/auth/[...nextauth]/route';
 import {
   getUserByEmail,
@@ -7,6 +8,19 @@ import {
   TeamMember,
 } from '@/lib/db';
 import MetricsClient from './MetricsClient';
+
+export const metadata: Metadata = {
+  title: 'AI Readiness Metrics & Methodology',
+  description:
+    'Deep dive into the 9 core metrics of AI-readiness: Semantic Duplicates, Context Fragmentation, Naming Consistency, and more. Learn how we measure and improve your codebase for AI collaboration.',
+  keywords: [
+    'AI readiness methodology',
+    'codebase metrics',
+    'AI scoring thresholds',
+    'developer productivity',
+    'semantic duplication',
+  ],
+};
 
 export default async function MetricsPage() {
   const session = await auth();

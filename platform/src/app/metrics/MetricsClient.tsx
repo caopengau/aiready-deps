@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import Script from 'next/script';
 import {
   ShieldIcon,
   ChartIcon,
@@ -13,7 +14,9 @@ import {
 } from '@/components/Icons';
 import CodeBlock from '@/components/CodeBlock';
 import PlatformShell from '@/components/PlatformShell';
+import Breadcrumb from '@/components/Breadcrumb';
 import { Team, TeamMember } from '@/lib/db';
+import { LANDING_BASE_URL, PLATFORM_BASE_URL } from '@/lib/seo-schema';
 
 interface Props {
   user?: {
@@ -401,6 +404,24 @@ export default function MetricsClient({
 }: Props) {
   const [expandedMetric, setExpandedMetric] = useState<string | null>(null);
 
+  const techArticleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: 'AI Readiness Methodology: The 9 Core Metrics',
+    description:
+      'Technical breakdown of how AIReady measures codebase AI-readiness across 9 key dimensions.',
+    author: {
+      '@type': 'Organization',
+      name: 'AIReady',
+      url: LANDING_BASE_URL,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'AIReady',
+    },
+    url: `${PLATFORM_BASE_URL}/metrics`,
+  };
+
   return (
     <PlatformShell
       user={user ? (user as any) : null}
@@ -408,6 +429,11 @@ export default function MetricsClient({
       overallScore={overallScore}
       activePage="dashboard"
     >
+      <Script
+        id="tech-article-schema-metrics"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(techArticleSchema) }}
+      />
       <div className="py-20 px-4 relative">
         {/* Animated background orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
@@ -416,6 +442,12 @@ export default function MetricsClient({
         </div>
 
         <div className="relative z-10 max-w-5xl mx-auto">
+          <Breadcrumb
+            items={[
+              { label: 'Dashboard', href: '/dashboard' },
+              { label: 'Metrics Methodology', href: '/metrics' },
+            ]}
+          />
           <div className="text-center mb-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

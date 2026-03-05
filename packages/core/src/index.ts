@@ -1,5 +1,6 @@
 export * from './types';
 export * from './types/language';
+export * from './types/contract';
 export * from './utils/file-scanner';
 export * from './utils/ast-parser';
 export * from './utils/metrics';
