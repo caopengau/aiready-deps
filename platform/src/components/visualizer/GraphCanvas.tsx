@@ -61,7 +61,13 @@ export function GraphCanvas({
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force(
         'collision',
-        d3.forceCollide().radius((d: any) => (d.color === '#4f46e5' ? 60 : 40))
+        d3.forceCollide().radius((d: any) => {
+          if (d.color === '#4f46e5') return 70;
+          const r = d.tokenCost
+            ? Math.max(8, Math.log2(d.tokenCost) * 3)
+            : Math.sqrt(d.value || 5) + 6;
+          return r + 10;
+        })
       )
       .force('x', d3.forceX(width / 2).strength(0.05))
       .force('y', d3.forceY(height / 2).strength(0.05));
@@ -87,11 +93,11 @@ export function GraphCanvas({
         return 0.2;
       })
       .attr('stroke-width', (d: any) => {
-        if (d.type === 'similarity') return 3;
-        if (d.type === 'reference') return 2;
-        if (d.type === 'dependency') return 2;
-        if (d.type === 'structural') return 1.5;
-        return 1;
+        if (d.type === 'similarity') return 5;
+        if (d.type === 'reference') return 3;
+        if (d.type === 'dependency') return 3;
+        if (d.type === 'structural') return 2;
+        return 1.5;
       })
       .attr('stroke-dasharray', (d: any) =>
         d.type === 'reference' ? '6,4' : null
@@ -118,16 +124,26 @@ export function GraphCanvas({
 
     node
       .append('circle')
-      .attr('r', (d: any) => Math.sqrt(d.value || 5) + 6)
+      .attr('r', (d: any) => {
+        // Use log2(tokenCost) * 3 for token-based sizing, min 8, max 30
+        if (d.tokenCost)
+          return Math.min(30, Math.max(8, Math.log2(d.tokenCost) * 3));
+        return Math.sqrt(d.value || 5) + 6;
+      })
       .attr('fill', (d: any) => d.color || '#97c2fc')
       .attr('stroke', '#0a0a0f')
       .attr('stroke-width', 2)
-      .style('filter', (d: any) => `drop-shadow(0 0 4px ${d.color}66)`);
+      .style('filter', (d: any) => `drop-shadow(0 0 6px ${d.color}88)`);
 
     node
       .append('text')
       .text((d: any) => d.label)
-      .attr('dy', (d: any) => Math.sqrt(d.value || 5) + 18)
+      .attr('dy', (d: any) => {
+        const r = d.tokenCost
+          ? Math.min(30, Math.max(8, Math.log2(d.tokenCost) * 3))
+          : Math.sqrt(d.value || 5) + 6;
+        return r + 12;
+      })
       .attr('text-anchor', 'middle')
       .attr('fill', '#94a3b8')
       .attr('font-size', '10px')
