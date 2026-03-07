@@ -20,38 +20,41 @@ interface Props {
 }
 
 export function ScanConfigForm({ repoId, initialSettings, onSave }: Props) {
-  const defaultSettings: AIReadyConfig = {
-    scan: {
-      tools: [
-        ToolName.PatternDetect,
-        ToolName.ContextAnalyzer,
-        ToolName.NamingConsistency,
-        ToolName.ChangeAmplification,
-        ToolName.AiSignalClarity,
-        ToolName.AgentGrounding,
-        ToolName.TestabilityIndex,
-        ToolName.DocDrift,
-        ToolName.DependencyHealth,
-      ],
-      exclude: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
-    },
-    tools: {
-      [ToolName.PatternDetect]: { minSimilarity: 0.8, minLines: 5 },
-      [ToolName.ContextAnalyzer]: { maxDepth: 5, minCohesion: 0.6 },
-      [ToolName.AiSignalClarity]: {
-        checkMagicLiterals: true,
-        checkBooleanTraps: true,
-        checkAmbiguousNames: true,
-        checkUndocumentedExports: true,
-        checkImplicitSideEffects: true,
-        checkDeepCallbacks: true,
+  const defaultSettings: AIReadyConfig = useMemo(
+    () => ({
+      scan: {
+        tools: [
+          ToolName.PatternDetect,
+          ToolName.ContextAnalyzer,
+          ToolName.NamingConsistency,
+          ToolName.ChangeAmplification,
+          ToolName.AiSignalClarity,
+          ToolName.AgentGrounding,
+          ToolName.TestabilityIndex,
+          ToolName.DocDrift,
+          ToolName.DependencyHealth,
+        ],
+        exclude: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
       },
-      [ToolName.AgentGrounding]: { maxRecommendedDepth: 4 },
-      [ToolName.DocDrift]: { staleMonths: 6 },
-    },
-  };
+      tools: {
+        [ToolName.PatternDetect]: { minSimilarity: 0.8, minLines: 5 },
+        [ToolName.ContextAnalyzer]: { maxDepth: 5, minCohesion: 0.6 },
+        [ToolName.AiSignalClarity]: {
+          checkMagicLiterals: true,
+          checkBooleanTraps: true,
+          checkAmbiguousNames: true,
+          checkUndocumentedExports: true,
+          checkImplicitSideEffects: true,
+          checkDeepCallbacks: true,
+        },
+        [ToolName.AgentGrounding]: { maxRecommendedDepth: 4 },
+        [ToolName.DocDrift]: { staleMonths: 6 },
+      },
+    }),
+    []
+  );
 
-  const [settings, setSettings] = useState<AIReadyConfig>(() => {
+  const mergedInitialSettings = useMemo<AIReadyConfig>(() => {
     if (!initialSettings) return defaultSettings;
 
     // Map aliases to canonical names in initialSettings
@@ -88,17 +91,18 @@ export function ScanConfigForm({ repoId, initialSettings, onSave }: Props) {
         ...initialSettings.tools,
       },
     };
-  });
+  }, [initialSettings, defaultSettings]);
+
+  const [settings, setSettings] = useState<AIReadyConfig>(
+    mergedInitialSettings
+  );
 
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const hasChanges = useMemo(() => {
-    return (
-      JSON.stringify(settings) !==
-      JSON.stringify(initialSettings || defaultSettings)
-    );
-  }, [settings, initialSettings, defaultSettings]);
+    return JSON.stringify(settings) !== JSON.stringify(mergedInitialSettings);
+  }, [settings, mergedInitialSettings]);
 
   const handleToggleTool = (tool: string) => {
     const tools = settings.scan?.tools || [];
