@@ -164,7 +164,7 @@ export async function scanAction(directory: string, options: ScanOptions) {
       }
 
       // Handle tool completion
-      process.stdout.write('\n'); // Clear the progress line
+      process.stdout.write('\r\x1b[K'); // Clear the progress line
       console.log(chalk.cyan(`--- ${event.tool.toUpperCase()} RESULTS ---`));
       const res = event.data;
       if (res && res.summary) {
@@ -182,12 +182,7 @@ export async function scanAction(directory: string, options: ScanOptions) {
     const results = await analyzeUnified({
       ...finalOptions,
       progressCallback,
-      onProgress: (processed: number, total: number, message: string) => {
-        process.stdout.write(
-          `\r\x1b[K   [${processed}/${total}] ${message}...`
-        );
-        if (processed === total) process.stdout.write('\n');
-      },
+      onProgress: () => {},
       suppressToolConfig: true,
     });
 
