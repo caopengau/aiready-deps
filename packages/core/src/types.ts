@@ -172,6 +172,25 @@ export interface ScanOptions {
   includeTests?: boolean;
 }
 
+/**
+ * Global options that should not be repeated in tool-specific audit logs
+ */
+export const GLOBAL_SCAN_OPTIONS = [
+  'rootDir',
+  'tools',
+  'toolConfigs',
+  'include',
+  'exclude',
+  'onProgress',
+  'progressCallback',
+  'includeTests',
+  'useSmartDefaults',
+  'maxDepth',
+  'streamResults',
+  'batchSize',
+  'costConfig',
+];
+
 export interface AIReadyConfig {
   // Global scan options
   scan?: {

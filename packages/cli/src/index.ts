@@ -3,6 +3,7 @@ import {
   ToolName,
   calculateOverallScore,
   calculateTokenBudget,
+  GLOBAL_SCAN_OPTIONS,
 } from '@aiready/core';
 import type {
   AnalysisResult,
@@ -89,31 +90,15 @@ const TOOL_PACKAGE_MAP: Record<string, string> = {
 };
 
 /**
- * Global options that should not be repeated in tool-specific audit logs
- */
-const GLOBAL_SCAN_OPTIONS = [
-  'rootDir',
-  'tools',
-  'toolConfigs',
-  'include',
-  'exclude',
-  'onProgress',
-  'progressCallback',
-  'includeTests',
-  'useSmartDefaults',
-  'maxDepth',
-  'streamResults',
-  'batchSize',
-];
-
-/**
- * Sanitize tool configuration by removing global options
+ * Sanitize tool configuration by removing global options (except rootDir)
  */
 function sanitizeToolConfig(config: any): any {
   if (!config || typeof config !== 'object') return config;
   const sanitized = { ...config };
-  GLOBAL_SCAN_OPTIONS.forEach((key) => {
-    delete (sanitized as any)[key];
+  GLOBAL_SCAN_OPTIONS.forEach((key: string) => {
+    if (key !== 'rootDir') {
+      delete (sanitized as any)[key];
+    }
   });
   return sanitized;
 }
@@ -186,26 +171,47 @@ export async function analyzeUnified(
       delete (sanitizedConfig as any).onProgress;
       delete (sanitizedConfig as any).progressCallback;
 
-      const toolOptions = {
-        ...options,
-        ...(options.toolConfigs?.[provider.id] || {}),
-        onProgress: (processed: number, total: number, message: string) => {
-          if (options.progressCallback) {
-            options.progressCallback({
-              tool: provider!.id,
-              processed,
-              total,
-              message,
-            });
-          }
-        },
+      // 1. Start with sanitized global subset
+      const toolOptions: any = {
+        rootDir: options.rootDir, // Always include rootDir
+      };
+
+      // 2. Add other global options that tools might need
+      GLOBAL_SCAN_OPTIONS.forEach((key) => {
+        if (key in options && key !== 'toolConfigs') {
+          toolOptions[key] = (options as any)[key];
+        }
+      });
+
+      // 3. Add tool-specific overrides
+      if (options.toolConfigs?.[provider.id]) {
+        Object.assign(toolOptions, options.toolConfigs[provider.id]);
+      } else if ((options as any)[provider.id]) {
+        // Fallback for legacy tool-specific keys
+        Object.assign(toolOptions, (options as any)[provider.id]);
+      }
+
+      // 4. Attach progress callback
+      toolOptions.onProgress = (
+        processed: number,
+        total: number,
+        message: string
+      ) => {
+        if (options.progressCallback) {
+          options.progressCallback({
+            tool: provider!.id,
+            processed,
+            total,
+            message,
+          });
+        }
       };
 
       const output = await provider.analyze(toolOptions);
 
-      // Inject configuration into metadata for auditing and fine-tuning
+      // Inject sanitized configuration into metadata for audit
       if (output.metadata) {
-        output.metadata.config = sanitizedConfig;
+        output.metadata.config = sanitizeToolConfig(toolOptions);
       }
 
       if (options.progressCallback) {
@@ -224,6 +230,10 @@ export async function analyzeUnified(
         result.summary.toolConfigs![provider.id] = sanitizeToolConfig(
           output.metadata.config
         );
+      } else {
+        // Fallback to our sanitized input options if spoke didn't return config
+        result.summary.toolConfigs![provider.id] =
+          sanitizeToolConfig(toolOptions);
       }
 
       // Track total files analyzed across all tools

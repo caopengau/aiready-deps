@@ -22,7 +22,7 @@ export const ContextAnalyzerProvider: ToolProvider = {
 
   async analyze(options: ScanOptions): Promise<SpokeOutput> {
     const results = await analyzeContext(options as ContextAnalyzerOptions);
-    const summary = generateSummary(results);
+    const summary = generateSummary(results, options);
 
     // Normalize to SpokeOutput format
     const normalizedResults: AnalysisResult[] = results.map(

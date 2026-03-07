@@ -63,6 +63,7 @@ export interface ConsistencyReport {
     patternIssues: number;
     architectureIssues: number;
     filesAnalyzed: number;
+    config?: any;
   };
   results: AnalysisResult[];
   recommendations: string[];

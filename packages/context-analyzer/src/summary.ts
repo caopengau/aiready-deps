@@ -4,13 +4,23 @@ import type {
   ModuleCluster,
 } from './types';
 import { calculatePathEntropy, calculateDirectoryDistance } from './analyzer';
+import { GLOBAL_SCAN_OPTIONS } from '@aiready/core';
 
 /**
  * Generate summary of context analysis results
  */
 export function generateSummary(
-  results: ContextAnalysisResult[]
+  results: ContextAnalysisResult[],
+  options?: any
 ): ContextSummary {
+  const config = options
+    ? Object.fromEntries(
+        Object.entries(options).filter(
+          ([key]) => !GLOBAL_SCAN_OPTIONS.includes(key) || key === 'rootDir'
+        )
+      )
+    : undefined;
+
   if (results.length === 0) {
     return {
       totalFiles: 0,
@@ -29,6 +39,7 @@ export function generateSummary(
       minorIssues: 0,
       totalPotentialSavings: 0,
       topExpensiveFiles: [],
+      config,
     };
   }
 
@@ -164,5 +175,6 @@ export function generateSummary(
     minorIssues,
     totalPotentialSavings,
     topExpensiveFiles,
+    config,
   };
 }

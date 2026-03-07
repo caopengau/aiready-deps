@@ -1,4 +1,9 @@
-import { scanFiles, Severity, IssueType } from '@aiready/core';
+import {
+  scanFiles,
+  Severity,
+  IssueType,
+  GLOBAL_SCAN_OPTIONS,
+} from '@aiready/core';
 import type { AnalysisResult, Issue } from '@aiready/core';
 import type {
   ConsistencyOptions,
@@ -162,6 +167,11 @@ export async function analyzeConsistency(
       patternIssues: patternCountFiltered,
       architectureIssues: 0,
       filesAnalyzed: filePaths.length,
+      config: Object.fromEntries(
+        Object.entries(options).filter(
+          ([key]) => !GLOBAL_SCAN_OPTIONS.includes(key) || key === 'rootDir'
+        )
+      ),
     },
     results,
     recommendations,

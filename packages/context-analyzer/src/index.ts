@@ -244,6 +244,7 @@ export async function analyzeContext(
   }
 
   const allResults = [...results, ...pythonResults];
+  const finalSummary = generateSummary(allResults, options);
   return allResults.sort((a, b) => {
     const severityOrder = { critical: 0, major: 1, minor: 2, info: 3 };
     const severityDiff = severityOrder[a.severity] - severityOrder[b.severity];

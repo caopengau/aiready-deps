@@ -105,6 +105,7 @@ export interface ContextSummary {
     contextBudget: number;
     severity: string;
   }>;
+  config?: any;
 }
 
 export interface DependencyGraph {
