@@ -16,8 +16,15 @@ import {
   visualizeHelpText,
   visualiseHelpText,
   changeAmplificationAction,
+  testabilityAction,
   uploadAction,
   uploadHelpText,
+  clawmartMeAction,
+  clawmartListingsAction,
+  clawmartCreateAction,
+  clawmartUploadAction,
+  clawmartDownloadAction,
+  clawmartHelpText,
 } from './commands';
 
 const getDirname = () => {
@@ -279,6 +286,20 @@ program
     await changeAmplificationAction(directory, options);
   });
 
+// Testability command
+program
+  .command('testability')
+  .description('Analyze test coverage and AI readiness')
+  .argument('[directory]', 'Directory to analyze', '.')
+  .option('--min-coverage <ratio>', 'Minimum acceptable coverage ratio', '0.3')
+  .option('--include <patterns>', 'File patterns to include (comma-separated)')
+  .option('--exclude <patterns>', 'File patterns to exclude (comma-separated)')
+  .option('-o, --output <format>', 'Output format: console, json', 'console')
+  .option('--output-file <path>', 'Output file path (for json)')
+  .action(async (directory, options) => {
+    await testabilityAction(directory, options);
+  });
+
 // Upload command - Upload report JSON to platform
 program
   .command('upload')
@@ -290,6 +311,71 @@ program
   .addHelpText('after', uploadHelpText)
   .action(async (file, options) => {
     await uploadAction(file, options);
+  });
+
+// ClawMart commands
+const clawmart = program
+  .command('clawmart')
+  .description('Manage ClawMart personas and skills')
+  .addHelpText('after', clawmartHelpText);
+
+clawmart
+  .command('me')
+  .description('Show my ClawMart creator profile')
+  .option('--api-key <key>', 'ClawMart API key')
+  .option('--server <url>', 'Custom ClawMart API server')
+  .action(async (options) => {
+    await clawmartMeAction(options);
+  });
+
+clawmart
+  .command('listings')
+  .description('Show my ClawMart listings')
+  .option('-q, --query <string>', 'Search query')
+  .option('-t, --type <type>', 'Filter by type: skill, persona')
+  .option('-l, --limit <number>', 'Limit results', '10')
+  .option('--api-key <key>', 'ClawMart API key')
+  .option('--server <url>', 'Custom ClawMart API server')
+  .action(async (options) => {
+    await clawmartListingsAction(options);
+  });
+
+clawmart
+  .command('create')
+  .description('Create a new listing on ClawMart')
+  .requiredOption('--name <string>', 'Listing name')
+  .requiredOption('--tagline <string>', 'Short tagline')
+  .option('--about <string>', 'Full description')
+  .option('--category <string>', 'Category', 'Utility')
+  .option('--capabilities <string>', 'Comma-separated list of capabilities')
+  .option('--price <number>', 'Price in USD', '0')
+  .option('--type <type>', 'Product type: skill, persona', 'skill')
+  .option('--api-key <key>', 'ClawMart API key')
+  .option('--server <url>', 'Custom ClawMart API server')
+  .action(async (options) => {
+    await clawmartCreateAction(options);
+  });
+
+clawmart
+  .command('upload')
+  .description('Upload content to a listing')
+  .argument('<id>', 'Listing ID')
+  .argument('<files...>', 'Files or directories to upload')
+  .option('--api-key <key>', 'ClawMart API key')
+  .option('--server <url>', 'Custom ClawMart API server')
+  .action(async (id, files, options) => {
+    await clawmartUploadAction(id, files as string[], options);
+  });
+
+clawmart
+  .command('download')
+  .description('Download a package from ClawMart')
+  .argument('<idOrSlug>', 'Listing ID or Slug')
+  .option('--outDir <path>', 'Output directory')
+  .option('--api-key <key>', 'ClawMart API key')
+  .option('--server <url>', 'Custom ClawMart API server')
+  .action(async (idOrSlug, options) => {
+    await clawmartDownloadAction(idOrSlug, options);
   });
 
 program.parse();

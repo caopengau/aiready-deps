@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@aiready/agent-grounding": "workspace:*",
+    "@aiready/clawmart": "workspace:*",
     "@aiready/consistency": "workspace:*",
     "@aiready/context-analyzer": "workspace:*",
     "@aiready/core": "workspace:*",

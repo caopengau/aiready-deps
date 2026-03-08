@@ -16,3 +16,11 @@ export { agentGroundingAction } from './agent-grounding';
 export { testabilityAction } from './testability';
 export { changeAmplificationAction } from './change-amplification';
 export { uploadAction, uploadHelpText } from './upload';
+export {
+  clawmartMeAction,
+  clawmartListingsAction,
+  clawmartCreateAction,
+  clawmartUploadAction,
+  clawmartDownloadAction,
+  clawmartHelpText,
+} from './clawmart';
