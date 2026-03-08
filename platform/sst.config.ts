@@ -157,23 +157,23 @@ export default $config({
         install: ['isomorphic-git', 'http'],
         copy: [
           {
-            from: '../node_modules/web-tree-sitter/web-tree-sitter.wasm',
+            from: '../node_modules/.pnpm/web-tree-sitter@0.26.6/node_modules/web-tree-sitter/web-tree-sitter.wasm',
             to: 'web-tree-sitter.wasm',
           },
           {
-            from: '../node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-python.wasm',
+            from: '../node_modules/.pnpm/@unit-mesh+treesitter-artifacts@1.7.7/node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-python.wasm',
             to: 'tree-sitter-python.wasm',
           },
           {
-            from: '../node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-java.wasm',
+            from: '../node_modules/.pnpm/@unit-mesh+treesitter-artifacts@1.7.7/node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-java.wasm',
             to: 'tree-sitter-java.wasm',
           },
           {
-            from: '../node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-go.wasm',
+            from: '../node_modules/.pnpm/@unit-mesh+treesitter-artifacts@1.7.7/node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-go.wasm',
             to: 'tree-sitter-go.wasm',
           },
           {
-            from: '../node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-c_sharp.wasm',
+            from: '../node_modules/.pnpm/@unit-mesh+treesitter-artifacts@1.7.7/node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-c_sharp.wasm',
             to: 'tree-sitter-c_sharp.wasm',
           },
         ],
