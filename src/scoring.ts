@@ -16,13 +16,33 @@ export function calculateDepsScore(report: DepsReport): ToolScoringOutput {
     trainingCutoffSkew: rawData.trainingCutoffSkew,
   });
 
-  const factors: ToolScoringOutput['factors'] = riskResult.signals.map(
-    (sig) => ({
-      name: sig.name,
-      impact: -sig.riskContribution,
-      description: sig.description,
-    })
-  );
+  const factors: ToolScoringOutput['factors'] = [
+    {
+      name: 'Outdated Packages',
+      impact: -Math.min(
+        30,
+        (rawData.outdatedPackages / Math.max(1, rawData.totalPackages)) *
+          100 *
+          0.3
+      ),
+      description: `${rawData.outdatedPackages} outdated packages`,
+    },
+    {
+      name: 'Deprecated Packages',
+      impact: -Math.min(
+        40,
+        (rawData.deprecatedPackages / Math.max(1, rawData.totalPackages)) *
+          100 *
+          0.4
+      ),
+      description: `${rawData.deprecatedPackages} deprecated packages`,
+    },
+    {
+      name: 'Training Cutoff Skew',
+      impact: -Math.min(30, rawData.trainingCutoffSkew * 100 * 0.3),
+      description: `Training cutoff skew of ${rawData.trainingCutoffSkew.toFixed(1)} years`,
+    },
+  ];
 
   const recommendations: ToolScoringOutput['recommendations'] =
     riskResult.recommendations.map((rec) => ({

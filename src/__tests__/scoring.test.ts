@@ -13,12 +13,12 @@ describe('Dependency Health Scoring', () => {
     },
     issues: [],
     rawData: {
-      totalPackages: 20,
-      outdatedPackages: 1,
-      deprecatedPackages: 0,
+      totalPackages: 100,
+      outdatedPackages: 10,
+      deprecatedPackages: 2,
       trainingCutoffSkew: 0.1,
     },
-    recommendations: ['Update lodash'],
+    recommendations: ['Replace 2 deprecated packages.'],
   };
 
   it('should map report to ToolScoringOutput correctly', () => {
@@ -27,7 +27,9 @@ describe('Dependency Health Scoring', () => {
     expect(scoring.toolName).toBe(ToolName.DependencyHealth);
     expect(scoring.score).toBe(85);
     expect(scoring.factors.length).toBeGreaterThan(0);
-    expect(scoring.recommendations[0].action).toBe('Update lodash');
+    expect(scoring.recommendations[0].action).toBe(
+      'Replace 2 deprecated packages.'
+    );
   });
 
   it('should set high priority for low scores', () => {
