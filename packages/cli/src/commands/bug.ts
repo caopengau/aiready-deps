@@ -1,24 +1,21 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 
+import { execSync } from 'child_process';
+
 /**
  * Handle bug and feedback reporting
  */
 export async function bugAction(message: string | undefined, options: any) {
   const repoUrl = 'https://github.com/caopengau/aiready-cli';
+  const repoSlug = 'caopengau/aiready-cli';
 
   if (message) {
     // Agent-assisted pre-filled issue
     const type = options.type || 'bug';
     const title = `[${type.toUpperCase()}] ${message}`;
-    const labels =
+    const label =
       type === 'bug' ? 'bug' : type === 'feature' ? 'enhancement' : 'metric';
-    const template =
-      type === 'bug'
-        ? 'bug_report.md'
-        : type === 'feature'
-          ? 'feature_request.md'
-          : 'new_metric_idea.md';
 
     const body = `
 ## Description
@@ -29,7 +26,36 @@ Generated via AIReady CLI 'bug' command.
 Type: ${type}
     `.trim();
 
-    const fullUrl = `${repoUrl}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=${labels}&template=${template}`;
+    if (options.submit) {
+      console.log(chalk.blue('🚀 Submitting issue via GitHub CLI...\n'));
+      try {
+        // Check if gh is authenticated
+        execSync('gh auth status', { stdio: 'ignore' });
+
+        const command = `gh issue create --repo ${repoSlug} --title ${JSON.stringify(title)} --body ${JSON.stringify(body)} --label ${label}`;
+        const output = execSync(command, { encoding: 'utf8' }).trim();
+
+        console.log(chalk.green('✅ Issue Created Successfully!'));
+        console.log(chalk.cyan(output));
+        return;
+      } catch (error) {
+        console.error(chalk.red('\n❌ Failed to submit via gh CLI.'));
+        console.log(
+          chalk.yellow(
+            '   Make sure gh is installed and run "gh auth login".\n'
+          )
+        );
+        console.log(chalk.dim('   Falling back to URL generation...'));
+      }
+    }
+
+    const template =
+      type === 'bug'
+        ? 'bug_report.md'
+        : type === 'feature'
+          ? 'feature_request.md'
+          : 'new_metric_idea.md';
+    const fullUrl = `${repoUrl}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=${label}&template=${template}`;
 
     console.log(chalk.green('🚀 Issue Draft Prepared!\n'));
     console.log(chalk.bold('Title:  ') + title);
@@ -70,4 +96,5 @@ EXAMPLES:
   $ aiready bug                                      # Show general links
   $ aiready bug "Naming check is too slow"           # Prepare a pre-filled bug report
   $ aiready bug "Add CO2 impact metric" --type metric # Prepare a metric suggestion
+  $ aiready bug "Fix typo in scan output" --submit   # Submit directly via gh CLI
 `;

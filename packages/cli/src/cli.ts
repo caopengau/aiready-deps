@@ -52,15 +52,15 @@ AI READINESS SCORING:
   Use --score flag with any analysis command for detailed breakdown.
 
 EXAMPLES:
-  $ aiready scan                          # Comprehensive analysis of current directory
-  $ aiready scan --score                  # Get AI Readiness Score (0-100)
+  $ aiready scan                          # Comprehensive analysis with AI Readiness Score
+  $ aiready scan --no-score               # Run scan without score calculation
   $ aiready scan --tools patterns         # Run only pattern detection
   $ npx @aiready/cli scan                 # Industry standard way to run standard scan
   $ aiready scan --output json            # Output raw JSON for piping
 
 GETTING STARTED:
-  1. Run 'aiready scan' to analyze your codebase
-  2. Use 'aiready scan --score' for AI readiness assessment
+  1. Run 'aiready scan' to analyze your codebase and get an AI Readiness Score
+  2. Use '--profile agentic' for agent-focused analysis
   3. Create aiready.json for persistent configuration
   4. Set up CI/CD with '--threshold' for quality gates
 
@@ -107,11 +107,8 @@ program
   .option('--exclude <patterns>', 'File patterns to exclude (comma-separated)')
   .option('-o, --output <format>', 'Output format: console, json', 'console')
   .option('--output-file <path>', 'Output file path (for json)')
-  .option('--score', 'Calculate and display AI Readiness Score (0-100)')
-  .option(
-    '--no-score',
-    'Disable calculating AI Readiness Score (enabled by default)'
-  )
+  .option('--score', 'Calculate and display AI Readiness Score (0-100)', true)
+  .option('--no-score', 'Disable calculating AI Readiness Score')
   .option('--weights <weights>', 'Custom scoring weights')
   .option('--threshold <score>', 'Fail CI/CD if score below threshold (0-100)')
   .option(
@@ -154,10 +151,8 @@ program
   .option('--exclude <patterns>', 'File patterns to exclude (comma-separated)')
   .option('-o, --output <format>', 'Output format: console, json', 'console')
   .option('--output-file <path>', 'Output file path (for json)')
-  .option(
-    '--score',
-    'Calculate and display AI Readiness Score for patterns (0-100)'
-  )
+  .option('--score', 'Calculate and display AI Readiness Score (0-100)', true)
+  .option('--no-score', 'Disable calculating AI Readiness Score')
   .addHelpText('after', patternsHelpText)
   .action(async (directory, options) => {
     await patternsAction(directory, options);
@@ -178,10 +173,8 @@ program
   .option('--exclude <patterns>', 'File patterns to exclude (comma-separated)')
   .option('-o, --output <format>', 'Output format: console, json', 'console')
   .option('--output-file <path>', 'Output file path (for json)')
-  .option(
-    '--score',
-    'Calculate and display AI Readiness Score for context (0-100)'
-  )
+  .option('--score', 'Calculate and display AI Readiness Score (0-100)', true)
+  .option('--no-score', 'Disable calculating AI Readiness Score')
   .action(async (directory, options) => {
     await contextAction(directory, options);
   });
@@ -208,10 +201,8 @@ program
     'console'
   )
   .option('--output-file <path>', 'Output file path (for json/markdown)')
-  .option(
-    '--score',
-    'Calculate and display AI Readiness Score for consistency (0-100)'
-  )
+  .option('--score', 'Calculate and display AI Readiness Score (0-100)', true)
+  .option('--no-score', 'Disable calculating AI Readiness Score')
   .action(async (directory, options) => {
     await consistencyAction(directory, options);
   });
@@ -386,6 +377,7 @@ program
   .description('Report a bug or provide feedback (Agent-friendly)')
   .argument('[message]', 'Short description of the issue')
   .option('-t, --type <type>', 'Issue type: bug, feature, metric', 'bug')
+  .option('--submit', 'Submit the issue directly using the GitHub CLI (gh)')
   .addHelpText('after', bugHelpText)
   .action(async (message, options) => {
     await bugAction(message, options);
