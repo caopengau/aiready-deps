@@ -76,23 +76,16 @@ export default function ClawHubPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-48 overflow-hidden border-b border-white/5">
-        {/* Cinematic Background Image - HIGH VISIBILITY */}
-        <div className="absolute inset-0 -z-10">
+      <section className="relative pt-32 pb-48 overflow-hidden border-b border-white/5 bg-[#0a0a0a]">
+        {/* Cinematic Background Image - ABSOLUTE VISIBILITY TEST */}
+        <div className="absolute inset-0 z-0 opacity-100">
           <Image
             src="/hero.png"
             alt="Hero Background"
             fill
-            className="object-cover opacity-85"
+            className="object-cover"
             priority
           />
-          {/* Subtle overlay for contrast */}
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a] opacity-80" />
-
-          {/* Subtle Color Mesh */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyber-purple/20 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyber-blue/20 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2" />
         </div>
 
         <div className="container mx-auto px-4 text-center relative">
@@ -101,7 +94,7 @@ export default function ClawHubPage() {
             <span>Autonomous Infrastructure Synthesis</span>
           </div>
 
-          <h1 className="text-6xl md:text-9xl font-black tracking-tighter mb-10 bg-gradient-to-r from-cyber-blue via-white to-cyber-purple bg-clip-text text-transparent leading-[1.1] pb-2 drop-shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
+          <h1 className="text-6xl md:text-9xl font-black tracking-tighter mb-10 bg-gradient-to-r from-cyber-blue via-white to-cyber-purple bg-clip-text text-transparent leading-[1.2] pb-4 drop-shadow-[0_10px_60px_rgba(0,0,0,1)]">
             Never-Dying,
             <br />
             <span className="italic">Self-Evolving</span> Claw
