@@ -87,6 +87,16 @@ const BLOG_POSTS = [
     hash: 'bridge-proto',
     category: 'PROTOCOL_BRIDGE',
   },
+  {
+    slug: 'omni-channel-ai-gateway',
+    title: 'Omni-Channel Command: One Agent, Six Interfaces',
+    excerpt:
+      'Integrating Telegram, Discord, Slack, and even iMessage into a unified AI spine. How we built a multi-platform agent that never misses a pulse.',
+    date: 'FEB 27, 2026',
+    readTime: '06 MIN',
+    hash: 'omni-gate',
+    category: 'OMNI_CHANNEL',
+  },
 ];
 
 export default function BlogIndex() {
