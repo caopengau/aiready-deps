@@ -31,7 +31,7 @@ export async function analyzeNamingGeneralized(
       // 1. Check Exports
       for (const exp of result.exports) {
         let pattern: RegExp | undefined;
-        let typeName = exp.type;
+        const typeName = exp.type;
 
         if (exp.type === 'class') {
           pattern = conventions.classPattern;

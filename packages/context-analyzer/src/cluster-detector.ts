@@ -35,7 +35,7 @@ export function detectModuleClusters(
         (f) => new Set(graph.nodes.get(f)?.imports || [])
       );
       let intersection = new Set(allImportSets[0]);
-      let union = new Set(allImportSets[0]);
+      const union = new Set(allImportSets[0]);
 
       for (let i = 1; i < allImportSets.length; i++) {
         const nextSet = allImportSets[i];

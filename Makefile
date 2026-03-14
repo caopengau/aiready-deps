@@ -50,11 +50,11 @@ help: ## Show all targets and descriptions in a markdown table (one aligned tabl
 		echo ""; \
 	done
 
-pre-commit: ## Run pre-commit checks (fix, build, check)
+pre-commit: ## Run pre-commit checks (lint-staged, build, check)
 	@$(call log_step,Running pre-commit checks...)
-	@if ! $(MAKE) fix; then \
+	@if ! $(MAKE) lint-staged; then \
 		$(call separator,$(RED)); \
-		$(call log_error,make fix failed); \
+		$(call log_error,make lint-staged failed); \
 		$(call separator,$(RED)); \
 		echo ""; \
 		echo "➡️  Fix the inner most errors above, then gradually work outward"; \
@@ -71,3 +71,15 @@ pre-commit: ## Run pre-commit checks (fix, build, check)
 		exit 1; \
 	fi
 	@$(call log_success,Pre-commit checks passed)
+
+pre-push: ## Run pre-push checks (AIReady scan)
+	@if [ "$$SKIP_PRE_PUSH" = "true" ]; then \
+		$(call log_info,⏭️  Skipping AIReady pre-push scan (SKIP_PRE_PUSH=true)); \
+		exit 0; \
+	fi
+	@$(call log_step,🚀 Running AIReady pre-push scan (Threshold: 80)...)
+	@node packages/cli/dist/cli.js scan . --threshold 80
+
+lint-staged: ## Run lint-staged on changed files
+	@$(call log_info,Running lint-staged...)
+	@$(PNPM) lint-staged

@@ -60,6 +60,7 @@ describe('Consistency CLI Action', () => {
     consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.mocked(core.loadMergedConfig).mockResolvedValue({
       output: { format: 'console' },
+      rootDir: '/test',
     });
   });
 
@@ -75,6 +76,7 @@ describe('Consistency CLI Action', () => {
   it('supports JSON output', async () => {
     vi.mocked(core.loadMergedConfig).mockResolvedValue({
       output: { format: 'json' },
+      rootDir: '/test',
     });
     await consistencyAction('.', {});
     expect(core.handleJSONOutput).toHaveBeenCalled();
@@ -83,6 +85,7 @@ describe('Consistency CLI Action', () => {
   it('supports Markdown output', async () => {
     vi.mocked(core.loadMergedConfig).mockResolvedValue({
       output: { format: 'markdown' },
+      rootDir: '/test',
     });
     await consistencyAction('.', {});
     expect(fs.writeFileSync).toHaveBeenCalled();

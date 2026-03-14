@@ -1,4 +1,4 @@
-import { Agent } from 'mastra';
+import { Agent } from '@mastra/core';
 import { z } from 'zod';
 
 export const RenameAgent = new Agent({
@@ -18,10 +18,7 @@ export const RenameAgent = new Agent({
     - Propose a mapping of old -> new names.
     - Execute the rename across all affected files.
   `,
-  model: {
-    provider: 'openai',
-    name: 'gpt-4o',
-  },
+  model: 'openai/gpt-4o',
 });
 
 export const RenameResultSchema = z.object({

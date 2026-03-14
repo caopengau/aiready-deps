@@ -23,7 +23,7 @@ describe('Consistency Provider', () => {
     const output = await ConsistencyProvider.analyze({ rootDir: '.' });
 
     expect(output.summary.filesAnalyzed).toBe(1);
-    expect(output.metadata.toolName).toBe('naming-consistency');
+    expect(output.metadata!.toolName).toBe('naming-consistency');
   });
 
   it('should score an output', () => {

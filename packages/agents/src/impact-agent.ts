@@ -1,4 +1,4 @@
-import { Agent } from 'mastra';
+import { Agent } from '@mastra/core';
 import { z } from 'zod';
 
 export const ImpactAgent = new Agent({
@@ -19,10 +19,7 @@ export const ImpactAgent = new Agent({
     - confidenceScore: number (0.0 to 1.0)
     - breakdown: string (explanation of the math)
   `,
-  model: {
-    provider: 'openai',
-    name: 'gpt-4o',
-  },
+  model: 'openai/gpt-4o',
 });
 
 export const ImpactSchema = z.object({

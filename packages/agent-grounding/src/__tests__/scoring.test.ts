@@ -5,9 +5,12 @@ import { ToolName } from '@aiready/core';
 
 describe('Agent Grounding Scoring', () => {
   const mockReport: AgentGroundingReport = {
+    issues: [],
     summary: {
       score: 65,
       rating: 'moderate',
+      filesAnalyzed: 0,
+      directoriesAnalyzed: 0,
       dimensions: {
         structureClarityScore: 60,
         selfDocumentationScore: 70,
@@ -16,7 +19,6 @@ describe('Agent Grounding Scoring', () => {
         domainConsistencyScore: 65,
       },
     },
-    results: [],
     rawData: {
       totalFiles: 20,
       totalDirectories: 5,
@@ -27,6 +29,8 @@ describe('Agent Grounding Scoring', () => {
       totalExports: 50,
       untypedExports: 10,
       inconsistentDomainTerms: 5,
+      barrelExports: 0,
+      domainVocabularySize: 0,
     },
     recommendations: ['Fix vague filenames'],
   };
@@ -50,6 +54,7 @@ describe('Agent Grounding Scoring', () => {
   it('should set high priority for low scores', () => {
     const lowScoreReport: AgentGroundingReport = {
       ...mockReport,
+      issues: [],
       summary: {
         ...mockReport.summary,
         score: 40,

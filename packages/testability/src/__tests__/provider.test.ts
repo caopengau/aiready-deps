@@ -18,7 +18,7 @@ describe('Testability Provider', () => {
     const output = await TestabilityProvider.analyze({ rootDir: '.' });
 
     expect(output.summary.score).toBe(90);
-    expect(output.metadata.toolName).toBe('testability-index');
+    expect(output.metadata!.toolName).toBe('testability-index');
   });
 
   it('should score an output', () => {

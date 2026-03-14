@@ -6,10 +6,11 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
-    "mastra": "^0.18.0",
+    "@mastra/core": "^0.24.0",
     "zod": "^3.0.0",
     "@aiready/core": "workspace:*",
     "@aiready/cli": "workspace:*"

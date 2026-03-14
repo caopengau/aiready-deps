@@ -18,7 +18,7 @@ vi.mock('@aiready/core', async () => {
       .fn()
       .mockImplementation((c, d) => ({ ...d, ...c })),
     loadMergedConfig: vi.fn().mockResolvedValue({
-      rootDir: '.',
+      rootDir: '/test',
       output: { format: 'console' },
       checkNaming: true,
       checkPatterns: true,
@@ -33,13 +33,11 @@ vi.mock('@aiready/core', async () => {
 
 // Mock all spokes
 vi.mock('@aiready/change-amplification', () => ({
-  analyzeChangeAmplification: vi
-    .fn()
-    .mockResolvedValue({
-      results: [],
-      summary: { rating: 'contained' },
-      recommendations: [],
-    }),
+  analyzeChangeAmplification: vi.fn().mockResolvedValue({
+    results: [],
+    summary: { rating: 'contained' },
+    recommendations: [],
+  }),
   calculateChangeAmplificationScore: vi.fn().mockReturnValue({ score: 80 }),
 }));
 vi.mock('@aiready/agent-grounding', () => ({
@@ -91,39 +89,33 @@ vi.mock('@aiready/deps', () => ({
   calculateDepsScore: vi.fn().mockReturnValue({ score: 80 }),
 }));
 vi.mock('@aiready/pattern-detect', () => ({
-  analyzePatterns: vi
-    .fn()
-    .mockResolvedValue({
-      results: [],
-      summary: { totalPatterns: 0 },
-      config: {},
-    }),
-  generateSummary: vi
-    .fn()
-    .mockReturnValue({
-      totalPatterns: 0,
-      totalTokenCost: 0,
-      patternsByType: {},
-      topDuplicates: [],
-    }),
+  analyzePatterns: vi.fn().mockResolvedValue({
+    results: [],
+    summary: { totalPatterns: 0 },
+    config: {},
+  }),
+  generateSummary: vi.fn().mockReturnValue({
+    totalPatterns: 0,
+    totalTokenCost: 0,
+    patternsByType: {},
+    topDuplicates: [],
+  }),
   getSmartDefaults: vi.fn().mockResolvedValue({}),
 }));
 vi.mock('@aiready/context-analyzer', () => ({
   analyzeContext: vi.fn().mockResolvedValue([]),
-  generateSummary: vi
-    .fn()
-    .mockReturnValue({
-      score: 80,
-      rating: 'good',
-      totalFiles: 0,
-      totalTokens: 0,
-      avgImportDepth: 0,
-      maxImportDepth: 0,
-      avgFragmentation: 0,
-      criticalIssues: 0,
-      majorIssues: 0,
-      totalPotentialSavings: 0,
-    }),
+  generateSummary: vi.fn().mockReturnValue({
+    score: 80,
+    rating: 'good',
+    totalFiles: 0,
+    totalTokens: 0,
+    avgImportDepth: 0,
+    maxImportDepth: 0,
+    avgFragmentation: 0,
+    criticalIssues: 0,
+    majorIssues: 0,
+    totalPotentialSavings: 0,
+  }),
   getSmartDefaults: vi.fn().mockResolvedValue({}),
 }));
 

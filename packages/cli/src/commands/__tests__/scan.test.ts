@@ -58,6 +58,7 @@ describe('Scan CLI Action', () => {
     vi.mocked(core.loadMergedConfig).mockResolvedValue({
       tools: ['pattern-detect'],
       output: { format: 'console' },
+      rootDir: '/test',
     });
     vi.mocked(index.analyzeUnified).mockResolvedValue({
       summary: {
@@ -144,6 +145,7 @@ describe('Scan CLI Action', () => {
     vi.mocked(core.loadMergedConfig).mockResolvedValue({
       tools: ['pattern-detect'],
       output: { format: 'json', file: 'out.json' },
+      rootDir: '/test',
     });
     await scanAction('.', {});
     expect(core.handleJSONOutput).toHaveBeenCalled();

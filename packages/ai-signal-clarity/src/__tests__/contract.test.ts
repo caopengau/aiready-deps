@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { analyzeAiSignalClarity } from '../index';
-import { validateSpokeOutput } from '../../../core/src/types/contract';
+import { validateSpokeOutput } from '@aiready/core';
 
 // Mock core functions
 vi.mock('@aiready/core', async (importOriginal) => {

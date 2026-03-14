@@ -22,7 +22,7 @@ describe('Pattern Detect Provider', () => {
     const output = await PatternDetectProvider.analyze({ rootDir: '.' });
 
     expect(output.summary.totalFiles).toBe(1);
-    expect(output.metadata.toolName).toBe('pattern-detect');
+    expect(output.metadata!.toolName).toBe('pattern-detect');
   });
 
   it('should include duplicates in summary for scoring', async () => {

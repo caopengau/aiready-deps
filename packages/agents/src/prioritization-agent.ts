@@ -1,4 +1,4 @@
-import { Agent } from 'mastra';
+import { Agent } from '@mastra/core';
 import { z } from 'zod';
 
 export const PrioritizationAgent = new Agent({
@@ -16,10 +16,7 @@ export const PrioritizationAgent = new Agent({
     - rank: 'P0' | 'P1' | 'P2' | 'P3'
     - reasoning: string explanation of the ranking decision.
   `,
-  model: {
-    provider: 'openai',
-    name: 'gpt-4o',
-  },
+  model: 'openai/gpt-4o',
 });
 
 export const PrioritySchema = z.object({

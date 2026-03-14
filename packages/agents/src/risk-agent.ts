@@ -1,4 +1,4 @@
-import { Agent } from 'mastra';
+import { Agent } from '@mastra/core';
 import { z } from 'zod';
 
 export const RiskAssessmentAgent = new Agent({
@@ -19,10 +19,7 @@ export const RiskAssessmentAgent = new Agent({
     - autoApprove: boolean (true only for 'low' risk)
     - reasoning: string
   `,
-  model: {
-    provider: 'openai',
-    name: 'gpt-4o',
-  },
+  model: 'openai/gpt-4o',
 });
 
 export const RiskSchema = z.object({

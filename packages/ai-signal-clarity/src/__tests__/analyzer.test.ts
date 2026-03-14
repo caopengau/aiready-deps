@@ -21,6 +21,7 @@ describe('analyzeAiSignalClarity', () => {
     vi.mocked(core.scanFiles).mockResolvedValue(['file1.ts', 'file2.ts']);
     vi.mocked(scanner.scanFile).mockResolvedValue({
       filePath: 'file1.ts',
+      fileName: 'file1.ts',
       issues: [
         {
           severity: 'critical',
@@ -40,6 +41,8 @@ describe('analyzeAiSignalClarity', () => {
         overloadedSymbols: 0,
         totalSymbols: 10,
         totalExports: 2,
+        largeFiles: 0,
+        totalLines: 0,
       },
       metrics: { tokenCost: 0, consistencyScore: 1 },
     });
@@ -57,6 +60,7 @@ describe('analyzeAiSignalClarity', () => {
     vi.mocked(core.scanFiles).mockResolvedValue(['file1.ts']);
     vi.mocked(scanner.scanFile).mockResolvedValue({
       filePath: 'file1.ts',
+      fileName: 'file1.ts',
       issues: [
         {
           severity: 'minor',
@@ -83,6 +87,8 @@ describe('analyzeAiSignalClarity', () => {
         overloadedSymbols: 0,
         totalSymbols: 10,
         totalExports: 2,
+        largeFiles: 0,
+        totalLines: 0,
       },
       metrics: { tokenCost: 0, consistencyScore: 1 },
     });

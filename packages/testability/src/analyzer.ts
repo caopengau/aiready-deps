@@ -115,7 +115,9 @@ function detectTestFramework(rootDir: string): boolean {
       try {
         const content = readFileSync(p, 'utf-8');
         if (m.deps.some((d) => content.includes(d))) return true;
-      } catch {}
+      } catch {
+        // Ignore file read errors
+      }
     }
   }
   return false;

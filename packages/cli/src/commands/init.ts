@@ -70,7 +70,7 @@ export async function initAction(options: {
     },
   };
 
-  let content = '';
+  let content: string;
   if (fileExt === 'js') {
     content = `/** @type {import('@aiready/core').AIReadyConfig} */\nmodule.exports = ${JSON.stringify(
       defaultConfig,

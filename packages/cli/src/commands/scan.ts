@@ -151,7 +151,7 @@ export async function scanAction(directory: string, options: ScanOptions) {
     )) as any;
 
     // Apply smart defaults for pattern detection if requested
-    let finalOptions = { ...baseOptions };
+    const finalOptions = { ...baseOptions };
     if (
       baseOptions.tools.includes(ToolName.PatternDetect) ||
       baseOptions.tools.includes('patterns')
@@ -469,20 +469,20 @@ export async function scanAction(directory: string, options: ScanOptions) {
     }
     await warnIfGraphCapExceeded(outputData, resolvedDir);
 
-    // CI/CD Gatekeeper logic
-    const isCI = options.ci || process.env.CI === 'true';
-    if (isCI && scoringResult) {
+    // Score Check & Gatekeeper logic
+    if (scoringResult) {
       const threshold = options.threshold
         ? parseInt(options.threshold)
         : undefined;
       const failOnLevel = options.failOn || 'critical';
+      const isCI = options.ci || process.env.CI === 'true';
 
       let shouldFail = false;
       let failReason = '';
 
-      // Emit annotations for all issues found
+      // Emit annotations only in CI
       const report = mapToUnifiedReport(results, scoringResult);
-      if (report.results && report.results.length > 0) {
+      if (isCI && report.results && report.results.length > 0) {
         console.log(
           chalk.cyan(
             `\n📝 Emitting GitHub Action annotations for ${report.results.length} issues...`
@@ -495,6 +495,9 @@ export async function scanAction(directory: string, options: ScanOptions) {
         shouldFail = true;
         failReason = `Score ${scoringResult.overall} < threshold ${threshold}`;
       }
+
+      // If failOnLevel is set (default 'critical'), check for issues
+      // But only fail if not 'none'
       if (failOnLevel !== 'none') {
         if (failOnLevel === 'critical' && report.summary.criticalIssues > 0) {
           shouldFail = true;
@@ -509,10 +512,10 @@ export async function scanAction(directory: string, options: ScanOptions) {
       }
 
       if (shouldFail) {
-        console.log(chalk.red(`\n🚫 PR BLOCKED: ${failReason}`));
+        console.log(chalk.red(`\n🚫 SCAN FAILED: ${failReason}`));
         process.exit(1);
       } else {
-        console.log(chalk.green('\n✅ PR PASSED'));
+        console.log(chalk.green('\n✅ SCAN PASSED'));
       }
     }
   } catch (error) {

@@ -1,9 +1,1 @@
-#!/bin/sh
-# Skip pre-push scan if SKIP_PRE_PUSH is set
-if [ "$SKIP_PRE_PUSH" = "true" ]; then
-  echo "⏭️  Skipping AIReady pre-push scan (SKIP_PRE_PUSH=true)"
-  exit 0
-fi
-
-echo "🚀 Running AIReady pre-push scan (Threshold: 80)..."
-node packages/cli/dist/cli.js scan . --threshold 80
+make pre-push

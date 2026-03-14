@@ -1,4 +1,4 @@
-import { Agent } from 'mastra';
+import { Agent } from '@mastra/core';
 import { z } from 'zod';
 
 export const ValidationAgent = new Agent({
@@ -17,10 +17,7 @@ export const ValidationAgent = new Agent({
     - errors: array of { file: string, message: string, line?: number }
     - feedbackForRefactor: string (detailed instructions for the RefactorAgent on how to fix these errors)
   `,
-  model: {
-    provider: 'openai',
-    name: 'gpt-4o',
-  },
+  model: 'openai/gpt-4o',
 });
 
 export const ValidationSchema = z.object({

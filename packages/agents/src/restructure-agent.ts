@@ -1,4 +1,4 @@
-import { Agent } from 'mastra';
+import { Agent } from '@mastra/core';
 import { z } from 'zod';
 
 export const RestructureAgent = new Agent({
@@ -17,10 +17,7 @@ export const RestructureAgent = new Agent({
     - strategy: string (explanation of the architectural vision)
     - impact: { cognitiveLoadReduction: number (0-100), fragmentationReduction: number (0-100) }
   `,
-  model: {
-    provider: 'openai',
-    name: 'gpt-4o',
-  },
+  model: 'openai/gpt-4o',
 });
 
 export const RestructureSchema = z.object({

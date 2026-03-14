@@ -18,7 +18,7 @@ describe('Agent Grounding Provider', () => {
     const output = await AgentGroundingProvider.analyze({ rootDir: '.' });
 
     expect(output.summary.score).toBe(90);
-    expect(output.metadata.toolName).toBe('agent-grounding');
+    expect(output.metadata!.toolName).toBe('agent-grounding');
   });
 
   it('should score an output', () => {

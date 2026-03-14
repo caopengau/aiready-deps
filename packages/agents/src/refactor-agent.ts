@@ -1,4 +1,4 @@
-import { Agent } from 'mastra';
+import { Agent } from '@mastra/core';
 import { z } from 'zod';
 
 export const RefactorAgent = new Agent({
@@ -19,10 +19,7 @@ export const RefactorAgent = new Agent({
     - Update the original call sites to use the consolidated logic.
     - Verify with type checking if possible.
   `,
-  model: {
-    provider: 'openai',
-    name: 'gpt-4o',
-  },
+  model: 'openai/gpt-4o',
 });
 
 export const RefactorResultSchema = z.object({

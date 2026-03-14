@@ -18,7 +18,7 @@ describe('AI Signal Clarity Provider', () => {
     const output = await AiSignalClarityProvider.analyze({ rootDir: '.' });
 
     expect(output.summary.filesAnalyzed).toBe(1);
-    expect(output.metadata.toolName).toBe('ai-signal-clarity');
+    expect(output.metadata!.toolName).toBe('ai-signal-clarity');
   });
 
   it('should score an output', () => {
