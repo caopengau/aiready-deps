@@ -111,3 +111,13 @@ test-downstream: ## Run all downstream verification tests (platform, visualizer,
 	@$(MAKE) test-vscode-extension || exit 1
 	@$(MAKE) test-landing || exit 1
 	@$(call log_success,All downstream services verified)
+
+test-clawmore-e2e-local: ## Run ClawMore E2E tests locally
+	@$(call log_step,Running ClawMore E2E tests...)
+	@cd clawmore && pnpm exec playwright test e2e/seo.spec.ts
+	@$(call log_success,ClawMore tests passed)
+
+test-clawmore-e2e-local: ## Run ClawMore E2E tests locally
+	@$(call log_step,Running ClawMore E2E tests...)
+	@cd clawmore && pnpm exec playwright test e2e/seo.spec.ts
+	@$(call log_success,ClawMore tests passed)

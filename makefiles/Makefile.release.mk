@@ -578,3 +578,14 @@ release-help: ## Show release help
 	echo "  make release-all TYPE=minor"; \
 	echo "  make release-landing TYPE=minor"; \
 	echo "  make release-status";
+
+release-clawmore: ## Release ClawMore: TYPE=patch|minor|major
+	@$(call log_step,Starting patch release for ClawMore...)
+	@cd clawmore && npm version patch --no-git-tag-version
+	@git add clawmore/package.json clawmore/app/blog/BlogClient.tsx
+	@git commit -m "chore(clawmore): release patch and fix BlogClient types"
+	@V=$$(jq -r .version < clawmore/package.json) && \
+	 git tag clawmore-v$$V && \
+	 git push origin main && \
+	 git push origin clawmore-v$$V
+	@$(MAKE) test-clawmore-e2e-local
