@@ -3,6 +3,7 @@
  */
 
 export { scanAction, scanHelpText } from './scan';
+export { initAction } from './init';
 export { patternsAction, patternsHelpText } from './patterns';
 export { contextAction } from './context';
 export { consistencyAction } from './consistency';

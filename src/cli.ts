@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import {
   scanAction,
   scanHelpText,
+  initAction,
   patternsAction,
   patternsHelpText,
   contextAction,
@@ -120,6 +121,20 @@ program
   .addHelpText('after', scanHelpText)
   .action(async (directory, options) => {
     await scanAction(directory, options);
+  });
+
+// Init command - Generate default configuration
+program
+  .command('init')
+  .description('Generate a default configuration (aiready.json)')
+  .option('-f, --force', 'Overwrite existing configuration file')
+  .option(
+    '--js',
+    'Generate configuration as a JavaScript file (aiready.config.js)'
+  )
+  .action(async (options) => {
+    const format = options.js ? 'js' : 'json';
+    await initAction({ force: options.force, format });
   });
 
 // Patterns command - Detect duplicate code patterns
