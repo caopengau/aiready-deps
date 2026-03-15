@@ -5,6 +5,15 @@ import { isTestFile } from './ast-utils';
 /**
  * Calculate cohesion score (how related are exports in a file)
  */
+/**
+ * Calculates a cohesion score (0-1) for a module based on its exports,
+ * shared imports, and internal structure. High cohesion indicates
+ * a well-focused module that is easy for AI models to reason about.
+ *
+ * @param exports - Exported symbols and their metadata
+ * @param imports - Imported symbols and their sources
+ * @returns Cohesion score between 0 and 1
+ */
 export function calculateEnhancedCohesion(
   exports: ExportInfo[],
   filePath?: string,

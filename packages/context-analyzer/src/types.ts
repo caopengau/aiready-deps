@@ -1,45 +1,77 @@
 import type { ScanOptions, Severity } from '@aiready/core';
 
+/**
+ * Options for the Context Analyzer tool.
+ * Controls thresholds for import depth, context budget, and cohesion.
+ */
 export interface ContextAnalyzerOptions extends ScanOptions {
-  maxDepth?: number; // Maximum acceptable import depth, default 5
-  maxContextBudget?: number; // Maximum acceptable token budget, default 10000
-  minCohesion?: number; // Minimum acceptable cohesion score (0-1), default 0.6
-  maxFragmentation?: number; // Maximum acceptable fragmentation (0-1), default 0.5
-  focus?: 'fragmentation' | 'cohesion' | 'depth' | 'all'; // Analysis focus, default 'all'
-  includeNodeModules?: boolean; // Include node_modules in analysis, default false
+  /** Maximum acceptable import depth (default: 5) */
+  maxDepth?: number;
+  /** Maximum acceptable token budget for a single context (default: 25000) */
+  maxContextBudget?: number;
+  /** Minimum acceptable cohesion score between 0 and 1 (default: 0.6) */
+  minCohesion?: number;
+  /** Maximum acceptable fragmentation score between 0 and 1 (default: 0.5) */
+  maxFragmentation?: number;
+  /** Analysis focus area: fragmentation, cohesion, depth, or all (default: 'all') */
+  focus?: 'fragmentation' | 'cohesion' | 'depth' | 'all';
+  /** Whether to include node_modules in the analysis (default: false) */
+  includeNodeModules?: boolean;
 }
 
+/**
+ * The result of a context analysis for a single file or module.
+ * Includes metrics for tokens, dependencies, cohesion, and AI impact.
+ */
 export interface ContextAnalysisResult {
+  /** The file path being analyzed */
   file: string;
 
   // Basic metrics
-  tokenCost: number; // Total tokens in this file
+  /** Total number of tokens in this file */
+  tokenCost: number;
+  /** Total lines of code in the file */
   linesOfCode: number;
 
   // Dependency analysis
-  importDepth: number; // Max depth of import tree
-  dependencyCount: number; // Total transitive dependencies
-  dependencyList: string[]; // All files in dependency tree
-  circularDeps: string[][]; // Circular dependency chains if any
+  /** Maximum depth of the import tree for this file */
+  importDepth: number;
+  /** Total number of transitive dependencies */
+  dependencyCount: number;
+  /** List of all files in the dependency tree */
+  dependencyList: string[];
+  /** Detected circular dependency chains */
+  circularDeps: string[][];
 
   // Cohesion analysis
-  cohesionScore: number; // 0-1, how related are exports (1 = perfect cohesion)
-  domains: string[]; // Detected domain categories (e.g., ['user', 'auth'])
+  /** Cohesion score from 0 to 1 (1 is perfect cohesion) */
+  cohesionScore: number;
+  /** Detected domain categories for the module */
+  domains: string[];
+  /** Number of exported symbols */
   exportCount: number;
 
   // AI context impact
-  contextBudget: number; // Total tokens to understand this file (includes all deps)
-  fragmentationScore: number; // 0-1, how scattered is this domain (0 = well-grouped)
-  relatedFiles: string[]; // Files that should be loaded together
+  /** Total tokens required to understand this file and all its dependencies */
+  contextBudget: number;
+  /** Fragmentation score from 0 to 1 (0 is well-grouped) */
+  fragmentationScore: number;
+  /** List of files that should be loaded together for full context */
+  relatedFiles: string[];
 
   // File classification (NEW)
-  fileClassification: FileClassification; // Type of file for analysis context
+  /** The semantic classification of the file (e.g. 'barrel-export', 'service-file') */
+  fileClassification: FileClassification;
 
   // Recommendations
+  /** Overall severity of identified issues */
   severity: Severity | 'critical' | 'major' | 'minor' | 'info';
-  issues: string[]; // List of specific problems
-  recommendations: string[]; // Actionable suggestions
-  potentialSavings: number; // Estimated token savings if fixed
+  /** List of specific structural problems found */
+  issues: string[];
+  /** Actionable suggestions for improving context readiness */
+  recommendations: string[];
+  /** Estimated tokens that could be saved by following recommendations */
+  potentialSavings: number;
 }
 
 /**

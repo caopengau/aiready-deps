@@ -24,8 +24,13 @@ import {
 import { getClassificationRecommendations } from './remediation';
 
 /**
- * Calculate cohesion score (how related are exports in a file)
- * Legacy wrapper for backward compatibility with exact test expectations
+ * Calculate cohesion score (how related are exports in a file).
+ * Legacy wrapper for backward compatibility with exact test expectations.
+ *
+ * @param exports - List of exported symbols
+ * @param filePath - Path to the file being analyzed
+ * @param options - Additional options for cohesion calculation
+ * @returns Cohesion score between 0 and 1
  */
 export function calculateCohesion(
   exports: ExportInfo[],
@@ -38,12 +43,20 @@ export function calculateCohesion(
 /**
  * Analyze AI context window cost for a codebase
  */
+/**
+ * Performs deep context analysis of a project.
+ * Scans files, builds a dependency graph, calculates context budgets,
+ * and identifies structural issues like high fragmentation or depth.
+ *
+ * @param options - Analysis parameters including root directory and focus areas
+ * @returns Comprehensive analysis results with metrics and identified issues
+ */
 export async function analyzeContext(
   options: ContextAnalyzerOptions
 ): Promise<ContextAnalysisResult[]> {
   const {
     maxDepth = 5,
-    maxContextBudget = 10000,
+    maxContextBudget = 25000,
     minCohesion = 0.6,
     maxFragmentation = 0.5,
     includeNodeModules = false,

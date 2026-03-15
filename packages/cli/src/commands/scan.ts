@@ -45,6 +45,14 @@ interface ScanOptions {
   server?: string;
 }
 
+/**
+ * CLI action handler for the "scan" command.
+ * Runs a comprehensive AI-readiness analysis across multiple tools,
+ * including pattern detection, context analysis, and naming consistency.
+ *
+ * @param directory - The directory to analyze (defaults to ".")
+ * @param options - CLI options from commander
+ */
 export async function scanAction(directory: string, options: ScanOptions) {
   console.log(chalk.blue('🚀 Starting AIReady unified analysis...\n'));
 

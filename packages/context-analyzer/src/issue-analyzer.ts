@@ -3,6 +3,14 @@ import { Severity } from '@aiready/core';
 /**
  * Internal issue analysis logic
  */
+/**
+ * Analyzes architectural issues related to AI context windows.
+ * Detects problems like high import depth, large context budgets,
+ * circular dependencies, and low cohesion.
+ *
+ * @param params - Combined metrics and graph data for a module
+ * @returns List of identified issues with severity and suggestions
+ */
 export function analyzeIssues(params: {
   file: string;
   importDepth: number;
@@ -131,6 +139,13 @@ export function analyzeIssues(params: {
   };
 }
 
+/**
+ * Determines if a file path belongs to a build artifact or dependency folder.
+ * Helps exclude generated files from analysis to prevent false positives.
+ *
+ * @param filePath - The path to check
+ * @returns True if the file is a build artifact, false otherwise
+ */
 export function isBuildArtifact(filePath: string): boolean {
   const lower = filePath.toLowerCase();
   return (

@@ -15,6 +15,13 @@ import {
 import chalk from 'chalk';
 import { writeFileSync } from 'fs';
 
+/**
+ * Orchestrates the context analysis CLI command.
+ * Merges configuration, invokes the analyzer, and formats the output (Console/JSON/HTML).
+ *
+ * @param directory - Root directory to analyze
+ * @param options - CLI options including focus area, max depth, and output format
+ */
 export async function contextActionHandler(directory: string, options: any) {
   console.log(chalk.blue('🔍 Analyzing context window costs...\n'));
 

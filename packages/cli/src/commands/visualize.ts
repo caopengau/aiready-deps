@@ -17,6 +17,14 @@ interface VisualizeOptions {
   dev?: boolean;
 }
 
+/**
+ * CLI action handler for the "visualize" command.
+ * Generates an interactive dependency graph visualization of the project
+ * to help understand code structure and AI context usage.
+ *
+ * @param directory - The directory to analyze and visualize
+ * @param options - CLI options from commander
+ */
 export async function visualizeAction(
   directory: string,
   options: VisualizeOptions
