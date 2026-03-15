@@ -10,13 +10,13 @@
       "**/node_modules/**",
       "**/dist/**",
       "**/build/**",
+      "**/.sst/**",
       "**/*.test.ts",
       "**/*.spec.ts"
     ],
     "tools": [
       "pattern-detect",
       "context-analyzer",
-      "naming-consistency",
       "ai-signal-clarity",
       "agent-grounding",
       "testability-index",
@@ -27,11 +27,11 @@
   },
   "tools": {
     "pattern-detect": {
-      "minSimilarity": 0.8,
+      "minSimilarity": 0.6,
       "minLines": 5,
       "batchSize": 50,
       "approx": true,
-      "minSharedTokens": 10,
+      "minSharedTokens": 8,
       "maxCandidatesPerBlock": 100
     },
     "context-analyzer": {

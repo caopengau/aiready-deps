@@ -54,7 +54,7 @@ export async function analyzePatterns(
           ? c.match(tryCatchPattern)
           : c.match(/\.catch\s*\(/);
       }),
-      type: 'error-handling',
+      type: 'pattern-inconsistency',
       description: `Mixed error handling styles: codebase primarily uses ${dominant}, but found ${minority} in some files.`,
       examples: [dominant, minority],
       severity: Severity.Minor,
@@ -73,7 +73,7 @@ export async function analyzePatterns(
           ? c.match(/\brequire\s*\(/)
           : c.match(/\bimport\b/);
       }),
-      type: 'import-style',
+      type: 'pattern-inconsistency',
       description: `Mixed module systems: found both ESM and CommonJS.`,
       examples: ['import X from "y"', 'const X = require("y")'],
       severity: Severity.Major,

@@ -49,7 +49,7 @@ export async function analyzeNamingGeneralized(
 
         if (pattern && !pattern.test(exp.name)) {
           issues.push({
-            type: 'poor-naming',
+            type: 'naming-inconsistency',
             identifier: exp.name,
             file,
             line: exp.loc?.start.line || 1,
@@ -72,7 +72,7 @@ export async function analyzeNamingGeneralized(
           ) {
             // This is often a 'convention-mix' issue (e.g. importing snake_case into camelCase project)
             issues.push({
-              type: 'convention-mix',
+              type: 'naming-inconsistency',
               identifier: spec,
               file,
               line: imp.loc?.start.line || 1,

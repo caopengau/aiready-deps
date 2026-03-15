@@ -43,7 +43,12 @@ export interface NamingIssue {
 
 export interface PatternIssue {
   files: string[];
-  type: 'error-handling' | 'async-style' | 'import-style' | 'api-design';
+  type:
+    | 'error-handling'
+    | 'async-style'
+    | 'import-style'
+    | 'api-design'
+    | 'pattern-inconsistency';
   description: string;
   examples: string[];
   severity: Severity;

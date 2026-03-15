@@ -62,7 +62,10 @@ export async function analyzeConsistency(
     if (!shouldIncludeSeverity(issue.severity, minSeverity)) continue;
 
     const fileName =
-      (issue as any).fileName || (issue as any).file || (issue as any).filePath;
+      (issue as any).fileName ||
+      (issue as any).file ||
+      (issue as any).filePath ||
+      'unknown';
     if (!fileIssuesMap.has(fileName)) fileIssuesMap.set(fileName, []);
     fileIssuesMap.get(fileName)!.push(issue as unknown as ConsistencyIssue);
   }
@@ -72,7 +75,12 @@ export async function analyzeConsistency(
     if (!shouldIncludeSeverity(issue.severity, minSeverity)) continue;
 
     const fileName =
-      (issue as any).fileName || (issue as any).file || (issue as any).filePath;
+      (issue as any).fileName ||
+      (issue as any).file ||
+      (issue as any).filePath ||
+      (Array.isArray((issue as any).files)
+        ? (issue as any).files[0]
+        : 'unknown');
     if (!fileIssuesMap.has(fileName)) fileIssuesMap.set(fileName, []);
     fileIssuesMap.get(fileName)!.push(issue as unknown as ConsistencyIssue);
   }
@@ -81,13 +89,7 @@ export async function analyzeConsistency(
   for (const [fileName, issues] of fileIssuesMap.entries()) {
     results.push({
       fileName,
-      issues: issues.map((i) => ({
-        type: i.type as IssueType,
-        severity: i.severity as Severity,
-        message: i.message,
-        location: i.location,
-        suggestion: (i as any).suggestion,
-      })),
+      issues: issues.map((i) => transformToIssue(i)),
       metrics: {
         consistencyScore: calculateConsistencyScore(issues),
       },
@@ -116,6 +118,91 @@ function shouldIncludeSeverity(
   minSeverity: Severity | string
 ): boolean {
   return getSeverityLevel(severity) >= getSeverityLevel(minSeverity);
+}
+
+/**
+ * Map string type to IssueType enum value
+ */
+function getIssueType(type: string | undefined): IssueType {
+  if (!type) return IssueType.NamingInconsistency;
+
+  // Map string values to enum
+  const typeMap: Record<string, IssueType> = {
+    'naming-inconsistency': IssueType.NamingInconsistency,
+    'naming-quality': IssueType.NamingQuality,
+    'pattern-inconsistency': IssueType.PatternInconsistency,
+    'architecture-inconsistency': IssueType.ArchitectureInconsistency,
+    'error-handling': IssueType.PatternInconsistency,
+    'async-style': IssueType.PatternInconsistency,
+    'import-style': IssueType.PatternInconsistency,
+    'api-design': IssueType.PatternInconsistency,
+  };
+
+  return typeMap[type] || IssueType.NamingInconsistency;
+}
+
+/**
+ * Transform NamingIssue or PatternIssue to the required Issue format
+ */
+function transformToIssue(i: any): Issue {
+  // If already has message and location, return as is
+  if (i.message && i.location) {
+    return {
+      type: getIssueType(i.type),
+      severity: i.severity as Severity,
+      message: i.message,
+      location: i.location,
+      suggestion: i.suggestion,
+    };
+  }
+
+  // Handle NamingIssue format (has file, line, column, identifier, suggestion)
+  if (i.identifier || i.type) {
+    const line = i.line || 1;
+    const column = i.column || 1;
+    return {
+      type: getIssueType(i.type),
+      severity: i.severity as Severity,
+      message: i.suggestion
+        ? `Naming issue: ${i.suggestion}`
+        : `Naming issue for '${i.identifier || 'unknown'}'`,
+      location: {
+        file: i.file || i.fileName || '',
+        line,
+        column,
+        endLine: line,
+        endColumn: column + (i.identifier?.length || 10),
+      },
+      suggestion: i.suggestion,
+    };
+  }
+
+  // Handle PatternIssue format (has description, files)
+  if (i.description || i.files) {
+    const fileName = Array.isArray(i.files) ? i.files[0] : i.file || '';
+    return {
+      type: getIssueType(i.type),
+      severity: i.severity as Severity,
+      message: i.description || 'Pattern inconsistency found',
+      location: {
+        file: fileName,
+        line: 1,
+        column: 1,
+        endLine: 1,
+        endColumn: 10,
+      },
+      suggestion: i.examples?.[0],
+    };
+  }
+
+  // Fallback
+  return {
+    type: getIssueType(i.type),
+    severity: i.severity as Severity,
+    message: i.message || 'Unknown issue',
+    location: i.location || { file: '', line: 1, column: 1 },
+    suggestion: i.suggestion,
+  };
 }
 
 function calculateConsistencyScore(issues: ConsistencyIssue[]): number {
