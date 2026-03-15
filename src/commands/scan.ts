@@ -12,18 +12,11 @@ import {
   resolveOutputPath,
   getRepoMetadata,
   calculateTokenBudget,
-  Severity,
-  IssueType,
   ToolName,
-  ToolRegistry,
   emitIssuesAsAnnotations,
 } from '@aiready/core';
 import { analyzeUnified, scoreUnified, type ScoringResult } from '../index';
-import {
-  getReportTimestamp,
-  warnIfGraphCapExceeded,
-  truncateArray,
-} from '../utils/helpers';
+import { getReportTimestamp, warnIfGraphCapExceeded } from '../utils/helpers';
 import {
   printScanSummary,
   printBusinessImpact,
