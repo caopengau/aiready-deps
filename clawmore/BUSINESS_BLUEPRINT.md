@@ -26,12 +26,13 @@ We don't just sell software; we manage the **lifecycle** of the client's stack.
 
 Our revenue is directly tied to the efficiency and evolution of the client's stack.
 
-| Revenue Stream      | Pricing        | Logic                                                             |
-| :------------------ | :------------- | :---------------------------------------------------------------- |
-| **Platform Fee**    | $15.00/mo      | Covers managed infrastructure + $15.00 compute credit.            |
-| **Evolution Tax**   | $1.00/mutation | Charged per successful agent commit (`report-mutation-tax.ts`).   |
-| **Compute Overage** | Cost + 20%     | Auto-synced from AWS Cost Explorer to Stripe (`cost-sync.ts`).    |
-| AI Fuel Packs       | $10.00 refill  | Pre-paid tokens for high-tier LLM reasoning (GPT-5.4 / Claude 5). |
+| Revenue Stream        | Pricing        | Logic                                                             |
+| :-------------------- | :------------- | :---------------------------------------------------------------- |
+| **Platform Fee**      | $15.00/mo      | Covers managed infrastructure + $15.00 compute credit.            |
+| **Evolution Service** | **FREE**       | Included for **Co-evolution Partners** (Opt-in).                  |
+| **One-Way Fee**       | $1.00/mutation | Charged for **Private Evolution** (Opt-out/Isolated Mode).        |
+| **Compute Overage**   | Cost + 20%     | Auto-synced from AWS Cost Explorer to Stripe (`cost-sync.ts`).    |
+| **AI Fuel Packs**     | $10.00 refill  | Pre-paid tokens for high-tier LLM reasoning (GPT-5.4 / Claude 5). |
 
 ---
 
@@ -39,9 +40,14 @@ Our revenue is directly tied to the efficiency and evolution of the client's sta
 
 We maintain control through **Tiered Infrastructure Governance**.
 
-- **The "Shadow" Bus**: `MutationPerformed` events are emitted by our platform agents to a cross-account EventBridge bus. Clients cannot "code out" the tax.
+### **The "Shadow" Bus**: `MutationPerformed` events are emitted by our platform agents to a cross-account EventBridge bus. Clients cannot "code out" the tax.
+
 - **Zero-Idle SCPs**: Hard-deny policies prevent clients from spinning up expensive, non-serverless resources, keeping our margins high and their "Waste Score" low.
 - **Verified Mutation**: Every agent change must pass a `ValidationAgent` check (using GPT-5.4 for high-performance code reasoning) before a commit is made, protecting the client's uptime and our reputation.
+- **Co-evolution Opt-in (Tax Waiver)**: Clients can opt-in to the "Harvester" protocol. By allowing the Management Plane to extract anonymous "Innovation Patterns" from their Spoke, they contribute to the collective intelligence of the Hub. In exchange, the $1.00 Evolution Tax is permanently waived for their account.
+- **Curated Evolution (IP Shield)**: The "Harvester" uses **Structured Extraction** (JSON Schema) to pull only the "DNA" of an improvement. By forcing a schema that only allows logic and rationale, we create a mathematical "Air-Gap" that prevents client secrets from leaking.
+- **Management Plane Review**: All proposals land in the **ClawMore Dashboard** for unified curation. This keeps the Mother repo's `main` branch protected from experimental or messy local optimizations until they are vetted and promoted.
+
 - **Harvester Injection**: The "Harvester" agent is NOT included in the Mother `serverlessclaw` repo. It utilizes GPT-5-mini for cost-effective, high-volume scanning of Spokes, ensuring the Mother repo stays lean and focused on the product.
 
 ---

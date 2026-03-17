@@ -4,27 +4,36 @@ import ClawMoreClient from './ClawMoreClient';
 import { getDictionary } from '../lib/get-dictionary';
 
 export const metadata: Metadata = {
-  title: 'ClawMore - Scale Your Agency with AI Content Operations',
+  title: 'ClawMore | Autonomous Infrastructure Evolution',
   description:
-    'Automate high-quality content production with AI. ClawMore helps agencies deliver personalized, conversion-focused content at 10x speed with 90% lower costs.',
+    "ClawMore: The world's first autonomous agentic system for AWS. Real-time infrastructure synthesis and self-healing.",
   openGraph: {
-    title: 'ClawMore - Scale Your Agency with AI Content Operations',
+    title: 'ClawMore | Autonomous Infrastructure Evolution',
     description:
-      'Automate high-quality content production with AI. Scale your content agency and deliver outsized results with AI-driven workflows.',
-    url: 'https://clawmore.com',
+      "The world's first autonomous agentic system for AWS. Real-time infrastructure synthesis and self-healing.",
+    url: 'https://clawmore.getaiready.dev',
     siteName: 'ClawMore',
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: '/og-home.png',
+        width: 1200,
+        height: 630,
+        alt: 'ClawMore - Autonomous Infrastructure Evolution',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ClawMore - Scale Your Agency with AI Content Operations',
+    title: 'ClawMore | Autonomous Infrastructure Evolution',
     description:
-      'Automate high-quality content production with AI content operations.',
+      "The world's first autonomous agentic system for AWS. Real-time infrastructure synthesis and self-healing.",
     creator: '@clawmore',
+    images: ['/og-home.png'],
   },
   alternates: {
-    canonical: 'https://clawmore.com',
+    canonical: 'https://clawmore.getaiready.dev',
   },
 };
 

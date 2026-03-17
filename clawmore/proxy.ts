@@ -43,7 +43,7 @@ function getLocale(request: NextRequest) {
   return defaultLocale;
 }
 
-export const proxy = auth((request) => {
+export default auth((request) => {
   const pathname = request.nextUrl.pathname;
 
   // Skip public files and API routes

@@ -84,8 +84,8 @@
       ]
     },
     "tax": {
-      "title": "The Evolution_Tax.cfg",
-      "desc": "We align our success with your system's growth. We deduct $1 per verified mutation (an autonomous commit that successfully passes all CI/CD gates). Stagnant systems pay zero."
+      "title": "Autonomous_Evolution.sh",
+      "desc": "Evolution is **FREE** for Co-evolution partners. By allowing our Management Plane to learn from your anonymous optimizations, you pay $0.00 for mutations. Private/One-Way evolution is $1.00 per verified commit."
     }
   },
   "faq": {

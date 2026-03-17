@@ -41,10 +41,13 @@ While `git subtree` is the primitive, our architecture wraps it in a governance 
 
 ### **B. Spoke → Hub (The Contribution)**
 
-1.  **Optimization Detection**: An "Observation Agent" identifies a successful refactor in a Spoke (e.g., a better Lambda warm-up strategy).
-2.  **Back-Porting**: The agent triggers `make sync-from-spoke` in the Hub's context.
-3.  **Pruning**: Hub filters out client-specific secrets or branding.
-4.  **Proposal**: A PR is raised in the Hub: `feat(spoke-absorb): optimization from client-X`.
+1.  **Opt-in Check**: The **Harvester** (GPT-5-mini) only scans Spokes that have explicitly opted into the "Co-evolution" protocol.
+2.  **Optimization Detection**: Identifies a successful refactor or optimization in the Spoke.
+3.  **Structured Extraction**: Uses a **Strict JSON Schema** to extract only the "Innovation Pattern" (Logic, Rationale, and Abstracted Diff).
+    This ensures NO client secrets, PII, or branding can ever be part of the output.
+4.  **Dashboard Submission**: The structured proposal is submitted to the **ClawMore Management Dashboard** (The Management Plane).
+5.  **Curation & Promotion**: Hub maintainers review all client proposals in a unified view. High-value patterns are "Promoted," which automatically generates an anonymous PR in the Mother Hub repo (`serverlessclaw`).
+6.  **Global Distribution**: Once merged in the Hub, the innovation is synced to ALL other Spokes via the **Hub → Spoke (Broadcast)** flow.
 
 ---
 

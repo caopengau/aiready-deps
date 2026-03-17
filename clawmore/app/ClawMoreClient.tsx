@@ -78,10 +78,10 @@ export default function ClawMoreClient({ apiUrl, dict }: ClawMoreClientProps) {
         'Yes. ClawMore uses "Bring Your Own Cloud" (BYOC) architecture. It runs within your own VPC with strict IAM boundaries and Recursion Guards that prevent runaway mutations. You maintain full control over approval gates for high-risk changes.',
     },
     {
-      question: dict.faq?.q4 || 'What is the "Evolution Tax"?',
+      question: dict.faq?.q4 || 'Is Autonomous Evolution free?',
       answer:
         dict.faq?.a4 ||
-        'We align our success with yours. For the managed version, you pay a flat monthly fee plus $1 per successful mutation—an autonomous commit that passes all your CI/CD gates. If your system is stagnant, you pay zero for mutations.',
+        'Yes! For Co-evolution partners, evolution is $0.00. We only charge a $1.00 "One-Way Fee" for clients who choose to keep their optimizations strictly private and isolated from the collective intelligence of the Hub.',
     },
     {
       question: dict.faq?.q5 || 'How do I get started for free?',
