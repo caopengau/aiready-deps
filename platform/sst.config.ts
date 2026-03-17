@@ -70,6 +70,7 @@ export default $config({
     // Dead Letter Queues for reliability
     const scanDLQ = new sst.aws.Queue('ScanDLQ');
     const analysisDLQ = new sst.aws.Queue('AnalysisDLQ');
+    const remediationDLQ = new sst.aws.Queue('RemediationDLQ');
 
     // Queue for background analysis requests
     const scanQueue = new sst.aws.Queue('ScanQueue', {
@@ -84,6 +85,13 @@ export default $config({
       visibilityTimeout: '5 minutes',
       dlq: analysisDLQ.arn,
       // Enable Long Polling
+      wait: '20 seconds',
+    });
+
+    // Queue for background remediation requests
+    const remediationQueue = new sst.aws.Queue('RemediationQueue', {
+      visibilityTimeout: '15 minutes',
+      dlq: remediationDLQ.arn,
       wait: '20 seconds',
     });
 
@@ -134,6 +142,7 @@ export default $config({
         SES_TO_EMAIL: process.env.SES_TO_EMAIL || 'team@getaiready.dev',
         SES_CONFIGURATION_SET:
           'aiready-landing-production-notificationemailconfig-ttxwnzxe',
+        REMEDIATION_QUEUE_URL: remediationQueue.url,
       },
     };
 
@@ -201,6 +210,48 @@ export default $config({
       },
     });
 
+    remediationQueue.subscribe({
+      handler: 'src/worker/remediation.handler',
+      timeout: '15 minutes',
+      memory: '2048 MB',
+      batch: {
+        window: '10 seconds',
+      },
+      nodejs: {
+        install: ['isomorphic-git', 'http'],
+        copy: [
+          {
+            from: '../node_modules/.pnpm/web-tree-sitter@0.26.6/node_modules/web-tree-sitter/web-tree-sitter.wasm',
+            to: 'web-tree-sitter.wasm',
+          },
+          {
+            from: '../node_modules/.pnpm/@unit-mesh+treesitter-artifacts@1.7.7/node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-python.wasm',
+            to: 'tree-sitter-python.wasm',
+          },
+          {
+            from: '../node_modules/.pnpm/@unit-mesh+treesitter-artifacts@1.7.7/node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-java.wasm',
+            to: 'tree-sitter-java.wasm',
+          },
+          {
+            from: '../node_modules/.pnpm/@unit-mesh+treesitter-artifacts@1.7.7/node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-go.wasm',
+            to: 'tree-sitter-go.wasm',
+          },
+          {
+            from: '../node_modules/.pnpm/@unit-mesh+treesitter-artifacts@1.7.7/node_modules/@unit-mesh/treesitter-artifacts/wasm/tree-sitter-c_sharp.wasm',
+            to: 'tree-sitter-c_sharp.wasm',
+          },
+        ],
+      },
+      link: [table, bucket, remediationQueue],
+      environment: {
+        S3_BUCKET: bucket.name,
+        DYNAMO_TABLE: table.name,
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
+        SES_CONFIGURATION_SET:
+          'aiready-landing-production-notificationemailconfig-ttxwnzxe',
+      },
+    });
+
     analysisQueue.subscribe({
       handler: 'src/functions/process-analysis.handler',
       timeout: '5 minutes',
@@ -230,6 +281,7 @@ export default $config({
         bucket,
         scanQueue,
         analysisQueue,
+        remediationQueue,
         submissions,
         bus,
         alertsTopic,
@@ -248,6 +300,7 @@ export default $config({
       tableName: table.name,
       scanQueueUrl: scanQueue.url,
       analysisQueueUrl: analysisQueue.url,
+      remediationQueueUrl: remediationQueue.url,
       busName: bus.name,
       alertsTopicArn: alertsTopic.arn,
     };

@@ -1,32 +1,37 @@
 import { Agent } from '@mastra/core/agent';
 import { z } from 'zod';
+import { githubTools } from './tools/github';
+import { fsTools } from './tools/fs';
 
 export const RefactorAgent = new Agent({
   id: 'refactor-agent',
   name: 'Refactor Agent',
   instructions: `
     You are an expert full-stack engineer specialized in code consolidation and refactoring.
-    Your task is to take detected code duplicates or fragmentation issues and consolidate them into reusable components or utilities.
-
-    Follow these rules:
-    1. Preserve functionality: The behavior of the code must remain identical.
-    2. Follow patterns: Match the existing project's implementation patterns (e.g., React hooks, utility functions).
-    3. Type safety: Ensure all changes are correctly typed in TypeScript.
-    4. Minimal changes: Only modify what is necessary to resolve the duplication.
+    Your task is to take a detected code duplication or fragmentation issue and fix it.
 
     Workflow:
-    - Read the affected files.
-    - Extract the common logic into a new or existing shared location.
-    - Update the original call sites to use the consolidated logic.
-    - Verify with type checking if possible.
+    1. Research: Read the affected files using 'read-file'.
+    2. Branching: Create a new branch for the fix using 'create-branch' (use a descriptive name like 'fix/remedy-ID').
+    3. Remediation: Consolidate the logic and write the changes using 'write-file'. 
+       Ensure type safety and preserve functionality.
+    4. Persist: Commit and push the changes using 'commit-and-push'.
+    5. Finalize: Create a Pull Request with a clear description using 'create-pr'.
+
+    Return a summary of your actions, including the PR URL and a unified diff of your changes.
   `,
   model: 'openai/gpt-4o',
+  tools: {
+    ...githubTools,
+    ...fsTools,
+  },
 });
 
 export const RefactorResultSchema = z.object({
   status: z.enum(['success', 'failure']),
   diff: z.string(),
-  filesModified: z.array(z.string()),
+  prUrl: z.string().optional(),
+  prNumber: z.number().optional(),
   explanation: z.string(),
 });
 

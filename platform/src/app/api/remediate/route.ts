@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getRemediation, updateRemediation } from '@/lib/db/remediation';
-import { RefactorAgent } from '@aiready/agents';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { Resource } from 'sst';
+
+const sqs = new SQSClient({
+  region: process.env.AWS_REGION || 'ap-southeast-2',
+});
 
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -26,99 +31,48 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Trigger Mastra Refactor Agent (Async Workflow)
+    // Verify ownership (or team membership in the future)
+    if (remediation.userId !== session.user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const isSwarm = type === 'swarm';
     console.log(
-      `[RemediateAPI] Starting ${isSwarm ? 'Swarm' : 'Standard'} Remediation for ${remediationId}`
+      `[RemediateAPI] Enqueueing ${isSwarm ? 'Swarm' : 'Standard'} Remediation for ${remediationId}`
     );
 
-    // In a real implementation, this would trigger an SQS message or a durable workflow
-    // For now, we'll use a controlled simulation that mimics real background processing
-    (async () => {
-      try {
-        if (isSwarm) {
-          await updateRemediation(remediationId, {
-            status: 'in-progress',
-            agentStatus: 'Initializing Remediation Swarm...',
-          });
+    // Update status to pending/in-progress to reflect it's been triggered
+    await updateRemediation(remediationId, {
+      status: 'in-progress',
+      agentStatus: 'Remediation request queued...',
+    });
 
-          // 1. Research & Prioritization
-          await new Promise((r) => setTimeout(r, 2000));
-          await updateRemediation(remediationId, {
-            agentStatus:
-              'Swarm Active: Researching architecture & dependencies...',
-          });
-
-          // 2. Impact Analysis
-          await new Promise((r) => setTimeout(r, 3000));
-          await updateRemediation(remediationId, {
-            agentStatus:
-              'Calculating ROI: Estimating token savings for consolidation...',
-          });
-
-          // 3. Execution (The actual "Fix")
-          await new Promise((r) => setTimeout(r, 4000));
-          await updateRemediation(remediationId, {
-            agentStatus:
-              'Agent Swarm: Consolidating duplicate logic and refactoring components...',
-          });
-
-          // 4. Validation
-          await new Promise((r) => setTimeout(r, 3000));
-          await updateRemediation(remediationId, {
-            agentStatus:
-              'Validation: Verifying type safety and running automated tests...',
-          });
-
-          // 5. Complete
-          await updateRemediation(remediationId, {
-            status: 'reviewing',
-            agentStatus: 'Remediation complete. PR created for Expert Review.',
-            suggestedDiff:
-              '--- PROPOSED ARCHITECTURAL REFACTOR ---\n+ Move auth logic to @aiready/identity\n- Remove duplicate helpers from @aiready/core',
-            prUrl: `https://github.com/caopengau/aiready/pull/${Math.floor(Math.random() * 1000)}`,
-            prNumber: Math.floor(Math.random() * 1000),
-          });
-        } else {
-          await updateRemediation(remediationId, {
-            status: 'in-progress',
-            agentStatus: 'Refactor Agent: Initializing workspace...',
-          });
-
-          await new Promise((r) => setTimeout(r, 2000));
-          await updateRemediation(remediationId, {
-            agentStatus:
-              'Refactor Agent: Applying code changes to repository...',
-          });
-
-          await new Promise((r) => setTimeout(r, 3000));
-          await updateRemediation(remediationId, {
-            status: 'completed',
-            agentStatus: 'Remediation applied successfully. PR opened.',
-            prUrl: `https://github.com/caopengau/aiready/pull/${Math.floor(Math.random() * 1000)}`,
-            prNumber: Math.floor(Math.random() * 1000),
-          });
-        }
-        console.log(
-          `[RemediateAPI] Successfully processed remediation ${remediationId}`
-        );
-      } catch (err) {
-        console.error('[RemediateAPI] Execution failed:', err);
-        await updateRemediation(remediationId, {
-          status: 'failed',
-          agentStatus: `Error: ${err instanceof Error ? err.message : 'Unknown error during refactoring'}`,
-        });
-      }
-    })();
+    // Send message to Remediation SQS Queue
+    await sqs.send(
+      new SendMessageCommand({
+        QueueUrl: (Resource as any).RemediationQueue.url,
+        MessageBody: JSON.stringify({
+          remediationId,
+          repoId: remediation.repoId,
+          userId: session.user.id,
+          accessToken: (session.user as any).accessToken, // Ensure accessToken is passed if available
+          type: isSwarm ? 'swarm' : 'standard',
+        }),
+      })
+    );
 
     return NextResponse.json({
       success: true,
-      message: 'Remediation agent started',
+      message: 'Remediation agent task enqueued',
+      remediationId,
     });
   } catch (error) {
     console.error('[RemediateAPI] Error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      {
+        error: 'Internal Server Error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
