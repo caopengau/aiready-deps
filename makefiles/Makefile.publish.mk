@@ -200,8 +200,7 @@ npm-publish-doc-drift: ## Publish @aiready/doc-drift to npm
 npm-publish-deps: ## Publish @aiready/deps to npm
 	@$(MAKE) npm-publish SPOKE=deps OTP=$(OTP)
 
-npm-publish-hallucination-risk: ## Publish @aiready/hallucination-risk to npm
-	@$(MAKE) npm-publish SPOKE=hallucination-risk OTP=$(OTP)
+
 
 npm-publish-testability: ## Publish @aiready/testability to npm
 	@$(MAKE) npm-publish SPOKE=testability OTP=$(OTP)
@@ -215,7 +214,7 @@ npm-publish-visualizer: ## Publish @aiready/visualizer to npm
 # Note: skills is NOT published to npm, only via skills.sh (GitHub)
 
 npm-publish-all: build npm-publish-core npm-publish-pattern-detect npm-publish-context-analyzer npm-publish-cli \
-	npm-publish-consistency npm-publish-doc-drift npm-publish-deps npm-publish-hallucination-risk \
+	npm-publish-consistency npm-publish-doc-drift npm-publish-deps \
 	npm-publish-testability npm-publish-agent-grounding npm-publish-visualizer
 
 # Sync changes from spoke repos back to monorepo (for external contributions)
@@ -392,28 +391,28 @@ publish-clawmore: ## Publish clawmore to GitHub. Usage: make publish-clawmore [O
 
 # Push to monorepo and all spoke repos
 sync: ## Push monorepo to origin and sync all spokes to their public repos. Use FORCE=true to sync all.
+	@$(call log_step,Pushing to monorepo...)
+	@SKIP_PRE_PUSH=true git push origin $(TARGET_BRANCH)
+	@$(call log_success,Pushed to monorepo)
 	@$(call log_step,Detecting changes to sync...)
 	@if [ "$(FORCE)" = "true" ]; then \
-		CHANGED_FILES="FORCE_ALL"; \
+		CHANGED="FORCE_ALL"; \
 		$(call log_info,Force sync enabled. All repositories will be synced.); \
 	else \
-		CHANGED_FILES="$(git diff --name-only origin/$(TARGET_BRANCH) 2>/dev/null || echo "FORCE_ALL")"; \
-		if [ "$CHANGED_FILES" = "FORCE_ALL" ]; then \
+		CHANGED="$$(git diff --name-only origin/$(TARGET_BRANCH) 2>/dev/null | xargs || echo "FORCE_ALL")"; \
+		if [ "$$CHANGED" = "FORCE_ALL" ]; then \
 			$(call log_warning,Could not detect changes reliably. Falling back to full sync.); \
-		elif [ -z "$CHANGED_FILES" ]; then \
+		elif [ -z "$$CHANGED" ]; then \
 			$(call log_info,No changes detected since last push to origin/$(TARGET_BRANCH).); \
 			echo "To force sync, use 'make sync FORCE=true'"; \
 		else \
 			$(call log_info,Detected changes:); \
-			echo "$CHANGED_FILES" | sed 's/^/  - /'; \
+			echo "$$CHANGED" | sed 's/^/  - /'; \
 		fi; \
-	fi
-	@$(call log_step,Pushing to monorepo...)
-	@SKIP_PRE_PUSH=true git push origin $(TARGET_BRANCH)
-	@$(call log_success,Pushed to monorepo)
-	@$(call log_step,Syncing relevant repositories in parallel...)
-	@SKIP_PRE_PUSH=true $(MAKE) $(MAKE_PARALLEL) $(addprefix github-sync-spoke-,$(ALL_SPOKES)) github-sync-landing github-sync-clawmore github-sync-serverlessclaw github-sync-vscode github-sync-action CHANGED_FILES="$CHANGED_FILES" FORCE="$(FORCE)"
-	@$(call log_success,Sync process completed)
+	fi && \
+	$(call log_step,Syncing relevant repositories in parallel...) && \
+	SKIP_PRE_PUSH=true $(MAKE) $(MAKE_PARALLEL) $(addprefix github-sync-spoke-,$(PUBLIC_GITHUB_SPOKES)) github-sync-landing github-sync-clawmore github-sync-serverlessclaw github-sync-vscode github-sync-action CHANGED_FILES="$$CHANGED" FORCE="$(FORCE)" && \
+	$(call log_success,Sync process completed)
 
 .PHONY: github-sync-spoke-%
 github-sync-spoke-%:
@@ -424,7 +423,7 @@ github-sync-spoke-%:
 		fi; \
 		if [ "$$should_sync" = "true" ]; then \
 			$(call log_info,Syncing $*...); \
-			$(MAKE) publish SPOKE=$* OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)' || true; \
+			$(MAKE) publish SPOKE=$* OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)'; \
 		fi; \
 	fi
 
@@ -436,7 +435,7 @@ github-sync-landing:
 	fi; \
 	if [ "$$should_sync" = "true" ]; then \
 		$(call log_step,Syncing landing page repository...); \
-		$(MAKE) publish-landing OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)' || true; \
+		$(MAKE) publish-landing OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)'; \
 	fi
 
 .PHONY: github-sync-clawmore
@@ -447,7 +446,7 @@ github-sync-clawmore:
 	fi; \
 	if [ "$$should_sync" = "true" ]; then \
 		$(call log_step,Syncing ClawMore repository...); \
-		$(MAKE) publish-clawmore OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)' || true; \
+		$(MAKE) publish-clawmore OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)'; \
 	fi
 
 .PHONY: github-sync-serverlessclaw
@@ -458,7 +457,7 @@ github-sync-serverlessclaw:
 	fi; \
 	if [ "$$should_sync" = "true" ]; then \
 		$(call log_step,Syncing ServerlessClaw repository...); \
-		$(MAKE) publish-serverlessclaw OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)' || true; \
+		$(MAKE) publish-serverlessclaw OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)'; \
 	fi
 
 .PHONY: github-sync-vscode
@@ -469,7 +468,7 @@ github-sync-vscode:
 	fi; \
 	if [ "$$should_sync" = "true" ]; then \
 		$(call log_step,Syncing VS Code extension repository...); \
-		$(MAKE) publish-vscode-sync OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)' || true; \
+		$(MAKE) publish-vscode-sync OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)'; \
 	fi
 
 .PHONY: github-sync-action
@@ -480,12 +479,10 @@ github-sync-action:
 	fi; \
 	if [ "$$should_sync" = "true" ]; then \
 		$(call log_step,Syncing GitHub Action repository...); \
-		$(MAKE) publish-action-sync OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)' || true; \
+		$(MAKE) publish-action-sync OWNER=$(OWNER) 2>&1 | grep -E '(SUCCESS|ERROR|Synced|tag pushed)'; \
 	fi
 
-deploy: sync ## Alias for sync (push monorepo + publish all spokes)
-	@:-pattern-detect ## Build and publish all packages to npm
-	@$(call log_success,All packages published to npm)
+
 
 publish-vscode-sync: ## Sync VS Code extension to GitHub. Usage: make publish-vscode-sync [OWNER=username]
 	@$(call log_step,Publishing VS Code extension to GitHub...)
