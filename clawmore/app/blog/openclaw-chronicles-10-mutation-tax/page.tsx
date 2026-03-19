@@ -20,22 +20,22 @@ import SystemFlow from '../../../components/SystemFlow';
 const ECON_NODES = [
   {
     id: 'value',
-    data: { label: 'Value Delivered', type: 'event' },
+    data: { label: 'Co-Evolution', type: 'agent' },
     position: { x: 0, y: 0 },
+  },
+  {
+    id: 'free',
+    data: { label: 'Sync Back (Free)', type: 'event' },
+    position: { x: 200, y: -50 },
   },
   {
     id: 'tax',
     data: { label: 'The Mutation Tax', type: 'bus' },
-    position: { x: 200, y: 0 },
+    position: { x: 200, y: 50 },
   },
   {
-    id: 'invest',
-    data: { label: 'R&D Reinvestment', type: 'agent' },
-    position: { x: 400, y: -50 },
-  },
-  {
-    id: 'savings',
-    data: { label: 'Client Savings', type: 'agent' },
+    id: 'diverge',
+    data: { label: 'Private Divergence', type: 'agent' },
     position: { x: 400, y: 50 },
   },
 ];
@@ -44,22 +44,23 @@ const ECON_EDGES = [
   {
     id: 'e1',
     source: 'value',
-    target: 'tax',
-    label: 'Capture',
+    target: 'free',
+    label: 'Contribute',
     animated: true,
+    style: { stroke: '#10b981' },
   },
   {
     id: 'e2',
-    source: 'tax',
-    target: 'invest',
-    label: 'Innovate',
+    source: 'value',
+    target: 'tax',
+    label: 'One-Way Sync',
     animated: true,
   },
   {
     id: 'e3',
     source: 'tax',
-    target: 'savings',
-    label: 'Scale',
+    target: 'diverge',
+    label: 'Venture Out',
     animated: true,
   },
 ];
@@ -70,7 +71,7 @@ export default function BlogPost() {
     '@type': 'BlogPosting',
     headline: 'The Mutation Tax: Sustainable AI Economics',
     description:
-      'Value-based pricing for autonomous agents. Exploring the sustainable economic models that power self-improving AI infrastructure at ClawMore.',
+      'Co-evolution vs Divergence. Exploring the sustainable economic models that power self-improving AI infrastructure at ClawMore.',
     datePublished: '2026-04-28',
     author: {
       '@type': 'Person',
@@ -107,13 +108,12 @@ export default function BlogPost() {
 
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 italic leading-[1.1]">
               The Mutation Tax: <br />
-              <span className="text-cyber-purple">AI Economics</span>
+              <span className="text-cyber-purple">Co-Evolution</span>
             </h1>
 
             <p className="text-xl text-zinc-200 font-light leading-relaxed italic">
-              Value over Volume. Why charging per mutation is the only
-              sustainable way to fund the perpetual evolution of autonomous
-              systems.
+              Contribution over Extraction. Why syncing back to the hub is free,
+              while private divergence requires a tax to fund the commons.
             </p>
 
             <div className="mt-12 relative aspect-[21/9] w-full overflow-hidden border border-white/10 rounded-sm group">
@@ -148,14 +148,14 @@ export default function BlogPost() {
                     <span className="text-cyber-purple font-mono text-sm">
                       01
                     </span>
-                    The SaaS Pricing Crisis
+                    The Extraction Crisis
                   </h2>
                   <p className="text-zinc-200 leading-relaxed text-lg">
-                    Traditional SaaS pricing is broken for AI. Charging per seat
-                    makes no sense for autonomous agents. Charging per token is
-                    a race to the bottom. If an agent optimizes your
-                    infrastructure and saves you $10,000, why should you only
-                    pay $0.05 in token costs?
+                    Traditional open source suffers from the extraction problem:
+                    thousands of entities take from the hub, but few contribute
+                    back. For autonomous agents, this leads to context
+                    fragmentation. When everyone diverges in private, the
+                    collective intelligence of the system plateaus.
                   </p>
                 </section>
 
@@ -167,12 +167,18 @@ export default function BlogPost() {
                     Introducing the Mutation Tax
                   </h2>
                   <p className="text-zinc-200 leading-relaxed text-lg">
-                    At ClawMore, we pioneered the **Mutation Tax**. We don't
-                    charge for the agent's time; we charge for the *evolution*
-                    it delivers. Every successful infrastructure
-                    mutation—whether it's a cost-saving refactor or a security
-                    patch—carries a small fee. This aligns our incentives
-                    perfectly with the client's success.
+                    At ClawMore, we solved this with a simple rule:
+                    **Co-Evolution is Free**. If you sync your mutations back to
+                    the hub and evolve with the community, you pay nothing. You
+                    contribute to the collective "brain" and benefit from the
+                    contributions of others.
+                  </p>
+                  <p className="text-zinc-200 leading-relaxed text-lg mt-4">
+                    The **Mutation Tax** only applies when you "venture out on
+                    your own." If you require a one-way sync to maintain a
+                    private, divergent infrastructure empire without
+                    contributing back, you pay a small fee per mutation. This
+                    tax funds the R&D required to keep the hub evolving.
                   </p>
                 </section>
 
@@ -190,30 +196,30 @@ export default function BlogPost() {
                     The Virtuous Cycle
                   </h2>
                   <p className="text-zinc-200 leading-relaxed text-lg mb-8">
-                    The Mutation Tax creates a virtuous cycle of reinvestment.
-                    The revenue generated from successful evolutions is funneled
-                    back into training better models and developing more
-                    advanced skills for the entire fleet.
+                    This model creates a virtuous cycle. It incentivizes
+                    transparency and collaboration (which makes the AI smarter)
+                    while providing a sustainable revenue stream from those who
+                    choose isolated, enterprise divergence.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
                     <div className="p-6 border border-white/5 bg-white/[0.02] rounded-sm">
-                      <TrendingDown className="w-6 h-6 text-cyber-purple mb-4" />
+                      <Zap className="w-6 h-6 text-cyber-green mb-4" />
                       <h4 className="font-bold mb-2 uppercase tracking-tight">
-                        Zero Idle Cost
+                        Free Co-Evolution
                       </h4>
                       <p className="text-sm text-zinc-400">
-                        If the agent doesn't evolve anything, the client pays
-                        nothing. True scale-to-zero economics.
+                        Sync back and evolve with the hub. No fees, just
+                        collective intelligence and shared growth.
                       </p>
                     </div>
                     <div className="p-6 border border-white/5 bg-white/[0.02] rounded-sm">
-                      <ArrowUpRight className="w-6 h-6 text-cyber-purple mb-4" />
+                      <DollarSign className="w-6 h-6 text-cyber-purple mb-4" />
                       <h4 className="font-bold mb-2 uppercase tracking-tight">
-                        Exponential ROI
+                        Divergence Tax
                       </h4>
                       <p className="text-sm text-zinc-400">
-                        As the agent gets smarter, the value of each mutation
-                        increases, delivering massive ROI to the client empire.
+                        Venturing out on a private path? A small tax on one-way
+                        sync mutations funds the evolution of the commons.
                       </p>
                     </div>
                   </div>

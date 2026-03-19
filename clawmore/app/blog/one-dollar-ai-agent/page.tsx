@@ -237,6 +237,30 @@ export default function BlogPost() {
                     <span className="text-cyber-purple font-mono text-sm">
                       04
                     </span>
+                    Co-Evolution vs. Divergence
+                  </h2>
+                  <p className="text-zinc-200 leading-relaxed text-lg">
+                    Infrastructure is only one part of the cost equation. The
+                    other is **Evolution**. At ClawMore, we maintain a central
+                    hub of collective intelligence. If you choose to
+                    **Co-Evolve**—syncing your agent's unique mutations back to
+                    the hub—the service is completely free.
+                  </p>
+                  <p className="text-zinc-200 leading-relaxed text-lg mt-4">
+                    We only apply a "Mutation Tax" to those who choose **Private
+                    Divergence**. If you want a one-way sync from our hub to
+                    maintain an isolated infrastructure empire without
+                    contributing back, we charge a small fee per mutation. For
+                    the community-minded architect, the $1/month target is
+                    purely an infrastructure play.
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="text-3xl font-black tracking-tight mb-6 flex items-center gap-4">
+                    <span className="text-cyber-purple font-mono text-sm">
+                      05
+                    </span>
                     The Persistence Challenge
                   </h2>
                   <p className="text-zinc-200 leading-relaxed text-lg">
