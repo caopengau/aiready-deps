@@ -41,7 +41,7 @@
     "ovsx": "^0.10.9",
     "prettier": "^3.8.1",
     "semver": "^7.7.4",
-    "turbo": "^2.8.17",
+    "turbo": "^2.8.20",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.24.1",
     "vitest": "^4.0.18"
