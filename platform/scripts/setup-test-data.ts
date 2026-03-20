@@ -8,7 +8,9 @@ import {
   BatchWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 
-const TABLE_NAME = 'aiready-platform-dev-MainTableTable-rhuwxtoc';
+// Accept table name from command line or use default
+const TABLE_NAME =
+  process.argv[2] || 'aiready-platform-dev-MainTableTable-rhuwxtoc';
 const REGION = 'ap-southeast-2';
 
 const client = new DynamoDBClient({ region: REGION });
@@ -18,7 +20,7 @@ const doc = DynamoDBDocumentClient.from(client, {
 
 async function setup() {
   const email = 'caopengau@gmail.com';
-  console.log(`Setting up data for ${email}...`);
+  console.log(`Setting up data for ${email} in table ${TABLE_NAME}...`);
 
   // 1. Get User
   const userResult = await doc.send(
@@ -136,6 +138,7 @@ async function setup() {
   console.log('\n--- SETUP COMPLETE ---');
   console.log(`API_KEY: ${plainKey}`);
   console.log(`REPO_ID: ${repoId}`);
+  console.log(`TABLE: ${TABLE_NAME}`);
   console.log('----------------------\n');
 }
 

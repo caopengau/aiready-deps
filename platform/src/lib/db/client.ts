@@ -11,5 +11,8 @@ export const doc = DynamoDBDocumentClient.from(client, {
   unmarshallOptions: { wrapNumbers: false },
 });
 
-export const getTableName = () =>
-  process.env.DYNAMO_TABLE || 'aiready-platform';
+// Cached table name - evaluated once at module load time
+// Use this instead of calling getTableName() in every function
+export const TABLE_NAME = process.env.DYNAMO_TABLE || 'aiready-platform';
+
+export const getTableName = () => TABLE_NAME;

@@ -1,20 +1,20 @@
 import { PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { doc, getTableName } from './client';
+import { doc, TABLE_NAME } from './client';
+import { putItem, queryItems, PK } from './helpers';
 import type { Analysis } from './types';
 import { updateRepositoryScore } from './repositories';
 
 export async function createAnalysis(analysis: Analysis): Promise<Analysis> {
-  const TABLE_NAME = getTableName();
   const item = {
-    PK: `ANALYSIS#${analysis.repoId}`,
+    PK: PK.analysis(analysis.repoId),
     SK: analysis.timestamp,
-    GSI2PK: `ANALYSIS#${analysis.repoId}`,
+    GSI2PK: PK.analysis(analysis.repoId),
     GSI2SK: analysis.timestamp,
     ...analysis,
     createdAt: analysis.createdAt || new Date().toISOString(),
   };
 
-  await doc.send(new PutCommand({ TableName: TABLE_NAME, Item: item }));
+  await putItem(item);
 
   // Only update repository score if analysis is completed
   if (analysis.status === 'completed') {
@@ -28,38 +28,24 @@ export async function listRepositoryAnalyses(
   repoId: string,
   limit = 20
 ): Promise<Analysis[]> {
-  const TABLE_NAME = getTableName();
-  const result = await doc.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      KeyConditionExpression: 'PK = :pk',
-      ExpressionAttributeValues: { ':pk': `ANALYSIS#${repoId}` },
-      ScanIndexForward: false,
-      Limit: limit,
-    })
-  );
-  return (result.Items || []) as Analysis[];
+  return queryItems<Analysis>({
+    KeyConditionExpression: 'PK = :pk',
+    ExpressionAttributeValues: { ':pk': PK.analysis(repoId) },
+    ScanIndexForward: false,
+    Limit: limit,
+  });
 }
 
 export async function getLatestAnalysis(
   repoId: string,
   includeIncomplete = false
 ): Promise<Analysis | null> {
-  const TABLE_NAME = getTableName();
-
-  // If we only want completed ones, we can't easily query by status + timestamp in DDB without a GSI
-  // But we can query the latest few and pick the first completed one
-  const result = await doc.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      KeyConditionExpression: 'PK = :pk',
-      ExpressionAttributeValues: { ':pk': `ANALYSIS#${repoId}` },
-      ScanIndexForward: false,
-      Limit: 10, // Fetch latest 10 to find a completed one
-    })
-  );
-
-  const items = (result.Items || []) as Analysis[];
+  const items = await queryItems<Analysis>({
+    KeyConditionExpression: 'PK = :pk',
+    ExpressionAttributeValues: { ':pk': PK.analysis(repoId) },
+    ScanIndexForward: false,
+    Limit: 10,
+  });
 
   if (includeIncomplete) {
     return items[0] || null;
@@ -78,7 +64,6 @@ export async function updateAnalysisStatus(params: {
   error?: string;
   commitHash?: string;
 }): Promise<void> {
-  const TABLE_NAME = getTableName();
   const UpdateExpression =
     'SET #s = :s, aiScore = :ais, breakdown = :b, summary = :sum, #err = :e, updatedAt = :t';
   const ExpressionAttributeNames = {
@@ -119,7 +104,6 @@ export async function saveMetricPoints(params: {
   metrics: Record<string, number>;
   runId: string;
 }): Promise<void> {
-  const TABLE_NAME = getTableName();
   const promises = Object.entries(params.metrics).map(([type, value]) => {
     return doc.send(
       new PutCommand({
@@ -148,7 +132,6 @@ export async function getRepositoryMetrics(params: {
   metricType?: string;
   limit?: number;
 }): Promise<any[]> {
-  const TABLE_NAME = getTableName();
   const result = await doc.send(
     new QueryCommand({
       TableName: TABLE_NAME,

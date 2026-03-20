@@ -6,17 +6,26 @@ import {
   DeleteCommand,
   BatchWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { doc, getTableName } from './client';
+import { doc, TABLE_NAME } from './client';
+import {
+  putItem,
+  getItem,
+  queryItems,
+  deleteItem,
+  batchPutItems,
+  PK,
+  SK,
+  GSI,
+} from './helpers';
 import type { Team, TeamMember, User } from './types';
 import { updateUser, getUser } from './users';
 
 export async function createTeam(team: Team, ownerId: string): Promise<Team> {
   const now = new Date().toISOString();
-  const TABLE_NAME = getTableName();
   const teamItem = {
-    PK: `TEAM#${team.id}`,
-    SK: '#METADATA',
-    GSI1PK: 'TEAMS',
+    PK: PK.team(team.id),
+    SK: SK.metadata,
+    GSI1PK: GSI.teams.pk,
     GSI1SK: team.slug,
     ...team,
     createdAt: team.createdAt || now,
@@ -24,68 +33,46 @@ export async function createTeam(team: Team, ownerId: string): Promise<Team> {
   };
 
   const memberItem = {
-    PK: `TEAM#${team.id}`,
-    SK: `#MEMBER#${ownerId}`,
-    GSI1PK: `TEAM#${team.id}`,
+    PK: PK.team(team.id),
+    SK: SK.member(ownerId),
+    GSI1PK: PK.team(team.id),
     GSI1SK: `MEMBER#${ownerId}`,
-    GSI3PK: `USER#${ownerId}`,
-    GSI3SK: `TEAM#${team.id}`,
+    GSI3PK: PK.user(ownerId),
+    GSI3SK: PK.team(team.id),
     teamId: team.id,
     userId: ownerId,
     role: 'owner',
     joinedAt: now,
   };
 
-  await doc.send(
-    new BatchWriteCommand({
-      RequestItems: {
-        [TABLE_NAME]: [
-          { PutRequest: { Item: teamItem } },
-          { PutRequest: { Item: memberItem } },
-        ],
-      },
-    })
-  );
-
+  await batchPutItems([teamItem, memberItem]);
   await updateUser(ownerId, { teamId: team.id, role: 'owner' });
   return team;
 }
 
 export async function getTeam(teamId: string): Promise<Team | null> {
-  const TABLE_NAME = getTableName();
-  const result = await doc.send(
-    new GetCommand({
-      TableName: TABLE_NAME,
-      Key: { PK: `TEAM#${teamId}`, SK: '#METADATA' },
-    })
-  );
-  return result.Item ? (result.Item as Team) : null;
+  return getItem<Team>({ PK: PK.team(teamId), SK: SK.metadata });
 }
 
 export async function getTeamBySlug(slug: string): Promise<Team | null> {
-  const TABLE_NAME = getTableName();
-  const result = await doc.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      IndexName: 'GSI1',
-      KeyConditionExpression: 'GSI1PK = :pk AND GSI1SK = :slug',
-      ExpressionAttributeValues: { ':pk': 'TEAMS', ':slug': slug },
-    })
-  );
-  return result.Items?.[0] as Team | null;
+  const items = await queryItems<Team>({
+    IndexName: GSI.teams.index,
+    KeyConditionExpression: 'GSI1PK = :pk AND GSI1SK = :slug',
+    ExpressionAttributeValues: { ':pk': GSI.teams.pk, ':slug': slug },
+  });
+  return items[0] || null;
 }
 
 export async function listUserTeams(
   userId: string
 ): Promise<(TeamMember & { team: Team })[]> {
-  const TABLE_NAME = getTableName();
   const result = await doc.send(
     new QueryCommand({
       TableName: TABLE_NAME,
-      IndexName: 'GSI3',
-      KeyConditionExpression: 'GSI3PK = :pk AND begins_with(GSI3SK, :prefix)',
+      IndexName: 'GSI1',
+      KeyConditionExpression: 'GSI1PK = :pk AND begins_with(GSI1SK, :prefix)',
       ExpressionAttributeValues: {
-        ':pk': `USER#${userId}`,
+        ':pk': `TEAMS#`,
         ':prefix': 'TEAM#',
       },
     })
@@ -102,7 +89,6 @@ export async function listUserTeams(
 export async function listTeamMembers(
   teamId: string
 ): Promise<(TeamMember & { user: User })[]> {
-  const TABLE_NAME = getTableName();
   const result = await doc.send(
     new QueryCommand({
       TableName: TABLE_NAME,
@@ -126,7 +112,6 @@ export async function addTeamMember(
   role: 'admin' | 'member' = 'member'
 ): Promise<void> {
   const now = new Date().toISOString();
-  const TABLE_NAME = getTableName();
   const item = {
     PK: `TEAM#${teamId}`,
     SK: `#MEMBER#${userId}`,
@@ -147,7 +132,6 @@ export async function removeTeamMember(
   teamId: string,
   userId: string
 ): Promise<void> {
-  const TABLE_NAME = getTableName();
   await doc.send(
     new DeleteCommand({
       TableName: TABLE_NAME,
@@ -161,7 +145,6 @@ export async function updateTeam(
   teamId: string,
   updates: Partial<Team>
 ): Promise<void> {
-  const TABLE_NAME = getTableName();
   const updateExpressions: string[] = [];
   const expressionAttributeNames: Record<string, string> = {};
   const expressionAttributeValues: Record<string, unknown> = {};

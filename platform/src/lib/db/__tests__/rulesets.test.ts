@@ -4,8 +4,9 @@ import { doc } from '../client';
 
 vi.mock('../client', () => ({
   doc: {
-    send: vi.fn().mockResolvedValue({}),
+    send: vi.fn(),
   },
+  TABLE_NAME: 'test-table',
   getTableName: vi.fn().mockReturnValue('test-table'),
 }));
 
@@ -17,7 +18,7 @@ vi.mock('@aws-sdk/lib-dynamodb', () => ({
 
 describe('Ruleset DB Utils', () => {
   it('should get a ruleset', async () => {
-    vi.mocked(doc.send).mockResolvedValue({
+    (doc.send as any).mockResolvedValue({
       Item: { teamId: 'team-1', enforcement: 'strict' },
     });
     const ruleset = await getRuleset('team-1');

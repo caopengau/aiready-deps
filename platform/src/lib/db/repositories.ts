@@ -5,84 +5,61 @@ import {
   UpdateCommand,
   DeleteCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { doc, getTableName } from './client';
+import { doc, TABLE_NAME } from './client';
+import { putItem, getItem, queryItems, deleteItem, PK, SK } from './helpers';
 import type { Repository } from './types';
 
 export async function createRepository(repo: Repository): Promise<Repository> {
   const now = new Date().toISOString();
-  const TABLE_NAME = getTableName();
   const item = {
-    PK: `REPO#${repo.id}`,
-    SK: '#METADATA',
-    GSI1PK: repo.teamId ? `TEAM#${repo.teamId}` : `USER#${repo.userId}`,
+    PK: PK.repo(repo.id),
+    SK: SK.metadata,
+    GSI1PK: repo.teamId ? PK.team(repo.teamId) : PK.user(repo.userId),
     GSI1SK: `REPO#${repo.id}`,
     ...repo,
     createdAt: repo.createdAt || now,
     updatedAt: now,
   };
-  await doc.send(new PutCommand({ TableName: TABLE_NAME, Item: item }));
+  await putItem(item);
   return repo;
 }
 
 export async function getRepository(
   repoId: string
 ): Promise<Repository | null> {
-  const TABLE_NAME = getTableName();
-  const result = await doc.send(
-    new GetCommand({
-      TableName: TABLE_NAME,
-      Key: { PK: `REPO#${repoId}`, SK: '#METADATA' },
-    })
-  );
-  return result.Item ? (result.Item as Repository) : null;
+  return getItem<Repository>({ PK: PK.repo(repoId), SK: SK.metadata });
 }
 
 export async function listUserRepositories(
   userId: string
 ): Promise<Repository[]> {
-  const TABLE_NAME = getTableName();
-  const result = await doc.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      IndexName: 'GSI1',
-      KeyConditionExpression: 'GSI1PK = :pk AND begins_with(GSI1SK, :prefix)',
-      ExpressionAttributeValues: {
-        ':pk': `USER#${userId}`,
-        ':prefix': 'REPO#',
-      },
-      ScanIndexForward: false,
-    })
-  );
-  return (result.Items || []) as Repository[];
+  return queryItems<Repository>({
+    IndexName: 'GSI1',
+    KeyConditionExpression: 'GSI1PK = :pk AND begins_with(GSI1SK, :prefix)',
+    ExpressionAttributeValues: {
+      ':pk': PK.user(userId),
+      ':prefix': 'REPO#',
+    },
+    ScanIndexForward: false,
+  });
 }
 
 export async function listTeamRepositories(
   teamId: string
 ): Promise<Repository[]> {
-  const TABLE_NAME = getTableName();
-  const result = await doc.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      IndexName: 'GSI1',
-      KeyConditionExpression: 'GSI1PK = :pk AND begins_with(GSI1SK, :prefix)',
-      ExpressionAttributeValues: {
-        ':pk': `TEAM#${teamId}`,
-        ':prefix': 'REPO#',
-      },
-      ScanIndexForward: false,
-    })
-  );
-  return (result.Items || []) as Repository[];
+  return queryItems<Repository>({
+    IndexName: 'GSI1',
+    KeyConditionExpression: 'GSI1PK = :pk AND begins_with(GSI1SK, :prefix)',
+    ExpressionAttributeValues: {
+      ':pk': PK.team(teamId),
+      ':prefix': 'REPO#',
+    },
+    ScanIndexForward: false,
+  });
 }
 
 export async function deleteRepository(repoId: string): Promise<void> {
-  const TABLE_NAME = getTableName();
-  await doc.send(
-    new DeleteCommand({
-      TableName: TABLE_NAME,
-      Key: { PK: `REPO#${repoId}`, SK: '#METADATA' },
-    })
-  );
+  await deleteItem({ PK: PK.repo(repoId), SK: SK.metadata });
 }
 
 export async function updateRepositoryScore(
@@ -90,11 +67,10 @@ export async function updateRepositoryScore(
   score: number,
   lastCommitHash?: string
 ): Promise<void> {
-  const TABLE_NAME = getTableName();
   await doc.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
-      Key: { PK: `REPO#${repoId}`, SK: '#METADATA' },
+      Key: { PK: PK.repo(repoId), SK: SK.metadata },
       UpdateExpression:
         'SET aiScore = :s, lastAnalysisAt = :t, updatedAt = :t, isScanning = :f, lastCommitHash = :h',
       ExpressionAttributeValues: {
@@ -107,41 +83,47 @@ export async function updateRepositoryScore(
   );
 }
 
-export async function setRepositoryScanning(
-  repoId: string,
-  isScanning: boolean,
-  error?: string
-): Promise<void> {
-  const TABLE_NAME = getTableName();
-  const now = new Date().toISOString();
+export async function setRepositoryScanning(repoId: string): Promise<void> {
   await doc.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
-      Key: { PK: `REPO#${repoId}`, SK: '#METADATA' },
-      UpdateExpression: 'SET isScanning = :s, lastError = :e, updatedAt = :t',
+      Key: { PK: PK.repo(repoId), SK: SK.metadata },
+      UpdateExpression: 'SET isScanning = :scanning, updatedAt = :t',
       ExpressionAttributeValues: {
-        ':s': isScanning,
-        ':e': error || null,
-        ':t': now,
+        ':scanning': true,
+        ':t': new Date().toISOString(),
       },
     })
   );
 }
+
 export async function updateRepositoryConfig(
   repoId: string,
-  config: any | null
+  config: Record<string, unknown>
 ): Promise<void> {
-  const TABLE_NAME = getTableName();
-  const now = new Date().toISOString();
+  const setExpressions: string[] = [];
+  const values: Record<string, unknown> = {};
+  const names: Record<string, string> = {};
+
+  let idx = 0;
+  for (const [key, value] of Object.entries(config)) {
+    const valKey = `:v${idx}`;
+    const nameKey = `#n${idx}`;
+    setExpressions.push(`${nameKey} = ${valKey}`);
+    values[valKey] = value;
+    names[nameKey] = key;
+    idx++;
+  }
+
+  if (setExpressions.length === 0) return;
+
   await doc.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
-      Key: { PK: `REPO#${repoId}`, SK: '#METADATA' },
-      UpdateExpression: 'SET scanConfig = :c, updatedAt = :t',
-      ExpressionAttributeValues: {
-        ':c': config,
-        ':t': now,
-      },
+      Key: { PK: PK.repo(repoId), SK: SK.metadata },
+      UpdateExpression: `SET ${setExpressions.join(', ')}, updatedAt = :t`,
+      ExpressionAttributeValues: { ...values, ':t': new Date().toISOString() },
+      ExpressionAttributeNames: names,
     })
   );
 }

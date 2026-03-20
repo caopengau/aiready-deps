@@ -4,17 +4,24 @@ import {
   GetCommand,
   QueryCommand,
   DeleteCommand,
-  UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { doc, getTableName } from './client';
-import type { ApiKey, MagicLinkToken, RemediationRequest } from './types';
+import { doc, TABLE_NAME } from './client';
+import {
+  putItem,
+  getItem,
+  queryItems,
+  deleteItem,
+  PK,
+  SK,
+  GSI,
+} from './helpers';
+import type { ApiKey, MagicLinkToken } from './types';
 
 // API Key operations
 export async function createApiKey(
   userId: string,
   name: string
 ): Promise<{ key: string; apiKeyId: string }> {
-  const TABLE_NAME = getTableName();
   const apiKeyId = randomBytes(16).toString('hex');
   const rawKey = `ar_${randomBytes(32).toString('hex')}`;
   const keyHash = createHash('sha256').update(rawKey).digest('hex');
@@ -30,79 +37,66 @@ export async function createApiKey(
   };
 
   const dbItem = {
-    PK: `USER#${userId}`,
-    SK: `APIKEY#${apiKeyId}`,
-    GSI1PK: 'APIKEYS',
+    PK: PK.user(userId),
+    SK: SK.apiKey(apiKeyId),
+    GSI1PK: GSI.apiKeys.pk,
     GSI1SK: keyHash,
     ...item,
   };
-  await doc.send(new PutCommand({ TableName: TABLE_NAME, Item: dbItem }));
+  await putItem(dbItem);
   return { key: rawKey, apiKeyId };
 }
 
 export async function listUserApiKeys(userId: string): Promise<ApiKey[]> {
-  const TABLE_NAME = getTableName();
-  const result = await doc.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
-      ExpressionAttributeValues: {
-        ':pk': `USER#${userId}`,
-        ':prefix': 'APIKEY#',
-      },
-    })
-  );
-  return result.Items as ApiKey[];
+  return queryItems<ApiKey>({
+    KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+    ExpressionAttributeValues: {
+      ':pk': PK.user(userId),
+      ':prefix': 'APIKEY#',
+    },
+  });
 }
 
 export async function deleteApiKey(
   userId: string,
   apiKeyId: string
 ): Promise<void> {
-  const TABLE_NAME = getTableName();
-  await doc.send(
-    new DeleteCommand({
-      TableName: TABLE_NAME,
-      Key: { PK: `USER#${userId}`, SK: `APIKEY#${apiKeyId}` },
-    })
-  );
+  await deleteItem({ PK: PK.user(userId), SK: SK.apiKey(apiKeyId) });
 }
 
 // Magic Link operations
 export async function createMagicLinkToken(
   tokenData: MagicLinkToken
 ): Promise<string> {
-  const TABLE_NAME = getTableName();
-  await doc.send(
-    new PutCommand({
-      TableName: TABLE_NAME,
-      Item: { PK: `MAGIC#${tokenData.token}`, SK: '#METADATA', ...tokenData },
-    })
-  );
+  await putItem({
+    PK: PK.magic(tokenData.token),
+    SK: SK.metadata,
+    ...tokenData,
+  });
   return tokenData.token;
 }
 
 export async function getMagicLinkToken(
   token: string
 ): Promise<MagicLinkToken | null> {
-  const TABLE_NAME = getTableName();
-  const result = await doc.send(
-    new GetCommand({
-      TableName: TABLE_NAME,
-      Key: { PK: `MAGIC#${token}`, SK: '#METADATA' },
-    })
-  );
-  return (result.Item as MagicLinkToken) || null;
+  const items = await queryItems<MagicLinkToken>({
+    KeyConditionExpression: 'PK = :pk AND SK = :sk',
+    ExpressionAttributeValues: {
+      ':pk': PK.magic(token),
+      ':sk': SK.metadata,
+    },
+  });
+  return items[0] || null;
 }
 
 export async function markMagicLinkUsed(token: string): Promise<void> {
-  const TABLE_NAME = getTableName();
+  const { UpdateCommand } = await import('@aws-sdk/lib-dynamodb');
   await doc.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
-      Key: { PK: `MAGIC#${token}`, SK: '#METADATA' },
-      UpdateExpression: 'SET used = :u',
-      ExpressionAttributeValues: { ':u': true },
+      Key: { PK: PK.magic(token), SK: SK.metadata },
+      UpdateExpression: 'SET used = :used',
+      ExpressionAttributeValues: { ':used': true },
     })
   );
 }

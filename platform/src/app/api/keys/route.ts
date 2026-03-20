@@ -1,84 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/app/api/auth/[...nextauth]/route';
 import {
-  createApiKey,
-  listUserApiKeys,
-  deleteApiKey,
-} from '@/lib/db';
+  requireAuth,
+  badRequest,
+  errorResponse,
+  parseBody,
+  getRequiredQueryParam,
+} from '@/lib/api-utils';
+import { createApiKey, listUserApiKeys, deleteApiKey } from '@/lib/db';
 
 // GET /api/keys - List user's API keys
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const userId = await requireAuth();
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const keys = await listUserApiKeys(session.user.id);
+    const keys = await listUserApiKeys(userId);
     return NextResponse.json({ keys });
   } catch (error) {
     console.error('Error listing API keys:', error);
-    return NextResponse.json(
-      { error: 'Failed to list API keys' },
-      { status: 500 }
-    );
+    return errorResponse('Failed to list API keys');
   }
 }
 
 // POST /api/keys - Create a new API key
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const userId = await requireAuth();
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { name } = body;
+    const { data, error } = await parseBody<{ name: string }>(request, [
+      'name',
+    ]);
+    if (error || !data) return error || badRequest('Invalid request');
 
-    if (!name) {
-      return NextResponse.json(
-        { error: 'Name is required' },
-        { status: 400 }
-      );
-    }
-
-    const result = await createApiKey(session.user.id, name);
+    const result = await createApiKey(userId, data.name);
     return NextResponse.json(result, { status: 201 });
-  } catch (error) {
-    console.error('Error creating API key:', error);
-    return NextResponse.json(
-      { error: 'Failed to create API key' },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error('Error creating API key:', err);
+    return errorResponse('Failed to create API key');
   }
 }
 
 // DELETE /api/keys?id=<keyId> - Delete an API key
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const userId = await requireAuth();
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const keyId = searchParams.get('id');
+    const { value: keyId, error } = getRequiredQueryParam(request, 'id');
+    if (error || !keyId) return error || badRequest('Invalid request');
 
-    if (!keyId) {
-      return NextResponse.json(
-        { error: 'API Key ID is required' },
-        { status: 400 }
-      );
-    }
-
-    await deleteApiKey(session.user.id, keyId);
+    await deleteApiKey(userId, keyId);
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting API key:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete API key' },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error('Error deleting API key:', err);
+    return errorResponse('Failed to delete API key');
   }
 }
