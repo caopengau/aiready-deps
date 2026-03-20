@@ -27,22 +27,22 @@ export async function getSmartDefaults(
   let maxFragmentation: number;
 
   if (estimatedBlocks < 100) {
-    maxDepth = 4;
+    maxDepth = 5;
     maxContextBudget = 8000;
     minCohesion = 0.5;
     maxFragmentation = 0.5;
   } else if (estimatedBlocks < 500) {
-    maxDepth = 5;
+    maxDepth = 6;
     maxContextBudget = 15000;
     minCohesion = 0.45;
     maxFragmentation = 0.6;
   } else if (estimatedBlocks < 2000) {
-    maxDepth = 7;
+    maxDepth = 8;
     maxContextBudget = 25000;
     minCohesion = 0.4;
     maxFragmentation = 0.7;
   } else {
-    maxDepth = 10;
+    maxDepth = 12;
     maxContextBudget = 40000;
     minCohesion = 0.35;
     maxFragmentation = 0.8;

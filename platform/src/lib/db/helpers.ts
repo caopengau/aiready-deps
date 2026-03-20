@@ -123,3 +123,7 @@ export function buildUpdateExpression(
 
   return { expression: `SET ${setExpressions.join(', ')}`, values, names };
 }
+
+export function repoKey(repoId: string): { PK: string; SK: string } {
+  return { PK: PK.repo(repoId), SK: SK.metadata };
+}

@@ -12,10 +12,7 @@ export async function GET(
       return { settings: repo.scanConfig || null };
     } catch (error) {
       console.error('Error fetching repo settings:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch settings' },
-        { status: 500 }
-      );
+      return { status: 500, error: 'Failed to fetch settings' };
     }
   });
 }
@@ -35,10 +32,7 @@ export async function PATCH(
       return { success: true, settings };
     } catch (error) {
       console.error('Error updating repo settings:', error);
-      return NextResponse.json(
-        { error: 'Failed to update settings' },
-        { status: 500 }
-      );
+      return { status: 500, error: 'Failed to update settings' };
     }
   });
 }

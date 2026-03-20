@@ -11,19 +11,13 @@ export async function GET(
       const benchmarks = await getIndustryBenchmarks(repo.id);
 
       if (!benchmarks) {
-        return NextResponse.json(
-          { error: 'Benchmark data unavailable' },
-          { status: 404 }
-        );
+        return { status: 404, error: 'Benchmark data unavailable' };
       }
 
       return { benchmarks };
     } catch (error) {
       console.error('[BenchmarksAPI] Error:', error);
-      return NextResponse.json(
-        { error: 'Internal Server Error' },
-        { status: 500 }
-      );
+      return { status: 500, error: 'Internal Server Error' };
     }
   });
 }

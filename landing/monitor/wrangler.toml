@@ -1,10 +1,11 @@
 name = "aiready-landing-monitor"
-main = "src/index.ts"
+main = "../../packages/core/src/monitoring/health-check.ts"
 compatibility_date = "2024-01-01"
 
 [triggers]
 crons = ["*/5 * * * *"]
 
 [vars]
-# This should be the production Health API URL from SST outputs
+PROJECT_NAME = "Landing"
+URL_TO_CHECK = "https://getaiready.dev"
 HEALTH_API_URL = "https://hh6xn4b2wj.execute-api.ap-southeast-2.amazonaws.com"

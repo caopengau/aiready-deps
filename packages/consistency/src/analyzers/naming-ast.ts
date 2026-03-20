@@ -68,17 +68,23 @@ function analyzeIdentifiers(
         node.type === 'FunctionExpression' ||
         node.type === 'ArrowFunctionExpression'
       ) {
+        const isArrowParameter = node.type === 'ArrowFunctionExpression';
         node.params.forEach((param) => {
           if (param.type === 'Identifier') {
             scopeTracker.declareVariable(
               param.name,
               param,
               getLineNumber(param),
-              { isParameter: true }
+              { isParameter: true, isArrowParameter }
             );
           } else if (param.type === 'ObjectPattern') {
             // Handle destructured parameters: { id, name }
-            extractDestructuredIdentifiers(param, true, scopeTracker);
+            extractDestructuredIdentifiers(
+              param,
+              true,
+              scopeTracker,
+              isArrowParameter
+            );
           }
         });
       }
@@ -160,7 +166,11 @@ function checkVariableNaming(
   }
 
   // 1. Single letter names
-  if (name.length === 1 && !options.isLoopVariable) {
+  if (
+    name.length === 1 &&
+    !options.isLoopVariable &&
+    !options.isArrowParameter
+  ) {
     const severity = adjustSeverity(Severity.Minor, context, 'poor-naming');
     issues.push({
       file,
@@ -290,7 +300,8 @@ class ScopeTracker {
 function extractDestructuredIdentifiers(
   node: TSESTree.ObjectPattern | TSESTree.ArrayPattern,
   isParameter: boolean,
-  scopeTracker: ScopeTracker
+  scopeTracker: ScopeTracker,
+  isArrowParameter: boolean = false
 ) {
   if (node.type === 'ObjectPattern') {
     node.properties.forEach((prop) => {
@@ -302,6 +313,7 @@ function extractDestructuredIdentifiers(
           {
             isParameter,
             isDestructured: true,
+            isArrowParameter,
           }
         );
       }
@@ -316,6 +328,7 @@ function extractDestructuredIdentifiers(
           {
             isParameter,
             isDestructured: true,
+            isArrowParameter,
           }
         );
       }

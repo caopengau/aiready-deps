@@ -22,7 +22,12 @@ const stsClient = new STSClient({});
 
 /**
  * Initiates the creation of a new AWS account specialized for a ClawMore Managed node.
- * Uses Email plus addressing to create unique accounts linked to a single owner email.
+ * Uses an address-tagged email to create unique accounts linked to a single owner email.
+ *
+ * @param userEmail - The owner's email address (will be sanitized for uniqueness).
+ * @param userName - Friendly name for the account owner, used in the AccountName.
+ * @returns The CreateAccount request id which can be polled for completion.
+ * @throws When the Organizations API fails to initiate account creation.
  */
 export async function createManagedAccount(
   userEmail: string,
@@ -52,6 +57,11 @@ export async function createManagedAccount(
 
 /**
  * Polls AWS until the account creation is complete and returns the new Account ID.
+ *
+ * @param requestId - The CreateAccount request id returned by `createManagedAccount`.
+ * @param maxRetries - Maximum number of polling iterations (defaults to 20).
+ * @returns The created AWS Account ID once creation succeeds.
+ * @throws On failure state or when polling times out.
  */
 export async function waitForAccountCreation(
   requestId: string,
@@ -83,7 +93,9 @@ export async function waitForAccountCreation(
 }
 
 /**
- * Scans the AWS Organization for accounts tagged with Status: Available.
+ * Scans the AWS Organization for an account tagged as available for vending.
+ *
+ * @returns The account id of an available account, or `null` when none found.
  */
 export async function findAvailableAccountInPool(): Promise<string | null> {
   const listCommand = new ListAccountsCommand({});
@@ -115,6 +127,11 @@ export async function findAvailableAccountInPool(): Promise<string | null> {
 
 /**
  * Re-tags an account from the pool to a specific owner and project.
+ *
+ * @param accountId - The AWS Account Id to tag.
+ * @param email - Owner email to assign to the account.
+ * @param repo - Project/repository name to set on the account tags.
+ * @returns Promise that resolves when tagging completes.
  */
 export async function assignAccountToOwner(
   accountId: string,
@@ -135,7 +152,11 @@ export async function assignAccountToOwner(
 }
 
 /**
- * Assumes the OrganizationAccountAccessRole in the sub-account.
+ * Assumes the OrganizationAccountAccessRole in the sub-account and returns temporary credentials.
+ *
+ * @param accountId - The AWS Account Id of the sub-account to assume into.
+ * @returns Temporary credentials object `{ accessKeyId, secretAccessKey, sessionToken }`.
+ * @throws When the STS assume-role call does not return credentials.
  */
 export async function assumeSubAccountRole(accountId: string) {
   const roleArn = `arn:aws:iam::${accountId}:role/OrganizationAccountAccessRole`;
@@ -161,6 +182,12 @@ export async function assumeSubAccountRole(accountId: string) {
 
 /**
  * Bootstraps a newly created managed account with a restricted management role.
+ *
+ * This creates a role in the sub-account that the main account can assume to perform
+ * initial platform setup and attaches an administrative policy for bootstrap purposes.
+ *
+ * @param accountId - The AWS Account Id of the managed account to bootstrap.
+ * @returns The ARN of the created bootstrap role in the sub-account.
  */
 export async function bootstrapManagedAccount(accountId: string) {
   const credentials = await assumeSubAccountRole(accountId);

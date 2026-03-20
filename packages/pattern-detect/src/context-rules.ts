@@ -182,6 +182,28 @@ export const CONTEXT_RULES: ContextRule[] = [
     reason: 'Mock data duplication is expected for comprehensive test coverage',
     suggestion: 'Consider shared factories only for complex mock generation',
   },
+
+  // Tool Implementations - Structural Boilerplate
+  {
+    name: 'tool-implementations',
+    detect: (file, code) => {
+      const isToolFile =
+        file.includes('/tools/') ||
+        file.endsWith('.tool.ts') ||
+        code.includes('toolDefinitions');
+
+      const hasToolStructure =
+        code.includes('execute') &&
+        (code.includes('try') || code.includes('catch'));
+
+      return isToolFile && hasToolStructure;
+    },
+    severity: Severity.Info,
+    reason:
+      'Tool implementations share structural boilerplate but have distinct business logic',
+    suggestion:
+      'Tool duplication is acceptable for boilerplate interface wrappers',
+  },
 ];
 
 /**

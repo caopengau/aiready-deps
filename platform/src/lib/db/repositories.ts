@@ -13,6 +13,7 @@ import {
   deleteItem,
   PK,
   SK,
+  repoKey,
   updateItem,
   buildUpdateExpression,
 } from './helpers';
@@ -21,8 +22,7 @@ import type { Repository } from './types';
 export async function createRepository(repo: Repository): Promise<Repository> {
   const now = new Date().toISOString();
   const item = {
-    PK: PK.repo(repo.id),
-    SK: SK.metadata,
+    ...repoKey(repo.id),
     GSI1PK: repo.teamId ? PK.team(repo.teamId) : PK.user(repo.userId),
     GSI1SK: `REPO#${repo.id}`,
     ...repo,
@@ -36,7 +36,7 @@ export async function createRepository(repo: Repository): Promise<Repository> {
 export async function getRepository(
   repoId: string
 ): Promise<Repository | null> {
-  return getItem<Repository>({ PK: PK.repo(repoId), SK: SK.metadata });
+  return getItem<Repository>(repoKey(repoId));
 }
 
 export async function listUserRepositories(
@@ -68,7 +68,7 @@ export async function listTeamRepositories(
 }
 
 export async function deleteRepository(repoId: string): Promise<void> {
-  await deleteItem({ PK: PK.repo(repoId), SK: SK.metadata });
+  await deleteItem(repoKey(repoId));
 }
 
 export async function updateRepositoryScore(
@@ -86,23 +86,13 @@ export async function updateRepositoryScore(
   const expr = buildUpdateExpression(updates);
   if (!expr) return;
 
-  await updateItem(
-    { PK: PK.repo(repoId), SK: SK.metadata },
-    expr.expression,
-    expr.values,
-    expr.names
-  );
+  await updateItem(repoKey(repoId), expr.expression, expr.values, expr.names);
 }
 
 export async function setRepositoryScanning(repoId: string): Promise<void> {
   const expr = buildUpdateExpression({ isScanning: true });
   if (!expr) return;
-  await updateItem(
-    { PK: PK.repo(repoId), SK: SK.metadata },
-    expr.expression,
-    expr.values,
-    expr.names
-  );
+  await updateItem(repoKey(repoId), expr.expression, expr.values, expr.names);
 }
 
 export async function updateRepositoryConfig(
@@ -118,10 +108,5 @@ export async function updateRepositoryConfig(
   const expr = buildUpdateExpression(filtered);
   if (!expr) return;
 
-  await updateItem(
-    { PK: PK.repo(repoId), SK: SK.metadata },
-    expr.expression,
-    expr.values,
-    expr.names
-  );
+  await updateItem(repoKey(repoId), expr.expression, expr.values, expr.names);
 }

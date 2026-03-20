@@ -1,6 +1,12 @@
-import { PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { doc, TABLE_NAME } from './client';
-import { putItem, queryItems, PK } from './helpers';
+import {
+  putItem,
+  queryItems,
+  PK,
+  buildUpdateExpression,
+  updateItem,
+} from './helpers';
 import type { Analysis } from './types';
 import { updateRepositoryScore } from './repositories';
 
@@ -64,29 +70,21 @@ export async function updateAnalysisStatus(params: {
   error?: string;
   commitHash?: string;
 }): Promise<void> {
-  const UpdateExpression =
-    'SET #s = :s, aiScore = :ais, breakdown = :b, summary = :sum, #err = :e, updatedAt = :t';
-  const ExpressionAttributeNames = {
-    '#s': 'status',
-    '#err': 'error',
-  };
-  const ExpressionAttributeValues = {
-    ':s': params.status,
-    ':ais': params.aiScore || 0,
-    ':b': params.breakdown || {},
-    ':sum': params.summary || {},
-    ':e': params.error || null,
-    ':t': new Date().toISOString(),
-  };
+  const filtered: Record<string, unknown> = {};
+  filtered.status = params.status;
+  filtered.aiScore = params.aiScore || 0;
+  filtered.breakdown = params.breakdown || {};
+  filtered.summary = params.summary || {};
+  filtered.error = params.error || null;
 
-  await doc.send(
-    new UpdateCommand({
-      TableName: TABLE_NAME,
-      Key: { PK: `ANALYSIS#${params.repoId}`, SK: params.timestamp },
-      UpdateExpression,
-      ExpressionAttributeNames,
-      ExpressionAttributeValues,
-    })
+  const expr = buildUpdateExpression(filtered);
+  if (!expr) return;
+
+  await updateItem(
+    { PK: `ANALYSIS#${params.repoId}`, SK: params.timestamp },
+    expr.expression,
+    expr.values,
+    expr.names
   );
 
   if (params.status === 'completed' && params.aiScore !== undefined) {

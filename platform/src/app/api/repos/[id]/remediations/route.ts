@@ -12,10 +12,7 @@ export async function GET(
       return { remediations };
     } catch (error) {
       console.error('[RemediationsAPI] Error:', error);
-      return NextResponse.json(
-        { error: 'Internal Server Error' },
-        { status: 500 }
-      );
+      return { status: 500, error: 'Internal Server Error' };
     }
   });
 }

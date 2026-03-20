@@ -88,8 +88,30 @@ export async function analyzeNamingGeneralized(
         } else if (exp.type === 'type' && conventions.typePattern) {
           pattern = conventions.typePattern;
         } else if (exp.type === 'function') {
+          // Allow PascalCase (React components) or UPPER_CASE (HTTP methods) for exported functions
+          if (
+            /^[A-Z][a-zA-Z0-9]*$/.test(exp.name) ||
+            /^[A-Z][A-Z0-9_]*$/.test(exp.name)
+          ) {
+            continue;
+          }
           pattern = conventions.functionPattern;
         } else if (exp.type === 'const') {
+          // Exempt standard Next.js / API names
+          if (
+            [
+              'handler',
+              'GET',
+              'POST',
+              'PUT',
+              'DELETE',
+              'PATCH',
+              'OPTIONS',
+              'HEAD',
+            ].includes(exp.name)
+          )
+            continue;
+
           // Only enforce SCREAMING_SNAKE_CASE for primitive constants (strings, numbers,
           // booleans). Object literals, class instances, and tool definitions are
           // camelCase by convention (e.g. `logger`, `githubTools`, `RemediationSwarm`).
@@ -125,10 +147,12 @@ export async function analyzeNamingGeneralized(
           if (
             !conventions.variablePattern.test(spec) &&
             !conventions.classPattern.test(spec) &&
-            !conventions.constantPattern.test(spec) &&
+            (!conventions.constantPattern ||
+              !conventions.constantPattern.test(spec)) &&
             (!conventions.typePattern || !conventions.typePattern.test(spec)) &&
             (!conventions.interfacePattern ||
-              !conventions.interfacePattern.test(spec))
+              !conventions.interfacePattern.test(spec)) &&
+            !/^[A-Z][A-Z0-9_]*$/.test(spec)
           ) {
             // This is often a 'convention-mix' issue (e.g. importing snake_case into camelCase project)
             issues.push({
