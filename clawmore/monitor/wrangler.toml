@@ -1,0 +1,10 @@
+name = "aiready-clawmore-monitor"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+# This should be the production Health API URL from SST outputs
+HEALTH_API_URL = "https://hh6xn4b2wj.execute-api.ap-southeast-2.amazonaws.com"

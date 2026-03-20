@@ -79,8 +79,13 @@ export default $config({
           $app.stage === 'production'
             ? 'getaiready.dev'
             : `${$app.stage}.getaiready.dev`,
+        redirects:
+          $app.stage === 'production'
+            ? ['www.getaiready.dev']
+            : [`www.${$app.stage}.getaiready.dev`],
         dns: sst.cloudflare.dns({
           zone: cloudflareZoneId,
+          proxy: true,
         }),
       },
       invalidation: {

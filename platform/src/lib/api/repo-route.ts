@@ -36,6 +36,14 @@ export async function withRepoAuth(
 
     const result = await handler({ request, params: { id }, repo, session });
     if (result instanceof NextResponse) return result;
+    // Allow handlers to return an object with a `status` number to control the response code
+    if (result && typeof result === 'object' && 'status' in (result as any)) {
+      const r: any = result as any;
+      const status = typeof r.status === 'number' ? r.status : 200;
+      const body = { ...r };
+      delete body.status;
+      return NextResponse.json(body, { status });
+    }
     return NextResponse.json(result);
   } catch (err) {
     console.error('Repo route failed:', err);

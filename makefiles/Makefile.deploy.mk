@@ -337,83 +337,34 @@ landing-cleanup: ## Clean up stale AWS resources from old deployments
 	@echo ""
 	@$(call log_success,Cleanup scan complete)
 
-##@ Health Check Deployment (Automated)
+##@ Decentralized Monitoring
 
-deploy-health-check-full: verify-aws-account ## Deploy complete health check infrastructure (landing + worker) in one command
-	@$(call log_step,Deploying complete health check infrastructure)
-	@echo "$(CYAN)Step 1: Deploying landing stack (SNS + API)...$(NC)"
-	@cd landing && \
-		set -a && [ -f .env ] && . ./.env || true && set +a && \
-		export AWS_PROFILE=$${AWS_PROFILE:-$(AWS_PROFILE)} && \
-		export AWS_REGION=$${AWS_REGION:-$(AWS_REGION)} && \
-		sst deploy --yes
-	@$(call log_success,Landing stack deployed with SNS topic)
-	@echo ""
-	@$(call log_step,Setting HEALTH_API_URL secret in Cloudflare Worker)
-	@echo "$(CYAN)Using known Health API URL: https://snaoya2e7j.execute-api.ap-southeast-2.amazonaws.com$(NC)"
-	@( \
-		set -a && [ -f landing/.env ] && . landing/.env || true && set +a && \
-		export CLOUDFLARE_API_TOKEN && \
-		cd workers/health-check && \
-		echo "https://snaoya2e7j.execute-api.ap-southeast-2.amazonaws.com" | pnpm wrangler secret put HEALTH_API_URL \
-	)
-	@$(call log_success,Secret configured)
-	@echo ""
-	@$(call log_step,Deploying Cloudflare Worker)
-	@( \
-		set -a && [ -f landing/.env ] && . landing/.env || true && set +a && \
-		export CLOUDFLARE_API_TOKEN && \
-		cd workers/health-check && \
-		pnpm deploy \
-	)
-	@$(call log_success,Health check worker deployed)
-	@echo ""
-	@echo "$(GREEN)✅ Health check infrastructure deployed successfully!$(NC)"
-	@echo ""
-	@echo "$(CYAN)Next steps:$(NC)"
-	@echo "$(CYAN)1. Subscribe to SNS for email alerts:$(NC)"
-	@echo "$(GREEN)   AWS Console → SNS → Topics → aiready-landing-*-HealthAlerts → Subscribe$(NC)"
-	@echo ""
-	@echo "$(CYAN)2. View worker logs:$(NC)"
-	@echo "$(GREEN)   make health-check-logs$(NC)"
+deploy-landing-monitor: ## Deploy Cloudflare health monitor for landing
+	@$(call log_step,Deploying landing health monitor)
+	@cd landing/monitor && \
+		set -a && [ -f ../.env ] && . ../.env || true && set +a && \
+		npx wrangler deploy --name aiready-landing-monitor
 
-##@ Health Check Deployment
+deploy-clawmore-monitor: ## Deploy Cloudflare health monitor for ClawMore
+	@$(call log_step,Deploying clawmore health monitor)
+	@cd clawmore/monitor && \
+		set -a && [ -f ../../landing/.env ] && . ../../landing/.env || true && set +a && \
+		npx wrangler deploy --name aiready-clawmore-monitor
 
-deploy-health-check: ## Deploy health check infrastructure (SNS + API in landing, then Worker)
-	@$(call log_step,Deploying health check infrastructure)
-	@echo "$(CYAN)Step 1: Deploying landing stack (SNS + API)...$(NC)"
-	@cd landing && \
-		set -a && [ -f .env ] && . ./.env || true && set +a && \
-		export AWS_PROFILE=$${AWS_PROFILE:-$(AWS_PROFILE)} && \
-		export AWS_REGION=$${AWS_REGION:-$(AWS_REGION)} && \
-		sst deploy --yes
-	@$(call log_success,Landing stack deployed with SNS topic)
-	@echo ""
-	@echo "$(CYAN)Step 2: Deploying Cloudflare Worker...$(NC)"
-	@echo "$(YELLOW)⚠️  Run the following commands manually to complete setup:$(NC)"
-	@echo ""
-	@echo "$(CYAN)1. Get the health API URL from the output above$(NC)"
-	@echo "$(CYAN)2. Configure the secret in Cloudflare Worker:$(NC)"
-	@echo "$(GREEN)   cd workers/health-check$(NC)"
-	@echo "$(GREEN)   wrangler secret put HEALTH_API_URL$(NC)"
-	@echo "$(GREEN)   pnpm deploy$(NC)"
-	@echo ""
+deploy-platform-monitor: ## Deploy Cloudflare health monitor for Platform
+	@$(call log_step,Deploying platform health monitor)
+	@cd platform/monitor && \
+		set -a && [ -f ../../landing/.env ] && . ../../landing/.env || true && set +a && \
+		npx wrangler deploy --name aiready-platform-monitor
 
-health-check-config: ## Configure Cloudflare Worker with HEALTH_API_URL secret
-	@$(call log_step,Configuring Cloudflare Worker secrets)
-	@echo "$(CYAN)Setting HEALTH_API_URL secret for Cloudflare Worker...$(NC)"
-	@echo "$(YELLOW)⚠️  You must have deployed the landing stack first to get the API URL$(NC)"
-	@echo "$(CYAN)Run 'make deploy-health-check' first, then enter the API URL when prompted$(NC)"
-	@cd workers/health-check && \
-		wrangler secret put HEALTH_API_URL
+deploy-monitors-all: deploy-landing-monitor deploy-clawmore-monitor deploy-platform-monitor ## Deploy all project-specific health monitors
+	@$(call log_success,All project monitors deployed)
 
-health-check-deploy-worker: ## Deploy Cloudflare Worker (requires HEALTH_API_URL to be set)
-	@$(call log_step,Deploying Cloudflare Worker)
-	@cd workers/health-check && \
-		pnpm deploy
-	@$(call log_success,Health check worker deployed)
+monitor-logs-landing: ## Show landing monitor logs
+	@cd landing/monitor && pnpm wrangler logs
 
-health-check-logs: ## Show Cloudflare Worker logs
-	@$(call log_step,Showing Cloudflare Worker logs)
-	@cd workers/health-check && \
-		wrangler logs --tail
+monitor-logs-clawmore: ## Show clawmore monitor logs
+	@cd clawmore/monitor && pnpm wrangler logs
+
+monitor-logs-platform: ## Show platform monitor logs
+	@cd platform/monitor && pnpm wrangler logs

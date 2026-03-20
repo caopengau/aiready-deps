@@ -12,13 +12,11 @@ export async function GET(
     try {
       const latestAnalysisRecord = await getLatestAnalysis(repo.id);
       if (!latestAnalysisRecord || !latestAnalysisRecord.rawKey) {
-        return NextResponse.json(
-          {
-            error: 'No analysis found for this repository',
-            repo,
-          },
-          { status: 404 }
-        );
+        return {
+          status: 404,
+          error: 'No analysis found for this repository',
+          repo,
+        };
       }
 
       // Seed initial remediations for alpha demo
@@ -26,17 +24,13 @@ export async function GET(
 
       const fullAnalysis = await getAnalysis(latestAnalysisRecord.rawKey);
       if (!fullAnalysis) {
-        return NextResponse.json(
-          {
-            error: 'Analysis details not found in storage',
-            repo,
-          },
-          { status: 404 }
-        );
+        return {
+          status: 404,
+          error: 'Analysis details not found in storage',
+          repo,
+        };
       }
 
-      // Normalize the report for the frontend (flattens issues, maps keys)
-      // Force normalization to ensure we get the latest structure even if stored in an older format
       const normalizedAnalysis = normalizeReport(fullAnalysis, true);
 
       return {
@@ -46,10 +40,7 @@ export async function GET(
       };
     } catch (error) {
       console.error('Error fetching latest analysis:', error);
-      return NextResponse.json(
-        { error: 'Internal Server Error' },
-        { status: 500 }
-      );
+      return { status: 500, error: 'Internal Server Error' };
     }
   });
 }
