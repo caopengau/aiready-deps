@@ -9,6 +9,7 @@ include $(MAKEFILE_DIR)/Makefile.shared.mk
 .PHONY: deploy-platform deploy-platform-prod deploy-platform-remove platform-logs platform-verify
 .PHONY: deploy-clawmore deploy-clawmore-dev deploy-clawmore-prod clawmore-verify
 .PHONY: ses-domain-status ses-production-access-status ses-request-production-access
+.PHONY: deploy-health-check health-check-config health-check-logs
 
 SES_MAIL_TYPE ?= TRANSACTIONAL
 SES_WEBSITE_URL ?= https://$(DOMAIN_NAME)
@@ -335,3 +336,44 @@ landing-cleanup: ## Clean up stale AWS resources from old deployments
 	@echo "$(CYAN)💡 Certificates are auto-deleted when CloudFront distributions are removed$(NC)"
 	@echo ""
 	@$(call log_success,Cleanup scan complete)
+
+##@ Health Check Deployment
+
+deploy-health-check: ## Deploy health check infrastructure (SNS + API in landing, then Worker)
+	@$(call log_step,Deploying health check infrastructure)
+	@echo "$(CYAN)Step 1: Deploying landing stack (SNS + API)...$(NC)"
+	@cd landing && \
+		set -a && [ -f .env ] && . ./.env || true && set +a && \
+		export AWS_PROFILE=$${AWS_PROFILE:-$(AWS_PROFILE)} && \
+		export AWS_REGION=$${AWS_REGION:-$(AWS_REGION)} && \
+		sst deploy --yes
+	@$(call log_success,Landing stack deployed with SNS topic)
+	@echo ""
+	@echo "$(CYAN)Step 2: Deploying Cloudflare Worker...$(NC)"
+	@echo "$(YELLOW)⚠️  Run the following commands manually to complete setup:$(NC)"
+	@echo ""
+	@echo "$(CYAN)1. Get the health API URL from the output above$(NC)"
+	@echo "$(CYAN)2. Configure the secret in Cloudflare Worker:$(NC)"
+	@echo "$(GREEN)   cd workers/health-check$(NC)"
+	@echo "$(GREEN)   wrangler secret put HEALTH_API_URL$(NC)"
+	@echo "$(GREEN)   pnpm deploy$(NC)"
+	@echo ""
+
+health-check-config: ## Configure Cloudflare Worker with HEALTH_API_URL secret
+	@$(call log_step,Configuring Cloudflare Worker secrets)
+	@echo "$(CYAN)Setting HEALTH_API_URL secret for Cloudflare Worker...$(NC)"
+	@echo "$(YELLOW)⚠️  You must have deployed the landing stack first to get the API URL$(NC)"
+	@echo "$(CYAN)Run 'make deploy-health-check' first, then enter the API URL when prompted$(NC)"
+	@cd workers/health-check && \
+		wrangler secret put HEALTH_API_URL
+
+health-check-deploy-worker: ## Deploy Cloudflare Worker (requires HEALTH_API_URL to be set)
+	@$(call log_step,Deploying Cloudflare Worker)
+	@cd workers/health-check && \
+		pnpm deploy
+	@$(call log_success,Health check worker deployed)
+
+health-check-logs: ## Show Cloudflare Worker logs
+	@$(call log_step,Showing Cloudflare Worker logs)
+	@cd workers/health-check && \
+		wrangler logs --tail

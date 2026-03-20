@@ -145,11 +145,42 @@ export default $config({
     }
     */
 
+    // SNS Topic for health check alerts
+    const healthAlertsTopic = new sst.aws.SnsTopic('HealthAlerts');
+
+    // Subscribe email to the topic
+    new sst.aws.SnsSubscription('HealthAlertsEmail', {
+      topic: healthAlertsTopic,
+      endpoint: 'caopengau@gmail.com',
+      filterPolicy: {},
+    });
+
+    // API Gateway for health check worker to publish alerts
+    const healthApi = new sst.aws.ApiGatewayV2('HealthApi', {
+      cors: true,
+    });
+
+    healthApi.route('POST /alert', {
+      handler: 'api/health-alert.handler',
+      link: [healthAlertsTopic],
+      environment: {
+        HEALTH_ALERTS_TOPIC_ARN: healthAlertsTopic.arn,
+      },
+      permissions: [
+        {
+          actions: ['sns:Publish'],
+          resources: [healthAlertsTopic.arn],
+        },
+      ],
+    });
+
     return {
       site: site.url,
       apiUrl: api.url,
       submissionsBucket: submissions.name,
       emailDomain: emailDomain?.sender ?? domainName,
+      healthAlertsTopicArn: healthAlertsTopic.arn,
+      healthApiUrl: healthApi.url,
     };
   },
 });
