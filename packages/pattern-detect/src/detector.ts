@@ -1,16 +1,17 @@
 import {
-  estimateTokens,
   Severity,
   calculateStringSimilarity,
   calculateHeuristicConfidence,
+  extractCodeBlocks,
+  CodeBlock,
 } from '@aiready/core';
+
 import { calculateSeverity } from './context-rules';
 import type {
   DuplicatePattern,
   PatternType,
   FileContent,
   DetectionOptions,
-  CodeBlock,
 } from './core/types';
 
 export type { PatternType, DuplicatePattern };
@@ -18,174 +19,10 @@ export type { PatternType, DuplicatePattern };
 import { normalizeCode } from './core/normalizer';
 
 /**
- * Split file content into logical blocks (functions, classes, methods)
- *
- * @param file - File path or identifier.
- * @param content - Full file source content.
- * @returns Array of logical code blocks extracted from the content.
+ * Local wrapper for code extraction
  */
 function extractBlocks(file: string, content: string): CodeBlock[] {
-  const isPython = file.toLowerCase().endsWith('.py');
-  if (isPython) {
-    return extractBlocksPython(file, content);
-  }
-
-  const blocks: CodeBlock[] = [];
-  const lines = content.split('\n');
-
-  // Regex to match declarations (TS/JS, Java, C# and Go)
-  const blockRegex =
-    /^\s*(?:export\s+)?(?:async\s+)?(?:public\s+|private\s+|protected\s+|internal\s+|static\s+|readonly\s+|virtual\s+|abstract\s+|override\s+)*(function|class|interface|type|enum|record|struct|void|func|[a-zA-Z0-9_<>[]]+)\s+([a-zA-Z0-9_]+)(?:\s*\(|(?:\s+extends|\s+implements|\s+where)?\s*\{)|^\s*(?:export\s+)?const\s+([a-zA-Z0-9_]+)\s*=\s*[a-zA-Z0-9_.]+\.object\(|^\s*(app\.(?:get|post|put|delete|patch|use))\(/gm;
-
-  let match;
-  while ((match = blockRegex.exec(content)) !== null) {
-    const startLine = content.substring(0, match.index).split('\n').length;
-
-    let type: string;
-    let name: string;
-
-    if (match[1]) {
-      type = match[1];
-      name = match[2];
-    } else if (match[3]) {
-      type = 'const';
-      name = match[3];
-    } else {
-      type = 'handler';
-      name = match[4];
-    }
-
-    // Find end of block (matching braces heuristic)
-    let endLine = -1;
-    let openBraces = 0;
-    let foundStart = false;
-
-    for (let i = match.index; i < content.length; i++) {
-      if (content[i] === '{') {
-        openBraces++;
-        foundStart = true;
-      } else if (content[i] === '}') {
-        openBraces--;
-      }
-
-      if (foundStart && openBraces === 0) {
-        endLine = content.substring(0, i + 1).split('\n').length;
-        break;
-      }
-    }
-
-    if (endLine === -1) {
-      // Fallback: look for end of line
-      const remaining = content.slice(match.index);
-      const nextLineMatch = remaining.indexOf('\n');
-      if (nextLineMatch !== -1) {
-        endLine = startLine;
-      } else {
-        endLine = lines.length;
-      }
-    }
-
-    // Ensure at least 1 line
-    endLine = Math.max(startLine, endLine);
-
-    const blockCode = lines.slice(startLine - 1, endLine).join('\n');
-    const tokens = estimateTokens(blockCode);
-
-    blocks.push({
-      file,
-      startLine,
-      endLine,
-      code: blockCode,
-      tokens,
-      patternType: inferPatternType(type, name),
-    });
-  }
-
-  return blocks;
-}
-
-/**
- * Python-specific block extraction based on indentation
- *
- * @param file - File path or identifier.
- * @param content - Full file source content.
- * @returns Array of logical code blocks extracted from Python source.
- */
-function extractBlocksPython(file: string, content: string): CodeBlock[] {
-  const blocks: CodeBlock[] = [];
-  const lines = content.split('\n');
-
-  // Python block regex: def, class, async def
-  const blockRegex = /^\s*(?:async\s+)?(def|class)\s+([a-zA-Z0-9_]+)/gm;
-
-  let match;
-  while ((match = blockRegex.exec(content)) !== null) {
-    const startLinePos = content.substring(0, match.index).split('\n').length;
-    const startLineIdx = startLinePos - 1;
-    const initialIndent = lines[startLineIdx].search(/\S/);
-
-    let endLineIdx = startLineIdx;
-
-    // Find end of block by indentation
-    for (let i = startLineIdx + 1; i < lines.length; i++) {
-      const line = lines[i];
-      if (line.trim().length === 0) {
-        // Just include blank lines in the block for now
-        endLineIdx = i;
-        continue;
-      }
-
-      const currentIndent = line.search(/\S/);
-      if (currentIndent <= initialIndent) {
-        break;
-      }
-      endLineIdx = i;
-    }
-
-    // Trim trailing empty lines from the block
-    while (endLineIdx > startLineIdx && lines[endLineIdx].trim().length === 0) {
-      endLineIdx--;
-    }
-
-    const blockCode = lines.slice(startLineIdx, endLineIdx + 1).join('\n');
-    const tokens = estimateTokens(blockCode);
-
-    blocks.push({
-      file,
-      startLine: startLinePos,
-      endLine: endLineIdx + 1,
-      code: blockCode,
-      tokens,
-      patternType: inferPatternType(match[1], match[2]),
-    });
-  }
-
-  return blocks;
-}
-
-/**
- * Infer the type of code pattern based on keywords and naming conventions.
- *
- * @param keyword - The keyword used for declaration (e.g., 'class', 'function').
- * @param name - The identifier name for the block.
- * @returns Inferred PatternType.
- */
-function inferPatternType(keyword: string, name: string): PatternType {
-  const n = name.toLowerCase();
-  if (
-    keyword === 'handler' ||
-    n.includes('handler') ||
-    n.includes('controller') ||
-    n.startsWith('app.')
-  ) {
-    return 'api-handler';
-  }
-  if (n.includes('validate') || n.includes('schema')) return 'validator';
-  if (n.includes('util') || n.includes('helper')) return 'utility';
-  if (keyword === 'class') return 'class-method';
-  if (n.match(/^[A-Z]/)) return 'component';
-  if (keyword === 'function') return 'function';
-  return 'unknown';
+  return extractCodeBlocks(file, content);
 }
 
 /**
@@ -322,7 +159,8 @@ export async function detectDuplicatePatterns(
           code2: b2.code,
           similarity: sim,
           confidence,
-          patternType: b1.patternType,
+          patternType: b1.patternType as PatternType,
+
           tokenCost: b1.tokens + b2.tokens,
           severity: severity as Severity,
           reason,

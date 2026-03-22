@@ -11,6 +11,7 @@ import {
   loadConfig,
   mergeConfigWithDefaults,
   resolveOutputPath,
+  displayStandardConsoleReport,
 } from '@aiready/core';
 
 const program = new Command();
@@ -90,76 +91,43 @@ EXAMPLES:
       writeFileSync(outputPath, JSON.stringify(payload, null, 2));
       console.log(chalk.green(`✓ Report saved to ${outputPath}`));
     } else {
-      displayConsoleReport(report, scoring, elapsed);
+      displayStandardConsoleReport({
+        title: '🧭 Agent Grounding Analysis',
+        score: scoring.summary.score,
+        rating: scoring.summary.rating,
+        dimensions: [
+          {
+            name: 'Structure Clarity',
+            value: scoring.summary.dimensions.structureClarityScore,
+          },
+          {
+            name: 'Self-Documentation',
+            value: scoring.summary.dimensions.selfDocumentationScore,
+          },
+          {
+            name: 'Entry Points',
+            value: scoring.summary.dimensions.entryPointScore,
+          },
+          {
+            name: 'API Clarity',
+            value: scoring.summary.dimensions.apiClarityScore,
+          },
+          {
+            name: 'Domain Consistency',
+            value: scoring.summary.dimensions.domainConsistencyScore,
+          },
+        ],
+        stats: [
+          { label: 'Files', value: scoring.summary.filesAnalyzed },
+          { label: 'Directories', value: scoring.summary.directoriesAnalyzed },
+        ],
+        issues: report.issues,
+        recommendations: report.recommendations,
+        elapsedTime: elapsed,
+        noIssuesMessage:
+          '✨ No grounding issues found — agents can navigate freely!',
+      });
     }
   });
 
 program.parse();
-
-function scoreColor(score: number) {
-  if (score >= 85) return chalk.green;
-  if (score >= 70) return chalk.cyan;
-  if (score >= 50) return chalk.yellow;
-  if (score >= 30) return chalk.red;
-  return chalk.bgRed.white;
-}
-
-function displayConsoleReport(report: any, scoring: any, elapsed: string) {
-  const { summary, issues, recommendations } = report;
-
-  console.log(chalk.bold('\n🧭 Agent Grounding Analysis\n'));
-  console.log(
-    `Score:       ${scoreColor(summary.score)(summary.score + '/100')} (${summary.rating.toUpperCase()})`
-  );
-  console.log(
-    `Files:       ${chalk.cyan(summary.filesAnalyzed)}   Directories: ${chalk.cyan(summary.directoriesAnalyzed)}`
-  );
-  console.log(`Analysis:    ${chalk.gray(elapsed + 's')}\n`);
-
-  console.log(chalk.bold('📐 Dimension Scores\n'));
-  const dims = [
-    ['Structure Clarity', summary.dimensions.structureClarityScore],
-    ['Self-Documentation', summary.dimensions.selfDocumentationScore],
-    ['Entry Points', summary.dimensions.entryPointScore],
-    ['API Clarity', summary.dimensions.apiClarityScore],
-    ['Domain Consistency', summary.dimensions.domainConsistencyScore],
-  ];
-  for (const [name, val] of dims) {
-    const bar = '█'.repeat(Math.round((val as number) / 10)).padEnd(10, '░');
-    console.log(
-      `  ${String(name).padEnd(22)} ${scoreColor(val as number)(bar)} ${val}/100`
-    );
-  }
-
-  if (issues.length > 0) {
-    console.log(chalk.bold('\n⚠️  Issues Found\n'));
-    for (const issue of issues) {
-      const sev =
-        issue.severity === 'critical'
-          ? chalk.red
-          : issue.severity === 'major'
-            ? chalk.yellow
-            : chalk.blue;
-      console.log(`${sev(issue.severity.toUpperCase())}  ${issue.message}`);
-      if (issue.suggestion)
-        console.log(
-          `         ${chalk.dim('→')} ${chalk.italic(issue.suggestion)}`
-        );
-      console.log();
-    }
-  } else {
-    console.log(
-      chalk.green(
-        '\n✨ No grounding issues found — agents can navigate freely!\n'
-      )
-    );
-  }
-
-  if (recommendations.length > 0) {
-    console.log(chalk.bold('💡 Recommendations\n'));
-    recommendations.forEach((rec: string, i: number) =>
-      console.log(`${i + 1}. ${rec}`)
-    );
-  }
-  console.log();
-}

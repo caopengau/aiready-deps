@@ -11,9 +11,7 @@ import {
   loadConfig,
   mergeConfigWithDefaults,
   resolveOutputPath,
-  getScoreBar,
-  getSafetyIcon,
-  getSeverityColor,
+  displayStandardConsoleReport,
 } from '@aiready/core';
 
 const program = new Command();
@@ -95,82 +93,46 @@ EXAMPLES:
       writeFileSync(outputPath, JSON.stringify(payload, null, 2));
       console.log(chalk.green(`✓ Report saved to ${outputPath}`));
     } else {
-      displayConsoleReport(report, scoring, elapsed);
+      displayStandardConsoleReport({
+        title: '🧪 Testability Analysis',
+        score: scoring.summary.score,
+        rating: scoring.summary.rating,
+        dimensions: [
+          {
+            name: 'Test Coverage',
+            value: scoring.summary.dimensions.testCoverageRatio,
+          },
+          {
+            name: 'Function Purity',
+            value: scoring.summary.dimensions.purityScore,
+          },
+          {
+            name: 'Dependency Injection',
+            value: scoring.summary.dimensions.dependencyInjectionScore,
+          },
+          {
+            name: 'Interface Focus',
+            value: scoring.summary.dimensions.interfaceFocusScore,
+          },
+          {
+            name: 'Observability',
+            value: scoring.summary.dimensions.observabilityScore,
+          },
+        ],
+        stats: [
+          { label: 'Source Files', value: report.rawData.sourceFiles },
+          { label: 'Test Files', value: report.rawData.testFiles },
+          {
+            label: 'Coverage Ratio',
+            value: Math.round(scoring.summary.coverageRatio * 100) + '%',
+          },
+        ],
+        issues: report.issues,
+        recommendations: report.recommendations,
+        elapsedTime: elapsed,
+        safetyRating: report.summary.aiChangeSafetyRating,
+      });
     }
   });
 
 program.parse();
-
-function displayConsoleReport(report: any, scoring: any, elapsed: string) {
-  const { summary, rawData, issues, recommendations } = report;
-
-  // The most important banner
-  const safetyRating = summary.aiChangeSafetyRating;
-  console.log(chalk.bold('\n🧪 Testability Analysis\n'));
-
-  if (safetyRating === 'blind-risk') {
-    console.log(
-      chalk.bgRed.white.bold(
-        '  💀 BLIND RISK — NO TESTS DETECTED. AI-GENERATED CHANGES CANNOT BE VERIFIED.  '
-      )
-    );
-    console.log();
-  } else if (safetyRating === 'high-risk') {
-    console.log(
-      chalk.red.bold(
-        `  🔴 HIGH RISK — Insufficient test coverage. AI changes may introduce silent bugs.`
-      )
-    );
-    console.log();
-  }
-
-  const safetyColor = getSeverityColor(safetyRating, chalk);
-  console.log(
-    `AI Change Safety: ${safetyColor(`${getSafetyIcon(safetyRating)} ${safetyRating.toUpperCase()}`)}`
-  );
-  console.log(
-    `Score:            ${chalk.bold(summary.score + '/100')} (${summary.rating})`
-  );
-  console.log(
-    `Source Files:     ${chalk.cyan(rawData.sourceFiles)}   Test Files: ${chalk.cyan(rawData.testFiles)}`
-  );
-  console.log(
-    `Coverage Ratio:   ${chalk.bold(Math.round(summary.coverageRatio * 100) + '%')}`
-  );
-  console.log(`Analysis Time:    ${chalk.gray(elapsed + 's')}\n`);
-
-  console.log(chalk.bold('📐 Dimension Scores\n'));
-  const dims: [string, number][] = [
-    ['Test Coverage', summary.dimensions.testCoverageRatio],
-    ['Function Purity', summary.dimensions.purityScore],
-    ['Dependency Injection', summary.dimensions.dependencyInjectionScore],
-    ['Interface Focus', summary.dimensions.interfaceFocusScore],
-    ['Observability', summary.dimensions.observabilityScore],
-  ];
-  for (const [name, val] of dims) {
-    const color =
-      val >= 70 ? chalk.green : val >= 50 ? chalk.yellow : chalk.red;
-    console.log(`  ${name.padEnd(22)} ${color(getScoreBar(val))} ${val}/100`);
-  }
-
-  if (issues.length > 0) {
-    console.log(chalk.bold('\n⚠️  Issues\n'));
-    for (const issue of issues) {
-      const sev = getSeverityColor(issue.severity, chalk);
-      console.log(`${sev(issue.severity.toUpperCase())}  ${issue.message}`);
-      if (issue.suggestion)
-        console.log(
-          `       ${chalk.dim('→')} ${chalk.italic(issue.suggestion)}`
-        );
-      console.log();
-    }
-  }
-
-  if (recommendations.length > 0) {
-    console.log(chalk.bold('💡 Recommendations\n'));
-    recommendations.forEach((rec: string, i: number) => {
-      console.log(`${i + 1}. ${rec}`);
-    });
-  }
-  console.log();
-}

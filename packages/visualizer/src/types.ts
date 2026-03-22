@@ -1,10 +1,10 @@
 import type {
-  TokenBudget,
   Severity,
   GraphData as CoreGraphData,
   GraphNode,
   GraphEdge,
   GraphMetadata as CoreGraphMetadata,
+  IssueOverlay,
 } from '@aiready/core';
 
 /**
@@ -68,19 +68,6 @@ export interface Cluster {
 }
 
 /**
- * Issue overlay on the graph
- */
-export interface IssueOverlay {
-  id: string;
-  type: string;
-  severity: Severity;
-  nodeIds: string[];
-  edgeIds?: string[];
-  message: string;
-  details?: string;
-}
-
-/**
  * Complete graph data structure
  */
 export interface GraphData extends CoreGraphData {
@@ -88,46 +75,7 @@ export interface GraphData extends CoreGraphData {
   edges: DependencyEdge[];
   clusters: Cluster[];
   issues: IssueOverlay[];
-  metadata: GraphMetadata;
-}
-
-/**
- * Metadata about the graph
- */
-export interface GraphMetadata extends CoreGraphMetadata {
-  projectName?: string;
-  timestamp: string;
-  totalFiles: number;
-  totalDependencies: number;
-  analysisTypes: string[];
-
-  // Aggregate metrics
-  totalLinesOfCode?: number;
-  totalTokenCost?: number;
-  averageComplexity?: number;
-
-  // Issue counts
-  criticalIssues: number;
-  majorIssues: number;
-  minorIssues: number;
-  infoIssues: number;
-
-  // Business metrics (v0.10+)
-  estimatedMonthlyCost?: number;
-  estimatedDeveloperHours?: number;
-  aiAcceptanceRate?: number;
-  aiReadinessScore?: number;
-  /** AI token budget unit economics (v0.13+) */
-  tokenBudget?: TokenBudget;
-  /** Truncation info (v0.12+) */
-  truncated?: {
-    nodes: boolean;
-    edges: boolean;
-    nodeCount?: number;
-    edgeCount?: number;
-    nodeLimit?: number;
-    edgeLimit?: number;
-  };
+  metadata: CoreGraphMetadata;
 }
 
 /**

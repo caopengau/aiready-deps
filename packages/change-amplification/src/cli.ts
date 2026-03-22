@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { analyzeChangeAmplification } from './analyzer';
 import type { ChangeAmplificationOptions } from './types';
+import { displayStandardConsoleReport } from '@aiready/core';
 
 export const changeAmplificationAction = async (
   directory: string,
@@ -27,37 +28,29 @@ export const changeAmplificationAction = async (
       return;
     }
 
-    console.log(chalk.bold('\n🌐 Change Amplification Analysis\n'));
-    console.log(`Rating: ${chalk.bold(report.summary.rating)}`);
-    console.log(`Score: ${Math.round(report.summary.score ?? 0)}/100`);
-    console.log(`Critical Issues: ${report.summary.criticalIssues}`);
-    console.log(`Major Issues: ${report.summary.majorIssues}`);
+    displayStandardConsoleReport({
+      title: '🌐 Change Amplification Analysis',
+      score: report.summary.score ?? 0,
+      rating: report.summary.rating,
+      dimensions: [
+        {
+          name: 'Critical Issues',
+          value: (report.summary.criticalIssues ?? 0) * 10,
+        },
+        { name: 'Major Issues', value: (report.summary.majorIssues ?? 0) * 5 },
+      ],
 
-    if (report.summary.recommendations.length > 0) {
-      console.log(chalk.bold('\nRecommendations:'));
-      for (const rec of report.summary.recommendations) {
-        console.log(chalk.cyan(`• ${rec}`));
-      }
-    }
-
-    if (report.results.length > 0) {
-      console.log(chalk.bold('\nHotspots:'));
-      for (const result of report.results) {
-        console.log(`\n📄 ${chalk.cyan(result.fileName)}`);
-        for (const issue of result.issues) {
-          const color =
-            issue.severity === 'critical' ? chalk.red : chalk.yellow;
-          console.log(`  ${color('■')} ${issue.message}`);
-          console.log(`    ${chalk.dim('Suggestion: ' + issue.suggestion)}`);
-        }
-      }
-    } else {
-      console.log(
-        chalk.green(
-          '\n✨ No change amplification issues found. Architecture is well contained.'
-        )
-      );
-    }
+      issues: report.results.flatMap((r: any) =>
+        r.issues.map((i: any) => ({
+          ...i,
+          message: `[${r.fileName}] ${i.message}`,
+        }))
+      ),
+      recommendations: report.summary.recommendations,
+      elapsedTime: '0', // Not tracked in this action yet
+      noIssuesMessage:
+        '✨ No change amplification issues found. Architecture is well contained.',
+    });
   } catch (error) {
     console.error(
       chalk.red('Error during change amplification analysis:'),
