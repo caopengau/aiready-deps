@@ -10,6 +10,39 @@ interface BlogClientProps {
 
 const BLOG_POSTS = [
   {
+    slug: 'harvester-collective-intelligence',
+    title: 'The Harvester: How Your Wins Help Everyone',
+    excerpt:
+      'Intelligence scales at the speed of the fastest innovator. How individual mutations fuel global evolution.',
+    date: 'Apr 02, 2026',
+    readTime: '6 min read',
+    hash: 'collective',
+    category: 'MUTATION LOG',
+    image: '/blog-assets/harvester-collective.png',
+  },
+  {
+    slug: 'safety-isolation-sst',
+    title: 'Safety First: Isolating Intelligence with SST',
+    excerpt:
+      'Hard boundaries for autonomous agents. How we use AWS account vending and SST Ion to secure the Eclawnomy.',
+    date: 'Apr 01, 2026',
+    readTime: '7 min read',
+    hash: 'isolation',
+    category: 'MUTATION LOG',
+    image: '/blog-assets/safety-isolation.png',
+  },
+  {
+    slug: 'zero-idle-scaling',
+    title: 'Why $0 Idle is the Only Way to Scale',
+    excerpt:
+      'The economics of the agentic era require a fundamental shift: from uptime to on-demand intelligence.',
+    date: 'Mar 31, 2026',
+    readTime: '5 min read',
+    hash: 'zeroidle',
+    category: 'MUTATION LOG',
+    image: '/blog-assets/zero-idle-scaling.png',
+  },
+  {
     slug: 'the-great-decoupling-01-audit',
     title: 'The Great Decoupling: Part 1 - Auditing the Monolith',
     excerpt:

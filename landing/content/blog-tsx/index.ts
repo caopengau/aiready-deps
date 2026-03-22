@@ -119,6 +119,14 @@ import AgenticRoiTalentMoat from './agentic-roi-talent-moat';
 import agenticRoiTalentMoatMeta from './agentic-roi-talent-moat.meta';
 import TenMinuteAiAudit from './10-minute-ai-audit';
 import tenMinuteAiAuditMeta from './10-minute-ai-audit.meta';
+import EclawnomyPart1 from './eclawnomy-part-1';
+import eclawnomyPart1Meta from './eclawnomy-part-1.meta';
+import EclawnomyPart2 from './eclawnomy-part-2';
+import eclawnomyPart2Meta from './eclawnomy-part-2.meta';
+import EclawnomyPart3 from './eclawnomy-part-3';
+import eclawnomyPart3Meta from './eclawnomy-part-3.meta';
+import EclawnomyPart4 from './eclawnomy-part-4';
+import eclawnomyPart4Meta from './eclawnomy-part-4.meta';
 
 /**
  * Static posts array for static generation.
@@ -182,4 +190,8 @@ export const posts = [
   createPostEntry(agenticRoiTokenRoiMeta, AgenticRoiTokenRoi),
   createPostEntry(agenticRoiTalentMoatMeta, AgenticRoiTalentMoat),
   createPostEntry(tenMinuteAiAuditMeta, TenMinuteAiAudit),
+  createPostEntry(eclawnomyPart1Meta, EclawnomyPart1),
+  createPostEntry(eclawnomyPart2Meta, EclawnomyPart2),
+  createPostEntry(eclawnomyPart3Meta, EclawnomyPart3),
+  createPostEntry(eclawnomyPart4Meta, EclawnomyPart4),
 ];
