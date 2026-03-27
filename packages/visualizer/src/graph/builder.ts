@@ -17,6 +17,7 @@ import {
   normalizeLabel,
   extractReferencedPaths,
   getPackageGroup,
+  rankSeverity,
   getColorForSeverity,
 } from './utils';
 
@@ -201,9 +202,19 @@ export class GraphBuilder {
         normalized.metrics.tokenCost || GRAPH_CONSTANTS.DEFAULT_REFERENCE_SIZE
       );
 
-      normalized.issues.forEach((issue: Issue) => {
-        bumpIssue(file, issue.severity);
+      // We use entry.issues directly if available to detect unspecified severity
+      const rawIssues = Array.isArray(entry.issues) ? entry.issues : [];
+      if (rawIssues.length > 0) {
+        rawIssues.forEach((issue: any) => {
+          bumpIssue(file, rankSeverity(issue.severity));
+        });
+      } else {
+        normalized.issues.forEach((issue: Issue) => {
+          bumpIssue(file, issue.severity);
+        });
+      }
 
+      normalized.issues.forEach((issue: Issue) => {
         const refs = extractReferencedPaths(issue.message);
         refs.forEach((ref) => {
           const target = path.isAbsolute(ref) ? ref : path.resolve(path.dirname(file), ref);
@@ -334,6 +345,16 @@ export class GraphBuilder {
 
     const results = Array.isArray(toolData) ? toolData : toolData.results ?? toolData.issues ?? [];
     results.forEach((item: any) => {
+      // Support flat format where item IS the issue (seen in tests and legacy outputs)
+      if (!Array.isArray(item.issues) && (item.severity || item.message)) {
+        const file = item.fileName ?? item.file ?? item.location?.file;
+        if (file) {
+          builder.addNode(file, title, GRAPH_CONSTANTS.DEFAULT_REFERENCE_SIZE);
+          bumpIssue(file, rankSeverity(item.severity));
+        }
+        return;
+      }
+
       const normalized = normalizeAnalysisResult(item);
       const file = normalized.fileName;
       if (file) {

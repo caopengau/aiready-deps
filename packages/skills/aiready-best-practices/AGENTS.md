@@ -29,22 +29,28 @@ consistency checking, documentation, testability, and dependency management.
 ## Table of Contents
 
 1. [Pattern Detection (patterns)](#1-pattern-detection-patterns) (CRITICAL)
-   - 1.1 [Avoid Semantic Duplicate Patterns](#11-avoid-semantic-duplicate-patterns)
+   - 1.1
+     [Avoid Semantic Duplicate Patterns](#11-avoid-semantic-duplicate-patterns)
    - 1.2 [Unify Fragmented Interfaces](#12-unify-fragmented-interfaces)
 2. [Context Optimization (context)](#2-context-optimization-context) (HIGH)
    - 2.1 [Keep Import Chains Shallow](#21-keep-import-chains-shallow)
    - 2.2 [Maintain High Module Cohesion](#22-maintain-high-module-cohesion)
    - 2.3 [Split Large Files (>500 lines)](#23-split-large-files-500-lines)
-3. [Consistency Checking (consistency)](#3-consistency-checking-consistency) (MEDIUM)
-   - 3.1 [Follow Consistent Naming Conventions](#31-follow-consistent-naming-conventions)
-   - 3.2 [Use Consistent Error Handling Patterns](#32-use-consistent-error-handling-patterns)
+3. [Consistency Checking (consistency)](#3-consistency-checking-consistency)
+   (MEDIUM)
+   - 3.1
+     [Follow Consistent Naming Conventions](#31-follow-consistent-naming-conventions)
+   - 3.2
+     [Use Consistent Error Handling Patterns](#32-use-consistent-error-handling-patterns)
 4. [AI Signal Clarity (signal)](#4-ai-signal-clarity-signal) (CRITICAL)
    - 4.1 [Avoid Boolean Trap Parameters](#41-avoid-boolean-trap-parameters)
    - 4.2 [Avoid High-Entropy Naming](#42-avoid-high-entropy-naming)
    - 4.3 [Avoid Magic Literals](#43-avoid-magic-literals)
    - 4.4 [Avoid Redundant Type Constants](#44-avoid-redundant-type-constants)
-5. [Change Amplification (amplification)](#5-change-amplification-amplification) (HIGH)
-   - 5.1 [Avoid Change Amplification Hotspots](#51-avoid-change-amplification-hotspots)
+5. [Change Amplification (amplification)](#5-change-amplification-amplification)
+   (HIGH)
+   - 5.1
+     [Avoid Change Amplification Hotspots](#51-avoid-change-amplification-hotspots)
 6. [Agent Grounding (grounding)](#6-agent-grounding-grounding) (HIGH)
    - 6.1 [Define Clear Context Boundaries](#61-define-clear-context-boundaries)
    - 6.2 [Write Agent-Actionable READMEs](#62-write-agent-actionable-readmes)
@@ -52,9 +58,12 @@ consistency checking, documentation, testability, and dependency management.
    - 7.1 [Maintain Verification Coverage](#71-maintain-verification-coverage)
    - 7.2 [Write Pure Functions](#72-write-pure-functions)
 8. [Documentation (docs)](#8-documentation-docs) (MEDIUM)
-   - 8.1 [Keep Documentation in Sync with Code](#81-keep-documentation-in-sync-with-code)
-9. [Codebase Health Assessment (assessment)](#9-codebase-health-assessment-assessment) (HIGH)
-   - 9.1 [Run Unified Codebase Health Scan](#91-run-unified-codebase-health-scan)
+   - 8.1
+     [Keep Documentation in Sync with Code](#81-keep-documentation-in-sync-with-code)
+9. [Codebase Health Assessment (assessment)](#9-codebase-health-assessment-assessment)
+   (HIGH)
+   - 9.1
+     [Run Unified Codebase Health Scan](#91-run-unified-codebase-health-scan)
 
 ---
 
@@ -72,7 +81,7 @@ can save 30-70% of context usage.
 
 **Impact: CRITICAL (30-70% context window waste)**
 
-*Tags: patterns, duplicates, context-window, semantic-similarity*
+_Tags: patterns, duplicates, context-window, semantic-similarity_
 
 Multiple functions or components that perform the same task with different names
 (`fetchUser`, `getUserData`, `loadUserInfo`) waste AI context tokens and confuse
@@ -107,7 +116,7 @@ Reference: [https://getaiready.dev/docs](https://getaiready.dev/docs)
 **Impact: CRITICAL (40-80% reduction in AI confusion, prevents wrong type
 usage)**
 
-*Tags: patterns, interfaces, types, consistency*
+_Tags: patterns, interfaces, types, consistency_
 
 Multiple similar interfaces for the same concept (`User`, `UserData`,
 `UserInfo`) confuse AI agents, leading to incorrect property access and mixed
@@ -152,7 +161,7 @@ incomplete or incorrect suggestions.
 
 **Impact: HIGH (10-30% reduction in context depth)**
 
-*Tags: context, imports, dependency-depth, circular-imports*
+_Tags: context, imports, dependency-depth, circular-imports_
 
 Deep import chains force AI models to load many intermediate files to trace
 logic, quickly exceeding context window limits. When AI must trace through 5+
@@ -188,7 +197,7 @@ Reference: [https://getaiready.dev/docs](https://getaiready.dev/docs)
 **Impact: HIGH (25-40% reduction in context pollution, improves AI file
 selection)**
 
-*Tags: context, cohesion, organization, modules*
+_Tags: context, cohesion, organization, modules_
 
 Low cohesion forces AI to process unrelated code when focusing on a specific
 feature. When "util" files bundle authentication, formatting, and validation, AI
@@ -216,13 +225,14 @@ hallucination.
 **Benefits for AI:** Reduces context waste by 25-40% and ensures the agent loads
 only the minimal relevant code for a task.
 
-Reference: [https://en.wikipedia.org/wiki/Cohesion_(computer_science)](https://en.wikipedia.org/wiki/Cohesion_(computer_science))
+Reference:
+[https://en.wikipedia.org/wiki/Cohesion\_(computer_science)](<https://en.wikipedia.org/wiki/Cohesion_(computer_science)>)
 
 ### 2.3 Split Large Files (>500 lines)
 
 **Impact: HIGH (30-50% reduction in context window usage)**
 
-*Tags: context, file-size, refactoring, modules*
+_Tags: context, file-size, refactoring, modules_
 
 Files exceeding 500 lines often force AI models to process unnecessary code,
 wasting 90%+ of their context budget for a single operation. This leads to
@@ -269,7 +279,7 @@ incorrect pattern replication.
 
 **Impact: MEDIUM (5-15% improvement in AI pattern recognition)**
 
-*Tags: consistency, naming, conventions, readability*
+_Tags: consistency, naming, conventions, readability_
 
 Inconsistent naming conventions confuse AI models about code intent and
 relationships. When similar concepts use different naming patterns, AI cannot
@@ -303,7 +313,7 @@ Reference: [https://getaiready.dev/docs](https://getaiready.dev/docs)
 
 **Impact: MEDIUM (15-25% improvement in AI error handling suggestions)**
 
-*Tags: consistency, errors, patterns, exceptions*
+_Tags: consistency, errors, patterns, exceptions_
 
 Mixed error patterns (e.g., mixing `throw`, `Result` objects, and `null`
 returns) prevent AI models from predicting the correct handling strategy. This
@@ -352,7 +362,7 @@ hallucinate or misinterpret logic.
 **Impact: CRITICAL (High confusion potential - AI flips boolean intent
 incorrectly)**
 
-*Tags: signal, boolean, parameters, ambiguity, ai-signal*
+_Tags: signal, boolean, parameters, ambiguity, ai-signal_
 
 Boolean parameters with unclear meaning cause AI assistants to incorrectly
 interpret or invert logic. Multi-boolean patterns are especially problematic as
@@ -385,7 +395,7 @@ Reference: [https://getaiready.dev/docs](https://getaiready.dev/docs)
 
 **Impact: CRITICAL (Names with multiple interpretations confuse AI models)**
 
-*Tags: signal, naming, entropy, ambiguity, clarity*
+_Tags: signal, naming, entropy, ambiguity, clarity_
 
 High-entropy names—generic identifiers like `data`, `info`, or `handle`—lack
 distinct semantic meaning. AI models often misinterpret these names or
@@ -419,7 +429,7 @@ Reference: [https://getaiready.dev/docs](https://getaiready.dev/docs)
 
 **Impact: CRITICAL (Unnamed constants confuse AI about business rules)**
 
-*Tags: signal, magic, literals, constants, clarity*
+_Tags: signal, magic, literals, constants, clarity_
 
 Magic literals—unnamed constants used directly in logic—prevent AI from
 understanding the "why" behind business rules. When AI sees `if (status === 2)`,
@@ -503,6 +513,31 @@ const schema = {
 Models and humans working with JSON Schema expect literals. indirection layers
 like local constants for primitives should be removed.
 
+**Incorrect:**
+
+```typescript
+const TYPE_STRING = 'string';
+const TYPE_OBJECT = 'object';
+
+const schema = {
+  type: TYPE_OBJECT,
+  properties: {
+    name: { type: TYPE_STRING },
+  },
+};
+```
+
+**Correct:**
+
+```typescript
+const schema = {
+  type: 'object',
+  properties: {
+    name: { type: 'string' },
+  },
+};
+```
+
 Reference: [https://getaiready.dev/docs](https://getaiready.dev/docs)
 
 ---
@@ -522,7 +557,7 @@ limits and don't overwhelm the agent's reasoning.
 **Impact: HIGH (High fan-in/fan-out files cause "edit explosion" for AI
 agents)**
 
-*Tags: amplification, coupling, fan-in, fan-out, hotspots, graph-metrics*
+_Tags: amplification, coupling, fan-in, fan-out, hotspots, graph-metrics_
 
 Change amplification hotspots are files with extreme dependency counts (high
 fan-in/fan-out). When an AI modifies these files, it often triggers a cascade of
@@ -569,7 +604,7 @@ is "grounded" in the correct project semantics.
 **Impact: HIGH (Ambiguous boundaries prevent AI from understanding domain
 contexts)**
 
-*Tags: grounding, boundaries, domains, context, architecture*
+_Tags: grounding, boundaries, domains, context, architecture_
 
 Amorphous domain boundaries confuse AI about which rules apply to a given task.
 Mixing multiple domains in a single file or directory prevents effectively
@@ -603,7 +638,7 @@ Reference: [https://getaiready.dev/docs](https://getaiready.dev/docs)
 **Impact: HIGH (Poor README quality reduces AI's understanding of project
 context)**
 
-*Tags: grounding, readme, documentation, context, agents*
+_Tags: grounding, readme, documentation, context, agents_
 
 READMEs are the primary entry point for AI agents. A poor README forces an agent
 to scan every file in the repository to infer architecture and intent, often
@@ -652,7 +687,7 @@ work without expensive trial-and-error loops.
 **Impact: MEDIUM (Low test coverage prevents AI from confirming its changes
 work)**
 
-*Tags: testability, verification, coverage, testing, ai-agent*
+_Tags: testability, verification, coverage, testing, ai-agent_
 
 Verification coverage measures how effectively AI can confirm its changes work.
 Low test coverage forces AI into trial-and-error loops, guessing at correctness
@@ -686,7 +721,7 @@ Reference: [https://getaiready.dev/docs](https://getaiready.dev/docs)
 
 **Impact: MEDIUM (Global state and side effects prevent AI from writing tests)**
 
-*Tags: testability, purity, side-effects, global-state, dependency-injection*
+_Tags: testability, purity, side-effects, global-state, dependency-injection_
 
 Impure functions (those relying on global state, side effects, or I/O) are
 difficult for AI agents to verify in isolation. When agents cannot easily prove
@@ -732,7 +767,7 @@ implementations.
 
 **Impact: MEDIUM (20-30% reduction in AI suggestion errors from stale docs)**
 
-*Tags: documentation, maintenance, comments, sync*
+_Tags: documentation, maintenance, comments, sync_
 
 Outdated documentation misleads AI models. When function signatures or business
 logic change without matching updates to JSDoc/comments, AI suggests code based
@@ -777,7 +812,7 @@ fragmentation that can lead to agent failure.
 
 **Impact: HIGH (Predicts and prevents AI agent failures)**
 
-*Tags: assessment, health, scan, ai-readiness, unified*
+_Tags: assessment, health, scan, ai-readiness, unified_
 
 AI agents should assess codebase health before starting complex tasks or after
 major refactors. The `aiready scan` command builds a "ground truth" map of
