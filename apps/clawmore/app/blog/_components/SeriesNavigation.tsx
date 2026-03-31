@@ -81,7 +81,7 @@ export default function SeriesNavigation({
             </div>
             {prevPost.series && (
               <div className="text-[8px] font-mono text-zinc-600 uppercase tracking-[0.2em]">
-                {prevPost.series} // EP {prevPost.episode}
+                {`${prevPost.series} // EP ${prevPost.episode}`}
               </div>
             )}
           </Link>
@@ -117,7 +117,7 @@ export default function SeriesNavigation({
             </div>
             {nextPost.series && (
               <div className="text-[8px] font-mono text-zinc-600 uppercase tracking-[0.2em]">
-                {nextPost.series} // EP {nextPost.episode}
+                {`${nextPost.series} // EP ${nextPost.episode}`}
               </div>
             )}
           </Link>
