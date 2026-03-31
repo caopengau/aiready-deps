@@ -30,9 +30,45 @@ export function calculatePatternScore(
   totalFilesAnalyzed: number,
   costConfig?: Partial<CostConfig>
 ): ToolScoringOutput {
-  // Filter duplicates to only include actionable ones (exclude info severity)
+  // Filter duplicates to only include actionable ones:
+  // 1. Exclude info severity (already filtered by provider, but ensure consistency)
+  // 2. Exclude duplicates with matchedRule indicating they are acceptable patterns
+  //    (e.g., type-definitions, cli-command-definitions, common-api-functions)
   // This ensures the score reflects what users actually see and need to fix
-  const actionableDuplicates = duplicates.filter((d) => d.severity !== 'info');
+  const actionableDuplicates = duplicates.filter((d) => {
+    // Filter out info severity
+    if (d.severity === 'info') return false;
+
+    // Filter out duplicates that have a matchedRule indicating they are acceptable
+    // These are patterns that are intentionally duplicated or boilerplate
+    const acceptableRules = [
+      // Logic rules (logic-rules.ts)
+      'type-definitions',
+      'utility-functions',
+      'shared-hooks',
+      'score-helpers',
+      'visualization-handlers',
+      'switch-helpers',
+      'common-api-functions',
+      'validation-functions',
+      // Infrastructure rules (infra-rules.ts)
+      'config-files',
+      'migration-scripts',
+      'tool-implementations',
+      'cli-command-definitions',
+      // Web rules (web-rules.ts)
+      'templates',
+      'common-ui-handlers',
+      'nextjs-route-handlers',
+      // Test rules (test-rules.ts)
+      'test-fixtures',
+      'e2e-page-objects',
+      'mock-data',
+    ];
+    if (d.matchedRule && acceptableRules.includes(d.matchedRule)) return false;
+
+    return true;
+  });
 
   // Calculate raw metrics based on actionable duplicates only
   const totalDuplicates = actionableDuplicates.length;

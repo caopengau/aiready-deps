@@ -63,10 +63,15 @@ export const INFRA_RULES: ContextRule[] = [
   {
     name: 'cli-command-definitions',
     detect: (file, code) => {
+      const basename = file.split('/').pop() || '';
       const isCliFile =
         file.includes('/commands/') ||
         file.includes('/cli/') ||
-        file.endsWith('.command.ts');
+        file.endsWith('.command.ts') ||
+        basename === 'cli.ts' ||
+        basename === 'cli.js' ||
+        basename === 'cli.tsx' ||
+        basename === 'cli-action.ts';
 
       const hasCommandPattern =
         (code.includes('.command(') || code.includes('defineCommand')) &&
