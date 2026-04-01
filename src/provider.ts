@@ -13,7 +13,7 @@ import { DepsOptions } from './types';
  */
 export const DEPS_PROVIDER = createProvider({
   id: ToolName.DependencyHealth,
-  alias: ['deps', 'deps-health', 'packages'],
+  alias: ['deps', 'deps-health', 'packages', 'dependency-health'],
   version: '0.9.5',
   defaultWeight: 6,
   async analyzeReport(options: ScanOptions) {
