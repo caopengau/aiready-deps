@@ -243,8 +243,9 @@ export function calculateAiScore(
 
     if (!enabled) continue;
 
-    const val = (b as any)[key];
-    const score = typeof val === 'number' ? val : (val as any)?.score;
+    const val = b[key as keyof typeof b];
+    const score =
+      typeof val === 'number' ? val : (val as { score?: number })?.score;
 
     if (typeof score === 'number' && score >= 0) {
       weightedSum += score * weight;
@@ -276,9 +277,10 @@ export function extractBreakdown(data: AnalysisData) {
   const result: Record<string, number> = {};
 
   for (const key of Object.values(ToolName)) {
-    const val = (b as any)[key];
+    const val = b[key as keyof typeof b];
     if (val !== undefined && val !== null) {
-      const score = typeof val === 'number' ? val : (val as any).score;
+      const score =
+        typeof val === 'number' ? val : (val as { score?: number }).score;
       if (typeof score === 'number' && score >= 0) {
         result[key] = score;
       }
