@@ -7,6 +7,7 @@ import humanAgentCoManagementMeta from './human-agent-co-management.meta';
 import recursiveSafetyMeta from './recursive-safety.meta';
 import roadmapToAutonomyMeta from './roadmap-to-autonomy.meta';
 import livingRepositoryMeta from './living-repository.meta';
+import evolutionRoiMeta from './evolution-roi.meta';
 import futureHumanFriendlyCodeMeta from './future-human-friendly-code.meta';
 import visualizingInvisibleMeta from './visualizing-invisible.meta';
 import invisibleCodebaseMeta from './invisible-codebase.meta';
@@ -36,6 +37,7 @@ export const technicalMeta = [
   recursiveSafetyMeta,
   roadmapToAutonomyMeta,
   livingRepositoryMeta,
+  evolutionRoiMeta,
   futureHumanFriendlyCodeMeta,
   visualizingInvisibleMeta,
   invisibleCodebaseMeta,

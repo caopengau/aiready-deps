@@ -1,5 +1,6 @@
 import meta from './living-repository.meta';
 import React from 'react';
+import { AgenticSeriesFooter } from '@/components/AgenticSeriesFooter';
 import Link from 'next/link';
 import { ChevronRight, Cpu } from 'lucide-react';
 
@@ -77,107 +78,7 @@ const Post = () => (
       the era of the Living Repository.
     </p>
 
-    <hr className="my-12 border-slate-200 dark:border-zinc-800" />
-
-    <p>
-      <strong>Read &quot;The Agentic Readiness Shift&quot; series:</strong>
-    </p>
-    <ul className="list-disc pl-6 mb-4 space-y-2 text-sm">
-      <li>
-        <Link
-          href="/blog/the-agentic-wall"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 1: The Agentic Wall (Context Fragmentation)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/beyond-the-sidekick"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 2: Beyond the Sidekick (Rise of the Agentic System)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/the-economic-moat"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 3: The Economic Moat (Quantifying AI ROI)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/the-neural-spine"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 4: The Neural Spine (Event-Driven Orchestration)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/closing-the-loop"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 5: Closing the Loop (Git as a Runtime)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/cognitive-tiering"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 6: Cognitive Tiering (Multi-Headed Brain)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/resilience-fortress"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 7: The Resilience Fortress (Death of the Transient Agent)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/observability-intelligence"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 8: Observability as Intelligence (Self-Critique)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/human-agent-co-management"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 9: Human-Agent Co-Management (New Engineering Culture)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/recursive-safety"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 10: Recursive Safety (VPCs and Guards)
-        </Link>
-      </li>
-      <li>
-        <Link
-          href="/blog/roadmap-to-autonomy"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Part 11: Roadmap to Autonomy ($1/Month Agent)
-        </Link>
-      </li>
-      <li>
-        <strong>
-          Part 12: The Living Repository (Infrastructure Blueprint) ← You are
-          here
-        </strong>
-      </li>
-    </ul>
+    <AgenticSeriesFooter currentPart={12} />
 
     <div className="mt-12 p-8 bg-blue-50 dark:bg-zinc-900 border border-blue-100 dark:border-zinc-800 rounded-3xl group">
       <div className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2 flex items-center gap-2">

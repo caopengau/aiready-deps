@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 8887 --webpack",
-    "build": "next build && node scripts/post-build.js",
+    "blog-audit": "node scripts/audit-blogs.js",
+    "build": "pnpm blog-audit && next build && node scripts/post-build.js",
     "start": "next start",
     "lint": "eslint app components lib content scripts e2e",
     "clean": "rm -rf .next out",
