@@ -272,6 +272,11 @@ function isBrandSpecificComponent(filePath: string): boolean {
 /**
  * Detect if two duplicate files are likely brand-specific variants
  * (e.g., different themed versions of the same UI component)
+ *
+ * @param file1 - Path to the first file
+ * @param file2 - Path to the second file
+ * @param code1 - Content of the first file
+ * @param code2 - Content of the second file
  */
 export function areBrandSpecificVariants(
   file1: string,

@@ -105,6 +105,9 @@ export async function buildDomainVocabulary(
 
 /**
  * Check if a term is a domain-specific term.
+ *
+ * @param term - The word to check
+ * @param domainVocabulary - The set of known domain terms
  */
 export function isDomainTerm(
   term: string,

@@ -4,9 +4,11 @@ import { Severity } from '@aiready/core';
 
 describe('analyzeIssues', () => {
   const baseParams = {
-    file: 'src/test.ts',
+    file: 'test.ts',
     importDepth: 2,
-    contextBudget: 10000,
+    tokenCost: 1000,
+    contextBudget: 5000,
+
     cohesionScore: 0.8,
     fragmentationScore: 0.3,
     maxDepth: 5,

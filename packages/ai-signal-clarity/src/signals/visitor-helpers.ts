@@ -128,3 +128,35 @@ export function isLambdaBooleanParam(
 
   return false;
 }
+
+/**
+ * Detect if a function call is likely a React state setter (e.g., setCopied(true)).
+ * This avoids false positive "boolean traps" for standard React patterns.
+ *
+ * @param node - The CallExpression node
+ * @returns true if the call is likely a React state setter
+ */
+export function isReactStateSetter(node: TSESTree.CallExpression): boolean {
+  if (node.callee.type === 'Identifier') {
+    const name = node.callee.name;
+    // Standard React convention: set[Name]
+    return name.startsWith('set') && name.length > 3 && /^[A-Z]/.test(name[3]);
+  }
+  return false;
+}
+
+/**
+ * Detect if a file is a React component or hook file.
+ *
+ * @param filePath - Path to the file
+ * @returns true if the file is likely a React file
+ */
+export function isReactFile(filePath: string): boolean {
+  const normalizedPath = filePath.toLowerCase();
+  return (
+    normalizedPath.endsWith('.tsx') ||
+    normalizedPath.endsWith('.jsx') ||
+    normalizedPath.includes('/components/') ||
+    normalizedPath.includes('/hooks/')
+  );
+}

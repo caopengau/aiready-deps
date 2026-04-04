@@ -3,20 +3,26 @@ import {
   CreateRoleCommand,
   CreateOpenIDConnectProviderCommand,
   GetOpenIDConnectProviderCommand,
+  UpdateAssumeRolePolicyCommand,
+  PutRolePolicyCommand,
 } from '@aws-sdk/client-iam';
 import {
   STSClient,
   AssumeRoleCommand,
   GetCallerIdentityCommand,
 } from '@aws-sdk/client-sts';
+import { AWS_CONSTANTS } from '@aiready/core';
 
 const stsClient = new STSClient({});
 
 /**
  * Assumes the OrganizationAccountAccessRole in the sub-account and returns temporary credentials.
+ *
+ * @param accountId - The 12-digit AWS account ID to bootstrap
+ * @returns Temporary security credentials for the target account
  */
 export async function assumeSubAccountRole(accountId: string) {
-  const roleArn = `arn:aws:iam::${accountId}:role/OrganizationAccountAccessRole`;
+  const roleArn = `arn:aws:iam::${accountId}:role/${AWS_CONSTANTS.IAM.ROLES.ORG_ACCESS}`;
   const maxRetries = 10;
   const delayMs = 15000; // 15 seconds between retries
 
@@ -24,7 +30,7 @@ export async function assumeSubAccountRole(accountId: string) {
     try {
       const command = new AssumeRoleCommand({
         RoleArn: roleArn,
-        RoleSessionName: 'ClawMoreBootstrapSession',
+        RoleSessionName: AWS_CONSTANTS.IAM.ROLES.ORG_ACCESS + 'Session',
         DurationSeconds: 3600, // 1 hour
       });
 
@@ -61,6 +67,11 @@ export async function assumeSubAccountRole(accountId: string) {
 
 /**
  * Bootstraps a newly created managed account with OIDC trust for GitHub Actions.
+ *
+ * @param accountId - The 12-digit AWS account ID to bootstrap
+ * @param githubOrg - The GitHub organization name (default: 'clawmost')
+ * @param repoName - Optional specific repository name to restrict access
+ * @returns The ARN of the created/updated IAM role
  */
 export async function bootstrapManagedAccount(
   accountId: string,
@@ -69,16 +80,16 @@ export async function bootstrapManagedAccount(
 ) {
   const credentials = await assumeSubAccountRole(accountId);
   const iamClient = new IAMClient({
-    region: process.env.AWS_REGION || 'ap-southeast-2',
+    region: process.env.AWS_REGION || AWS_CONSTANTS.REGIONS.DEFAULT,
     credentials,
   });
 
-  const stsClientMain = new STSClient({});
-  const identity = await stsClientMain.send(new GetCallerIdentityCommand({}));
+  const rootStsClient = new STSClient({});
+  const identity = await rootStsClient.send(new GetCallerIdentityCommand({}));
   const mainAccountId = identity.Account!;
 
   // 1. Create OIDC Provider for GitHub if it doesn't exist
-  const providerArn = `arn:aws:iam::${accountId}:oidc-provider/token.actions.githubusercontent.com`;
+  const providerArn = `arn:aws:iam::${accountId}:oidc-provider/${AWS_CONSTANTS.OIDC.GITHUB_PROVIDER}`;
   try {
     await iamClient.send(
       new GetOpenIDConnectProviderCommand({
@@ -93,12 +104,9 @@ export async function bootstrapManagedAccount(
       try {
         await iamClient.send(
           new CreateOpenIDConnectProviderCommand({
-            Url: 'https://token.actions.githubusercontent.com',
-            ClientIDList: ['sts.amazonaws.com'],
-            ThumbprintList: [
-              '6938fd4d98bab03faadb97b34396831e3780aea1',
-              '1c58a3a8518e8759bf075b76b750d4f2df264fcd',
-            ],
+            Url: AWS_CONSTANTS.OIDC.GITHUB_URL,
+            ClientIDList: [AWS_CONSTANTS.OIDC.AUDIENCE],
+            ThumbprintList: AWS_CONSTANTS.OIDC.THUMBPRINTS,
           })
         );
       } catch (createErr: any) {
@@ -109,27 +117,28 @@ export async function bootstrapManagedAccount(
     }
   }
 
-  const roleName = 'ClawMore-GitHub-Actions-Role';
+  const roleName = AWS_CONSTANTS.IAM.ROLES.GITHUB_ACTIONS;
 
   const sub = repoName
     ? `repo:${githubOrg}/${repoName}:*`
     : `repo:${githubOrg}/*:*`;
 
   const trustPolicy = {
-    Version: '2012-10-17',
+    Version: AWS_CONSTANTS.IAM.POLICIES.VERSION,
     Statement: [
       {
         Effect: 'Allow',
         Principal: {
           Federated: providerArn,
         },
-        Action: 'sts:AssumeRoleWithWebIdentity',
+        Action: AWS_CONSTANTS.IAM.ACTIONS.ASSUME_ROLE_WEB,
         Condition: {
           StringLike: {
-            'token.actions.githubusercontent.com:sub': sub,
+            [`${AWS_CONSTANTS.OIDC.GITHUB_PROVIDER}:sub`]: sub,
           },
           StringEquals: {
-            'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
+            [`${AWS_CONSTANTS.OIDC.GITHUB_PROVIDER}:aud`]:
+              AWS_CONSTANTS.OIDC.AUDIENCE,
           },
         },
       },
@@ -138,7 +147,7 @@ export async function bootstrapManagedAccount(
         Principal: {
           AWS: `arn:aws:iam::${mainAccountId}:root`,
         },
-        Action: 'sts:AssumeRole',
+        Action: AWS_CONSTANTS.IAM.ACTIONS.ASSUME_ROLE,
       },
     ],
   };
@@ -153,8 +162,6 @@ export async function bootstrapManagedAccount(
     );
   } catch (error: any) {
     if (error.name === 'EntityAlreadyExists') {
-      const { UpdateAssumeRolePolicyCommand } =
-        await import('@aws-sdk/client-iam');
       await iamClient.send(
         new UpdateAssumeRolePolicyCommand({
           RoleName: roleName,
@@ -167,7 +174,7 @@ export async function bootstrapManagedAccount(
   }
 
   const deploymentPolicy = {
-    Version: '2012-10-17',
+    Version: AWS_CONSTANTS.IAM.POLICIES.VERSION,
     Statement: [
       {
         Sid: 'LambdaFullAccess',
@@ -252,7 +259,7 @@ export async function bootstrapManagedAccount(
       {
         Sid: 'STSAccess',
         Effect: 'Allow',
-        Action: ['sts:GetCallerIdentity'],
+        Action: [AWS_CONSTANTS.IAM.ACTIONS.GET_CALLER_IDENTITY],
         Resource: '*',
       },
       {
@@ -275,11 +282,10 @@ export async function bootstrapManagedAccount(
     ],
   };
 
-  const { PutRolePolicyCommand } = await import('@aws-sdk/client-iam');
   await iamClient.send(
     new PutRolePolicyCommand({
       RoleName: roleName,
-      PolicyName: 'ClawMore-Serverless-Deploy-Policy',
+      PolicyName: AWS_CONSTANTS.IAM.POLICIES.DEPLOY_NAME,
       PolicyDocument: JSON.stringify(deploymentPolicy),
     })
   );

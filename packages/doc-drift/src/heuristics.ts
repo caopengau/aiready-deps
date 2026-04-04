@@ -37,6 +37,9 @@ export function isUndocumentedComplexity(exp: ExportInfo): boolean {
 
 /**
  * Checks for temporal drift between documentation and code.
+ *
+ * @param bodyModified - Timestamp of last code modification
+ * @param docModified - Timestamp of last documentation modification
  */
 export function hasTemporalDrift(
   bodyModified: number,

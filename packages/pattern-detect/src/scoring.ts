@@ -77,7 +77,8 @@ export function calculatePatternScore(
     0
   );
   const highImpactDuplicates = actionableDuplicates.filter(
-    (d) => d.tokenCost > 1000 || d.similarity > 0.7
+    (d) =>
+      d.severity === 'critical' || d.severity === 'major' || d.tokenCost > 1000
   ).length;
 
   // Avoid division by zero
@@ -143,7 +144,7 @@ export function calculatePatternScore(
     factors.push({
       name: 'High-Impact Patterns',
       impact: -Math.round(highImpactPenalty),
-      description: `${highImpactDuplicates} high-impact duplicates (>1000 tokens or >70% similar)`,
+      description: `${highImpactDuplicates} high-impact duplicates (Critical/Major or >1000 tokens)`,
     });
   } else {
     factors.push({

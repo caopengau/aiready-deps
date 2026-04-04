@@ -31,24 +31,33 @@ export function getTransitiveDependenciesFromEdges(
   file: string,
   edges: Map<string, Set<string>>,
   visited = new Set<string>()
-): string[] {
-  if (visited.has(file)) return [];
+): Map<string, number> {
+  const result = new Map<string, number>();
 
-  const nextVisited = new Set(visited);
-  nextVisited.add(file);
+  function dfs(current: string, depth: number) {
+    if (visited.has(current)) {
+      const existingDepth = result.get(current);
+      if (existingDepth !== undefined && depth < existingDepth) {
+        result.set(current, depth);
+      }
+      return;
+    }
+    visited.add(current);
 
-  const dependencies = edges.get(file);
-  if (!dependencies || dependencies.size === 0) return [];
+    if (current !== file) {
+      result.set(current, depth);
+    }
 
-  const allDeps: string[] = [];
-  for (const dep of dependencies) {
-    allDeps.push(dep);
-    allDeps.push(
-      ...getTransitiveDependenciesFromEdges(dep, edges, nextVisited)
-    );
+    const dependencies = edges.get(current);
+    if (!dependencies) return;
+
+    for (const dep of dependencies) {
+      dfs(dep, depth + 1);
+    }
   }
 
-  return [...new Set(allDeps)];
+  dfs(file, 0);
+  return result;
 }
 
 export function detectGraphCycles(edges: Map<string, Set<string>>): string[][] {

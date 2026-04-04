@@ -51,6 +51,9 @@ export function isMagicString(value: string): boolean {
     return false; // Regions (e.g. us-east-1)
   if (value === '2012-10-17' || value === '2012-10-27') return false; // IAM Policy versions
   if (value.startsWith('OrganizationAccountAccessRole')) return false; // AWS default role
+  if (/^(Allow|Deny|Audit|None)$/i.test(value)) return false; // IAM Effects/Modes
+  if (/^[a-z]+:[a-z0-9*_-]+$/i.test(value)) return false; // AWS Action patterns (e.g. s3:ListBucket)
+  if (/^repo:[^:]+:[^:]+$/.test(value)) return false; // GitHub OIDC sub patterns
 
   if (TAILWIND_PATTERN.test(value) && value.includes('-')) return false;
   if (/^(gpt|claude|gemini|llama|mixtral|anthropic|openai)-/i.test(value))

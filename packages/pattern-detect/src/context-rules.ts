@@ -72,7 +72,7 @@ export function calculateSeverity(
       reason: 'Nearly identical code should be consolidated',
       suggestion: 'Move to shared utility file',
     };
-  } else if (similarity >= 0.85) {
+  } else if (similarity >= 0.85 && linesOfCode >= 10) {
     return {
       severity: Severity.Major,
       reason: 'High similarity indicates significant duplication',

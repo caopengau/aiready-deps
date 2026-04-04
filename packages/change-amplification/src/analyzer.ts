@@ -136,19 +136,24 @@ export async function analyzeChangeAmplification(
   for (const hotspot of riskResult.hotspots) {
     const issues: ChangeAmplificationIssue[] = [];
 
-    // Check if this is a barrel/index file (intentional re-export pattern)
-    const fileName = path.basename(hotspot.file);
-    const isBarrelFile =
+    // Check if this is a barrel/index file or a common utility pattern (intentional re-export or shared use)
+    const fileName = path.basename(hotspot.file).toLowerCase();
+    const isSharedUtility =
       fileName === 'index.ts' ||
       fileName === 'index.js' ||
       fileName === 'index.tsx' ||
       fileName === 'index.jsx' ||
+      fileName.includes('logger') ||
+      fileName.includes('log.ts') ||
+      fileName.includes('constants') ||
+      fileName.includes('types.ts') ||
+      fileName.includes('enums.ts') ||
       fileName.startsWith('all-') ||
       fileName.endsWith('.meta.ts') ||
       fileName.endsWith('.meta.js');
 
-    // Only flag high amplification if it's NOT a barrel file
-    if (hotspot.amplificationFactor > 20 && !isBarrelFile) {
+    // Only flag high amplification if it's NOT a barrel file or shared utility
+    if (hotspot.amplificationFactor > 20 && !isSharedUtility) {
       issues.push({
         type: IssueType.ChangeAmplification,
         severity:
@@ -160,8 +165,8 @@ export async function analyzeChangeAmplification(
     }
 
     // We only push results for files that have either high fan-in or fan-out
-    // Also exclude barrel files from the results
-    if (hotspot.amplificationFactor > 5 && !isBarrelFile) {
+    // Also exclude barrel files and shared utilities from the results
+    if (hotspot.amplificationFactor > 5 && !isSharedUtility) {
       results.push({
         fileName: hotspot.file,
         issues,

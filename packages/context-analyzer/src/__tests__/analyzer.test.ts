@@ -93,9 +93,10 @@ describe('getTransitiveDependencies', () => {
     const graph = await buildDependencyGraph(files);
     const deps = getTransitiveDependencies('c.ts', graph);
 
-    expect(deps).toContain('b.ts');
-    expect(deps).toContain('a.ts');
-    expect(deps.length).toBe(2);
+    const depKeys = Array.from(deps.keys());
+    expect(depKeys).toContain('b.ts');
+    expect(depKeys).toContain('a.ts');
+    expect(deps.size).toBe(2);
   });
 });
 

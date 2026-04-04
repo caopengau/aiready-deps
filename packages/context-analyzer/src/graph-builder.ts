@@ -23,6 +23,35 @@ function resolveImport(
   // If it's not a relative import, we treat it as an external dependency for now
   // (unless it's an absolute path that exists in our set)
   if (!source.startsWith('.') && !source.startsWith('/')) {
+    // Ignore standard libraries and external packages we don't control
+    const externalIgnores = [
+      'react',
+      'next',
+      'lucide-react',
+      'framer-motion',
+      '@aws-sdk',
+      'stripe',
+      'clsx',
+      'tailwind-merge',
+      'zod',
+      'commander',
+      'chalk',
+      'fs',
+      'path',
+      'util',
+      'child_process',
+      'os',
+      'crypto',
+    ];
+
+    if (
+      externalIgnores.some(
+        (pkg) => source === pkg || source.startsWith(`${pkg}/`)
+      )
+    ) {
+      return null;
+    }
+
     // Handle monorepo package imports (@aiready/*)
     if (source.startsWith('@aiready/')) {
       const pkgName = source.split('/')[1];
@@ -236,7 +265,7 @@ export function getTransitiveDependencies(
   file: string,
   graph: DependencyGraph,
   visited = new Set<string>()
-): string[] {
+): Map<string, number> {
   return getTransitiveDependenciesFromEdges(file, graph.edges, visited);
 }
 
@@ -245,7 +274,7 @@ export function getTransitiveDependencies(
  *
  * @param file - File path to calculate budget for.
  * @param graph - The dependency graph.
- * @returns Total token count including recursive dependencies.
+ * @returns Total token count including recursive dependencies (discounted by depth).
  */
 export function calculateContextBudget(
   file: string,
@@ -257,14 +286,17 @@ export function calculateContextBudget(
   let totalTokens = node.tokenCost;
   const deps = getTransitiveDependencies(file, graph);
 
-  for (const dep of deps) {
+  for (const [dep, depth] of deps.entries()) {
     const depNode = graph.nodes.get(dep);
     if (depNode) {
-      totalTokens += depNode.tokenCost;
+      // Discount token cost by depth (20% reduction per level)
+      // This prevents "barrel file" false positives where a facade pulls in the entire project
+      const discountFactor = Math.pow(0.8, depth - 1);
+      totalTokens += depNode.tokenCost * discountFactor;
     }
   }
 
-  return totalTokens;
+  return Math.round(totalTokens);
 }
 
 /**

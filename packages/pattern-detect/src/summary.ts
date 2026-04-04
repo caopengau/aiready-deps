@@ -19,6 +19,10 @@ export interface PatternSummary {
 
 /**
  * Generate refactoring suggestion based on pattern type.
+ *
+ * @param patternType - The detected pattern category (e.g. 'api-handler', 'validator')
+ * @param similarity - Similarity score from 0 to 1
+ * @returns Human-readable refactoring advice
  */
 export function getRefactoringSuggestion(
   patternType: PatternType,
@@ -47,6 +51,9 @@ export function getRefactoringSuggestion(
 
 /**
  * Generate a summary of pattern detection results.
+ *
+ * @param results - Array of raw analysis results from the detector
+ * @returns Structured pattern summary and top duplicates
  */
 export function generateSummary(results: AnalysisResult[]): PatternSummary {
   // Defensive check for results array to prevent crashes
@@ -126,6 +133,10 @@ export function generateSummary(results: AnalysisResult[]): PatternSummary {
 
 /**
  * Filter issues by severity level.
+ *
+ * @param issues - List of detected issues
+ * @param severity - Severity filter: 'all' | 'critical' | 'high' | 'medium'
+ * @returns Filtered list of issues
  */
 export function filterBySeverity(issues: Issue[], severity: string): Issue[] {
   if (severity === 'all') return issues;
@@ -144,6 +155,9 @@ export function filterBySeverity(issues: Issue[], severity: string): Issue[] {
 
 /**
  * Get human-readable label for severity.
+ *
+ * @param severity - The core severity type
+ * @returns String representation: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
  */
 export function getSeverityLabel(severity: Severity): string {
   switch (severity) {
@@ -162,6 +176,9 @@ export function getSeverityLabel(severity: Severity): string {
 
 /**
  * Calculate severity based on similarity.
+ *
+ * @param similarity - Similarity score from 0 to 1
+ * @returns The calculated core severity level
  */
 export function calculateSeverity(similarity: number): Severity {
   if (similarity > 0.95) return Severity.Critical;

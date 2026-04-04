@@ -17,6 +17,7 @@ export { isBuildArtifact };
 export function analyzeIssues(params: {
   file: string;
   importDepth: number;
+  tokenCost: number;
   contextBudget: number;
   cohesionScore: number;
   fragmentationScore: number;
@@ -34,6 +35,7 @@ export function analyzeIssues(params: {
   const {
     file,
     importDepth,
+    tokenCost,
     contextBudget,
     cohesionScore,
     fragmentationScore,
@@ -74,22 +76,32 @@ export function analyzeIssues(params: {
     potentialSavings += contextBudget * 0.15;
   }
 
-  // Check context budget
+  // Check direct file size
+  const MAX_FILE_TOKENS = 10000;
+  if (tokenCost > MAX_FILE_TOKENS) {
+    if (severity !== Severity.Critical) severity = Severity.Major;
+    issues.push(
+      `File is excessively large (${tokenCost.toLocaleString()} tokens)`
+    );
+    recommendations.push(
+      'Split file into smaller, single-responsibility modules'
+    );
+  }
+
+  // Check transitive context budget
   if (contextBudget > maxContextBudget * 1.5) {
     severity = Severity.Critical;
     issues.push(
-      `Context budget ${contextBudget.toLocaleString()} tokens is 50% over limit`
+      `Total context budget ${contextBudget.toLocaleString()} tokens is 50% over limit`
     );
-    recommendations.push(
-      'Split into smaller modules or reduce dependency tree'
-    );
+    recommendations.push('Reduce dependency tree width or reduce deep imports');
     potentialSavings += contextBudget * 0.4;
   } else if (contextBudget > maxContextBudget) {
     if (severity !== Severity.Critical) severity = Severity.Major;
     issues.push(
-      `Context budget ${contextBudget.toLocaleString()} exceeds ${maxContextBudget.toLocaleString()}`
+      `Total context budget ${contextBudget.toLocaleString()} exceeds ${maxContextBudget.toLocaleString()}`
     );
-    recommendations.push('Reduce file size or dependencies');
+    recommendations.push('Optimize dependency graph and reduce deep imports');
     potentialSavings += contextBudget * 0.2;
   }
 

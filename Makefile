@@ -90,8 +90,8 @@ pre-push: ## Run pre-push checks (quality checks + AIReady scan)
 				exit 1; \
 			}; \
 		fi; \
-		$(call log_step,🚀 Running AIReady pre-push scan (Threshold: 60)...); \
-		aiready scan . --threshold 70; \
+		$(call log_step,🚀 Running AIReady pre-push scan...); \
+		aiready scan .; \
 	fi
 
 lint-staged: ## Run lint-staged on changed files

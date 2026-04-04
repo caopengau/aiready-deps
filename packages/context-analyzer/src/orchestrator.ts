@@ -76,6 +76,7 @@ function mapNodeToResult(
     {
       file,
       importDepth,
+      tokenCost,
       contextBudget,
       cohesionScore,
       fragmentationScore,
@@ -102,8 +103,8 @@ function mapNodeToResult(
     tokenCost,
     linesOfCode: node.linesOfCode,
     importDepth,
-    dependencyCount: transitiveDeps.length,
-    dependencyList: transitiveDeps,
+    dependencyCount: transitiveDeps.size,
+    dependencyList: Array.from(transitiveDeps.keys()),
     circularDeps,
     cohesionScore,
     domains: Array.from(
@@ -197,6 +198,7 @@ export async function analyzeContext(
         analyzeIssues({
           file: metric.file,
           importDepth: metric.importDepth,
+          tokenCost: metric.contextBudget, // For Python, we use the reported budget as self-cost for now
           contextBudget: metric.contextBudget,
           cohesionScore: metric.cohesion,
           fragmentationScore: 0,

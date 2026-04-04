@@ -150,6 +150,9 @@ export async function createPlatformSubscriptionSession(
 
 /**
  * Reports usage for a metered subscription item (e.g., the Evolution Tax).
+ *
+ * @param subscriptionItemId - Stripe subscription item ID to report usage against
+ * @param quantity - Number of units to report (default: 1)
  */
 export async function reportMeteredUsage(
   subscriptionItemId: string,

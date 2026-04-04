@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
 import {
   createRepository,
   listUserRepositories,
@@ -12,37 +11,12 @@ import {
 import { planLimits } from '@/lib/plans';
 import { randomUUID } from 'crypto';
 
-import { validateApiKey } from '@/lib/db';
-import { withApiHandler } from '@/lib/api/handler';
-
+import { withAuthHandler } from '@/lib/api/handler';
 import { getGitHubRepoInfo, MAX_REPO_SIZE_KB } from '@/lib/github';
 
 // GET /api/repos - List repositories
 export async function GET(request: NextRequest) {
-  return withApiHandler(async (req) => {
-    let userId: string | undefined;
-
-    // 1. Check for API key (Authorization: Bearer <key>)
-    const authHeader = req.headers.get('Authorization');
-    if (authHeader?.startsWith('Bearer ')) {
-      const apiKey = authHeader.substring(7);
-      const validation = await validateApiKey(apiKey);
-      if (validation) {
-        userId = validation.userId;
-      }
-    }
-
-    // 2. Fallback to session
-    if (!userId) {
-      const session = await auth();
-      userId = session?.user?.id;
-    }
-
-    if (!userId) return { status: 401, error: 'Unauthorized' };
-
-    const { searchParams } = new URL(req.url);
-    const teamId = searchParams.get('teamId');
-
+  return withAuthHandler(async (req, { userId, teamId }) => {
     const repos = teamId
       ? await listTeamRepositories(teamId)
       : await listUserRepositories(userId);
@@ -69,10 +43,7 @@ export async function GET(request: NextRequest) {
 
 // POST /api/repos - Create a new repository
 export async function POST(request: NextRequest) {
-  return withApiHandler(async (req) => {
-    const session = await auth();
-    if (!session?.user?.id) return { status: 401, error: 'Unauthorized' };
-
+  return withAuthHandler(async (req, { userId, session }) => {
     const body = await req.json();
     const { name, url, description, teamId } = body;
 
@@ -111,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     let existingRepos;
     if (teamId) existingRepos = await listTeamRepositories(teamId);
-    else existingRepos = await listUserRepositories(session.user.id);
+    else existingRepos = await listUserRepositories(userId);
 
     const maxRepos = planLimits.free.maxRepos;
     if (existingRepos.length >= maxRepos) {
@@ -127,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     const repo = await createRepository({
       id: randomUUID(),
-      userId: session.user.id,
+      userId: userId,
       teamId,
       name,
       url,
@@ -149,18 +120,14 @@ export async function POST(request: NextRequest) {
 
 // DELETE /api/repos?id=<repoId> - Delete a repository
 export async function DELETE(request: NextRequest) {
-  return withApiHandler(async (req) => {
-    const session = await auth();
-    if (!session?.user?.id) return { status: 401, error: 'Unauthorized' };
-
+  return withAuthHandler(async (req, { userId }) => {
     const { searchParams } = new URL(req.url);
     const repoId = searchParams.get('id');
     if (!repoId) return { status: 400, error: 'Repository ID is required' };
 
     const repo = await getRepository(repoId);
     if (!repo) return { status: 404, error: 'Repository not found' };
-    if (repo.userId !== session.user.id)
-      return { status: 403, error: 'Forbidden' };
+    if (repo.userId !== userId) return { status: 403, error: 'Forbidden' };
 
     await deleteRepository(repoId);
     revalidatePath('/dashboard');
