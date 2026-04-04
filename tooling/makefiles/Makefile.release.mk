@@ -71,22 +71,6 @@ tag-spoke-%:
 	$(call log_step,Tagging @aiready/$* v$$version...); \
 	cd $(ROOT_DIR) && git tag -f -a "$*-v$$version" -m "Release @aiready/$* v$$version" || true
 
-# Internal parallel helper for release-all
-.PHONY: release-spoke-%
-release-spoke-%:
-	@$(call log_info,Releasing spoke @aiready/$*...); \
-	$(MAKE) npm-publish SPOKE=$* || exit 1; \
-	$(MAKE) publish SPOKE=$* PUBLIC_OWNER=$(PUBLIC_OWNER) || exit 1; \
-	$(call log_success,Released @aiready/$*)
-
-# Internal parallel helper for versioning
-.PHONY: version-spoke-%
-version-spoke-%:
-	@$(MAKE) version-$(TYPE) SPOKE=$*
-
-# Internal parallel helper for tagging
-.PHONY: tag-spoke-%
-tag-spoke-%:
 release-checks-spoke: ## Shared checks for release-one (SPOKE required)
 	$(call require_spoke)
 	@$(call turbo_run,build test:contract test,@aiready/$(SPOKE),Running checks for @aiready/$(SPOKE))
@@ -104,7 +88,7 @@ release-checks-spoke: ## Shared checks for release-one (SPOKE required)
 	fi
 
 release-checks-all-spokes: ## Shared checks for release-all
-	@$(call turbo_run,build test test:contract test:integration,,Running unified release checks...)
+	@$(call turbo_run,build test test:contract test:integration,./packages/*,Running unified release checks...)
 	@if [ "$(RELEASE_ALL_PLATFORM_E2E)" = "1" ] || [ "$(RELEASE_ALL_DOWNSTREAM)" = "1" ]; then \
 		$(MAKE) $(MAKE_PARALLEL) \
 			$(if $(filter 1,$(RELEASE_ALL_PLATFORM_E2E)),test-platform-e2e-local) \

@@ -71,7 +71,7 @@ test-visualizer: ## Build and test the visualizer
 	@$(call turbo_run,typecheck build test,@aiready/visualizer,Verifying visualizer)
 
 test-vscode-extension: ## Compile the VS Code extension to ensure no breaking changes
-	@$(call turbo_run,typecheck build test,@aiready/vscode-extension,Verifying VS Code extension)
+	@$(call turbo_run,typecheck build test,aiready,Verifying VS Code extension)
 
 test-downstream: ## Run all downstream verification tests (platform, visualizer, vscode-extension)
 	@$(call log_step,Running DOWNSTREAM verification...)
