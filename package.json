@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "lint": "eslint src --ext .ts",
     "type-check": "tsc --noEmit",
-    "format-check": "prettier --check . --ignore-path ../../.prettierignore"
+    "format-check": "prettier --check . --ignore-path ../../.prettierignore",
+    "format": "prettier --write . --ignore-path ../../.prettierignore",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@aiready/core": "workspace:*",
