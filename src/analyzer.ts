@@ -3,6 +3,22 @@ import type { DepsOptions, DepsReport, DepsIssue } from './types';
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
+// --- Constants for AI Signal Clarity ---
+const PACKAGEMANAGER_NPM = 'npm';
+const PACKAGEMANAGER_PYTHON = 'python';
+const PACKAGEMANAGER_MAVEN = 'maven';
+const PACKAGEMANAGER_GO = 'go';
+const PACKAGEMANAGER_DOTNET = 'dotnet';
+
+const EXCLUDE_DIRS = ['node_modules', '.git', 'venv', '.aiready'];
+const MANIFEST_FILES = {
+  NPM: 'package.json',
+  PYTHON: ['requirements.txt', 'Pipfile', 'pyproject.toml'],
+  MAVEN: 'pom.xml',
+  GO: 'go.mod',
+  DOTNET_SUFFIX: '.csproj',
+};
+
 export async function analyzeDeps(options: DepsOptions): Promise<DepsReport> {
   const rootDir = options.rootDir;
   const issues: DepsIssue[] = [];
@@ -22,15 +38,15 @@ export async function analyzeDeps(options: DepsOptions): Promise<DepsReport> {
     const type = manifest.type;
 
     let deps: string[] = [];
-    if (type === 'npm') {
+    if (type === PACKAGEMANAGER_NPM) {
       deps = analyzeNpm(manifest.path, content);
-    } else if (type === 'python') {
+    } else if (type === PACKAGEMANAGER_PYTHON) {
       deps = analyzePython(manifest.path, content);
-    } else if (type === 'maven') {
+    } else if (type === PACKAGEMANAGER_MAVEN) {
       deps = analyzeMaven(manifest.path, content);
-    } else if (type === 'go') {
+    } else if (type === PACKAGEMANAGER_GO) {
       deps = analyzeGo(manifest.path, content);
-    } else if (type === 'dotnet') {
+    } else if (type === PACKAGEMANAGER_DOTNET) {
       deps = analyzeDotnet(manifest.path, content);
     }
 
@@ -77,7 +93,12 @@ export async function analyzeDeps(options: DepsOptions): Promise<DepsReport> {
 
 interface ManifestInfo {
   path: string;
-  type: 'npm' | 'python' | 'maven' | 'go' | 'dotnet';
+  type:
+    | typeof PACKAGEMANAGER_NPM
+    | typeof PACKAGEMANAGER_PYTHON
+    | typeof PACKAGEMANAGER_MAVEN
+    | typeof PACKAGEMANAGER_GO
+    | typeof PACKAGEMANAGER_DOTNET;
 }
 
 function findManifests(dir: string, exclude: string[]): ManifestInfo[] {
@@ -103,24 +124,20 @@ function findManifests(dir: string, exclude: string[]): ManifestInfo[] {
       }
 
       if (stat.isDirectory()) {
-        if (file !== 'node_modules' && file !== '.git' && file !== 'venv') {
+        if (!EXCLUDE_DIRS.includes(file)) {
           walk(fullPath);
         }
       } else {
-        if (file === 'package.json')
-          results.push({ path: fullPath, type: 'npm' });
-        else if (
-          file === 'requirements.txt' ||
-          file === 'Pipfile' ||
-          file === 'pyproject.toml'
-        )
-          results.push({ path: fullPath, type: 'python' });
-        else if (file === 'pom.xml')
-          results.push({ path: fullPath, type: 'maven' });
-        else if (file === 'go.mod')
-          results.push({ path: fullPath, type: 'go' });
-        else if (file.endsWith('.csproj'))
-          results.push({ path: fullPath, type: 'dotnet' });
+        if (file === MANIFEST_FILES.NPM)
+          results.push({ path: fullPath, type: PACKAGEMANAGER_NPM });
+        else if (MANIFEST_FILES.PYTHON.includes(file))
+          results.push({ path: fullPath, type: PACKAGEMANAGER_PYTHON });
+        else if (file === MANIFEST_FILES.MAVEN)
+          results.push({ path: fullPath, type: PACKAGEMANAGER_MAVEN });
+        else if (file === MANIFEST_FILES.GO)
+          results.push({ path: fullPath, type: PACKAGEMANAGER_GO });
+        else if (file.endsWith(MANIFEST_FILES.DOTNET_SUFFIX))
+          results.push({ path: fullPath, type: PACKAGEMANAGER_DOTNET });
       }
     }
   }
