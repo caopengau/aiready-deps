@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { analyzeDeps } from './analyzer';
-import { executeSpokeCli } from '@aiready/core';
+import { dispatchSpokeCli } from '@aiready/core';
 import pc from 'picocolors';
 
 export function createCommand() {
@@ -12,7 +12,7 @@ export function createCommand() {
       '2023'
     )
     .action(async (options) => {
-      await executeSpokeCli(
+      await dispatchSpokeCli(
         'Dependency Health',
         'dependency health',
         {
